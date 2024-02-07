@@ -18,5 +18,5 @@ All items have some kind of value, but some have particular uses.
 ## Inventory System
 You can hold a limited number of items. If your inventory has too many items in it, you won't be able to stash items from your hands into your inventory. **Your hands are *not* an inventory slot,** and should not be treated as such; items in your hands are not in your inventory, and un-stashing an item to put it in your hands removes it from your inventory.
 # Combat
-*Screenshot created using [Isocon](https://github.com/delzhand/isocon)*
+*Screenshot created using [Isocon](https://github.com/delzhand/isocon) with assets from [Risk of Rain Returns](https://riskofrainreturns.wiki.gg/wiki/Risk_of_Rain_Returns_Wiki)*
 ![[isocon-screenshot.png]]
