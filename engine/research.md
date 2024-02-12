@@ -37,7 +37,7 @@ Since Unit Testing and Version Control are especially important Godot is not a g
 The issues with PyGame can be easily worked around, as this is a relatively simple game.  
 The ability to have Unit Testing and simple Version Control makes PyGame a better choice in this case.  
   
-A sample PyGame app can be found in [pygame.py](pygame.py)
+A sample PyGame app can be found in [pygame_ex.py](pygame_ex.py)
 
 ## Links
 
