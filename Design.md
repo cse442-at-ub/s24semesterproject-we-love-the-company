@@ -5,6 +5,7 @@ The game will be very loosely **turn-based.** When the player does an action (li
 1. Player action
 2. Enemy actions
 3. Environment actions
+
 There will more than likely be multiple different enemies and environmental factors causing changes during each Step. To break ties in this order, enemies and environmental factors will be given internal IDs that can be used to track them and determine which one goes first.
 ## Player Actions
 Each of these actions incur a Step. Things that involve a menu (e.g. opening and inspecting items in the inventory) *usually* do not incur a Step.
@@ -27,7 +28,7 @@ All items have some kind of value, but some have particular uses.
 ## Inventory System
 You can hold a limited number of items. If your inventory has too many items in it, you won't be able to stash items from your hands into your inventory. **Your hands are *not* an inventory slot, and should not be treated as such.** Items in your hands are not in your inventory, and un-stashing an item to put it in your hands removes it from your inventory.
 # Combat
-![[isocon-screenshot.png]]
+![An isometric screenshot of a character facing 3 enemies.](https://github.com/cse442-at-ub/s24semesterproject-we-love-the-company/blob/design/isocon-screenshot.png?raw=true)
 *Screenshot created using [Isocon](https://github.com/delzhand/isocon) with assets from [Risk of Rain Returns](https://riskofrainreturns.wiki.gg/wiki/Risk_of_Rain_Returns_Wiki). The game does not need to look like this.*
 ****
 The combat ability of any character (player or NPC) is determined solely by their **Combat Die**. The Combat Die can be a d4, d6, d8, d10, d12, or d20. The player starts the game with a d4, and most enemies start higher.
