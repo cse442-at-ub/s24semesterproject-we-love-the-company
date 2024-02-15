@@ -22,7 +22,6 @@ class Gamestate:
         self.screenSize = screenSize
         self.screen = pygame.display.set_mode(screenSize)
         self.setScene(initScene)
-        self.timer = 0
         
         self.clock = pygame.time.Clock()
         self.running = True
@@ -32,7 +31,6 @@ class Gamestate:
         scene.initHandlers(self)
 
     def update(self, deltaT):
-        self.timer += deltaT
         self.handlers[self.scene.id].onUpdate(self, deltaT)
 
     def render(self):
