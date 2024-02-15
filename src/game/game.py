@@ -27,11 +27,8 @@ def gameloop(gamestate: Gamestate):
             gamestate.pressMouse(event.pos, event.button, event.touch)
 
 def main():
-    
     state = Gamestate((1280, 720), SplashScene())
     pygame.display.set_caption("We Love The Company.")
-
-    splash.init(state)
 
     while state.running:
         gameloop(state)

@@ -11,8 +11,8 @@ class SplashScene:
     def __init__(self):
         self.id = ID
 
-def init(state: gamestate.Gamestate):
-    state.handlers[ID] = gamestate.Handler(render, update)
+    def initHandlers(self, state: gamestate.Gamestate):
+        state.handlers[ID] = gamestate.Handler(render, update)
 
 def render(state: gamestate.Gamestate):
     # grow a rect (sprite) over some time period
