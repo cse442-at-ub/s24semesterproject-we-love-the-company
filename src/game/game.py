@@ -1,49 +1,54 @@
 import pygame
-import menu 
 
+from gamestate import Gamestate
 
-def handleMouseMove(pos, rel, buttons, touch):
-    pass
+from splash import SplashScene
 
-def handleMousePress(pos, button, touch):
-    pass
-
-def gameloop(screen):
+def gameloop(gamestate: Gamestate):
     
-    screen.fill((10, 13, 15))
+    # clear
+    gamestate.screen.fill((10, 13, 15))
 
-    # Put rendering code here
+    # render scene
+    gamestate.render()
 
+    # show to screen
     pygame.display.flip()
 
+    # get delta time (in seconds)
+    dt = min(gamestate.clock.tick(60) / 1000, 0.1)
+
+    # update scene state
+    gamestate.update(dt)
+
+    # handle events
     for event in pygame.event.get():
         if (event.type == pygame.QUIT):
-            return False
+            gamestate.running = False
+            return
+        elif (event.type == pygame.KEYDOWN):
+            gamestate.pressKey(event.key, event.mod, event.unicode, event.scancode)
         elif (event.type == pygame.MOUSEMOTION):
-            handleMouseMove(event.pos, event.rel, event.buttons, event.touch)
+            gamestate.moveMouse(event.pos, event.rel, event.buttons, event.touch)
         elif (event.type == pygame.MOUSEBUTTONDOWN):
-            handleMousePress(event.pos, event.button, event.touch)
-
-    return True
+            gamestate.pressMouse(event.pos, event.button, event.touch)
 
 def main():
-    
-    screen = pygame.display.set_mode((1280, 720))
+    # initialize the game to the splash screen
+    state = Gamestate((1280, 720), SplashScene())
+
+    # set the window title
     pygame.display.set_caption("We Love The Company.")
 
-    while gameloop(screen):
-        menu.mainMenu()
-        pass
+    # main loop
+    while state.running:
+        gameloop(state)
 
-
+# entry
 if __name__ == "__main__":
     pygame.init()
     
+    # entry function
     main()
-    
-    
-
-
 
     pygame.quit()
-
