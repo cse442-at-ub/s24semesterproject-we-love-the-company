@@ -1,4 +1,5 @@
 import pygame
+import menu 
 
 
 def handleMouseMove(pos, rel, buttons, touch):
@@ -31,13 +32,18 @@ def main():
     pygame.display.set_caption("We Love The Company.")
 
     while gameloop(screen):
+        menu.mainMenu()
         pass
 
 
 if __name__ == "__main__":
     pygame.init()
-
+    
     main()
+    
+    
+
+
 
     pygame.quit()
 
