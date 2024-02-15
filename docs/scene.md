@@ -16,7 +16,7 @@ Handlers determine what happens when the game is rendered, updated, or when the 
   
 `onMouseMove` takes the `Gamestate`, the mouse position, buttons, and touch. It is called whenever the mouse is moved.  
   
-`onMousePress` takes the `Gamestate`, the mouse position, buttons, and touch. It is caled whenever the mouse is moved.  
+`onMousePress` takes the `Gamestate`, the mouse position, buttons, and touch. It is caled whenever the mouse is pressed.  
   
 `doNothing` can be set as any of these if the behavior is no behavior.
 
