@@ -1,37 +1,40 @@
 import pygame
 
+from gamestate import Gamestate
 
-def handleMouseMove(pos, rel, buttons, touch):
-    pass
+from splash import SplashScene
 
-def handleMousePress(pos, button, touch):
-    pass
-
-def gameloop(screen):
+def gameloop(gamestate: Gamestate):
     
-    screen.fill((10, 13, 15))
+    gamestate.screen.fill((10, 13, 15))
 
-    # Put rendering code here
+    gamestate.render()
 
     pygame.display.flip()
 
+    dt = min(gamestate.clock.tick(60) / 1000, 0.1)
+    gamestate.update(dt)
+
     for event in pygame.event.get():
         if (event.type == pygame.QUIT):
-            return False
+            gamestate.running = False
+            return
+        elif (event.type == pygame.KEYDOWN):
+            gamestate.pressKey(event.key, event.mod, event.unicode, event.scancode)
         elif (event.type == pygame.MOUSEMOTION):
-            handleMouseMove(event.pos, event.rel, event.buttons, event.touch)
+            gamestate.moveMouse(event.pos, event.rel, event.buttons, event.touch)
         elif (event.type == pygame.MOUSEBUTTONDOWN):
-            handleMousePress(event.pos, event.button, event.touch)
-
-    return True
+            gamestate.pressMouse(event.pos, event.button, event.touch)
 
 def main():
     
-    screen = pygame.display.set_mode((1280, 720))
+    state = Gamestate((1280, 720), SplashScene())
     pygame.display.set_caption("We Love The Company.")
 
-    while gameloop(screen):
-        pass
+    splash.init(state)
+
+    while state.running:
+        gameloop(state)
 
 
 if __name__ == "__main__":
