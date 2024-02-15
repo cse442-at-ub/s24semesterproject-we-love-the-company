@@ -41,11 +41,11 @@ class Gamestate:
     def render(self):
         self.handlers[self.scene.id].onRender(self)
 
+    def pressKey(self, key, mod, unicode, scancode):
+        self.handlers[self.scene.id].onKeyPress(self, key, mod, unicode, scancode)
+
     def moveMouse(self, pos, rel, buttons, touch):
         self.handlers[self.scene.id].onMouseMove(self, pos, rel, buttons, touch)
 
     def pressMouse(self, pos, buttons, touch):
-        self.handlers[self.scene.id].onMouseMove(self, pos, buttons, touch)
-
-    def pressKey(self, key, mod, unicode, scancode):
-        self.handlers[self.scene.id].onKeyPress(self, key, mod, unicode, scancode)
+        self.handlers[self.scene.id].onMousePress(self, pos, buttons, touch)
