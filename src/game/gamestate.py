@@ -1,6 +1,7 @@
 import pygame
 
 
+# function for nothing
 def doNothing(*args):
     pass
 
@@ -26,9 +27,13 @@ class Gamestate:
         self.clock = pygame.time.Clock()
         self.running = True
     
+    # changes the current scene (and ensures the handlers exist)
     def setScene(self, scene):
         self.scene = scene
         scene.initHandlers(self)
+
+
+    ### Dispatch to handlers ###
 
     def update(self, deltaT):
         self.handlers[self.scene.id].onUpdate(self, deltaT)

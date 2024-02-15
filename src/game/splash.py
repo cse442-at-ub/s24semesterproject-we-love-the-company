@@ -7,6 +7,7 @@ ID = "splash"
 
 SPLASH_TIME = 2
 
+# scene's state
 class SplashScene:
     def __init__(self):
         self.id = ID
@@ -31,6 +32,6 @@ def update(state: gamestate.Gamestate, deltaT):
 
     if (state.scene.timer > SPLASH_TIME):
         # @TODO uncomment once main menu exists
-        #state.scene = "main_menu"
-        state.timer = 0
+        #state.setScene(mainMenuScene())
+        state.scene.timer = 0
 

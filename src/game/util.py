@@ -1,6 +1,7 @@
 import pygame
 
 # pygame doesn't do this by default
+# linear intopolation that clamps the weight
 def lerp(a: float, b: float, w: float):
     if (w <= 0.0):
         return a
