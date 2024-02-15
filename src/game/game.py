@@ -1,4 +1,5 @@
 import pygame
+import menu 
 
 from gamestate import Gamestate
 
@@ -33,11 +34,9 @@ def main():
     while state.running:
         gameloop(state)
 
-
 if __name__ == "__main__":
     pygame.init()
-
+    
     main()
 
     pygame.quit()
-
