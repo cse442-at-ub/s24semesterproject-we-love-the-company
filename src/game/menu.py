@@ -2,6 +2,7 @@ import pygame
 import os
 from OptionsMenu import Settings
 from Buttons import Button
+from HowToPlay import Instructions
 #This initialization thing I think we did it in the game.py so I think we can use that and not
 #use this makes it game.py pointless kinda. tbh im getting used to pygame so idk for sure tho.
 
@@ -37,6 +38,9 @@ def mainMenu():
     #intializing the options object so I can call it later (designated by : here)
     Options = Settings(window, clock, path, textFont)
 
+    #initialize How To Play screen here
+    HowToPlay = Instructions(window, clock, path, textFont)
+
     while run:
         clock.tick(27)  # Control framerates
         window.fill((0, 0, 0))
@@ -53,6 +57,7 @@ def mainMenu():
         exit_button_y = window.get_height() // 2 + 150
         #putting the settings button in the middle of the play and exit buttons
         settings_button_y = window.get_height() // 2 + 50
+        instruct_button_y = window.get_height() - 50
 
         PlayButton = Button(image=pygame.image.load(path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
                             text_input="Play", font=textFont, base_color="white", hovering_color="blue")
@@ -64,7 +69,10 @@ def mainMenu():
         SettingsButton = Button(image=pygame.image.load(path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
                                 text_input="Settings", font=textFont, base_color="white", hovering_color="blue")
 
-        for button in [PlayButton, ExitButton, SettingsButton]:
+        InstructionsButton = Button(image=pygame.image.load(path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
+                                text_input="How To Play", font=textFont, base_color="white", hovering_color="blue")
+
+        for button in [PlayButton, ExitButton, SettingsButton, InstructionsButton]:
             button.changeColor(menuMousePOS)
             button.update(window)
 
@@ -82,8 +90,9 @@ def mainMenu():
                     #calling the settings page func from the settings class (in @OptionsMenu)
                     #here
                     Options.display_settings_menu()
-                    
-                
+                elif InstructionsButton.checkForInput(menuMousePOS):
+                    print("How To Play button clicked")
+                    HowToPlay.display_instructions_menu()
 
         pygame.display.update()
 
