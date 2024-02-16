@@ -48,7 +48,10 @@ def mainMenu():
         background_image = pygame.image.load(path + 'background.jpg')
         background_image = pygame.transform.scale(background_image, window_size)
         window.blit(background_image, (0, 0))
-
+        
+        logo_image = pygame.image.load(path + 'logo3.png')
+        logo_image = pygame.transform.scale(logo_image, window_size)
+        window.blit(logo_image, (0, -200))
         menuMousePOS = pygame.mouse.get_pos()
 
         screen_center_x = window.get_width() // 2
