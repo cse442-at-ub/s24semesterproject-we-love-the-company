@@ -38,8 +38,11 @@ def mainMenu():
     Options = Settings(window, clock, path, textFont)
 
     while run:
+        # WHY 27 FPS??? ? ??? ????????
         clock.tick(27)  # Control framerates
         window.fill((0, 0, 0))
+
+        # the slowest thing you could possibly do
         background_image = pygame.image.load(path + 'background.jpg')
         background_image = pygame.transform.scale(background_image, window_size)
         window.blit(background_image, (0, 0))
@@ -54,6 +57,7 @@ def mainMenu():
         #putting the settings button in the middle of the play and exit buttons
         settings_button_y = window.get_height() // 2 + 50
 
+        # the slowest thing you could possibly do pt2
         PlayButton = Button(image=pygame.image.load(path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
                             text_input="Play", font=textFont, base_color="white", hovering_color="blue")
 

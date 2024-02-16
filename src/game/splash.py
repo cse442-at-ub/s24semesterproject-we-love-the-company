@@ -27,10 +27,18 @@ def render(state: gamestate.Gamestate):
     # draw it
     pygame.draw.rect(state.screen, (200, 10, 10), pygame.Rect(xy[0], xy[1], wh[0], wh[1]))
 
+import menu
+
 def update(state: gamestate.Gamestate, deltaT):
     state.scene.timer += deltaT
 
     if (state.scene.timer > SPLASH_TIME):
+        # mainMenu has an infinite loop yay!
+        menu.mainMenu()
+        # we have to exit early or we crash instead
+        # quitting is more graceful than crashing
+        pygame.quit()
+        quit() 
         # @TODO uncomment once main menu exists
         #state.setScene(mainMenuScene())
         state.scene.timer = 0
