@@ -1,0 +1,8 @@
+How To Play: Company
+
+This is sample text that will be properly replaced by instructions for how to play once gameplay systems have been developed.
+
+Controls:
+- WASD/Arrow Keys: Movement
+- Mouse click: Interaction
+- Tab: Open Inventory

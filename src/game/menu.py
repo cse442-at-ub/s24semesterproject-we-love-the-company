@@ -23,6 +23,7 @@ window = pygame.display.set_mode((1024, 720))
 newVolume = 0.5
 clock = pygame.time.Clock()
 textFont = pygame.font.SysFont("Arial", 40)
+paragraphFont = pygame.font.SysFont("Arial", 30)
 game_won = 0
 
 
@@ -39,7 +40,7 @@ def mainMenu():
     Options = Settings(window, clock, path, textFont)
 
     #initialize How To Play screen here
-    HowToPlay = Instructions(window, clock, path, textFont)
+    HowToPlay = Instructions(window, clock, path, textFont, paragraphFont)
 
     while run:
         clock.tick(27)  # Control framerates
