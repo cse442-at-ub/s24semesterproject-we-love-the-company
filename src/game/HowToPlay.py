@@ -47,7 +47,7 @@ class InstructionsScene:
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     state.scene.BackButton.changeColor(pos)
 
-def mousePress(state: Gamestate, pos, buttons, touch):
+def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.BackButton.checkForInput(pos)):
         state.popScene()
 

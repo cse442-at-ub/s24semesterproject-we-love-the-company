@@ -35,7 +35,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for button in state.scene.buttons:
         button.changeColor(pos)
 
-def mousePress(state: Gamestate, pos, buttons, touch):
+def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.BackButton.checkForInput(pos)):
         state.popScene()
     elif (state.scene.AudioButton.checkForInput(pos)):

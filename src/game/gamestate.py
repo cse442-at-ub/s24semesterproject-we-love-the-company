@@ -54,5 +54,5 @@ class Gamestate:
     def moveMouse(self, pos, rel, buttons, touch):
         self.handlers[self.scene.id].onMouseMove(self, pos, rel, buttons, touch)
 
-    def pressMouse(self, pos, buttons, touch):
-        self.handlers[self.scene.id].onMousePress(self, pos, buttons, touch)
+    def pressMouse(self, pos, button, touch):
+        self.handlers[self.scene.id].onMousePress(self, pos, button, touch)

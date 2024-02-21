@@ -48,7 +48,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
 
-def mousePress(state: Gamestate, pos, buttons, touch):
+def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
         print("Play button clicked")
     elif (state.scene.ExitButton.checkForInput(pos)):
