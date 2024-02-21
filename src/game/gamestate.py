@@ -22,15 +22,22 @@ class Gamestate:
     def __init__(self, screenSize, initScene):
         self.screenSize = screenSize
         self.screen = pygame.display.set_mode(screenSize)
-        self.setScene(initScene)
+        self._scenes = [initScene]
+        initScene.initHandlers(self)
         
         self.clock = pygame.time.Clock()
         self.running = True
     
-    # changes the current scene (and ensures the handlers exist)
-    def setScene(self, scene):
-        self.scene = scene
+    @property
+    def scene(self):
+        return self._scenes[-1]
+
+    def pushScene(self, scene):
+        self._scenes.append(scene)
         scene.initHandlers(self)
+
+    def popScene(self):
+        self._scenes.pop()
 
 
     ### Dispatch to handlers ###
@@ -47,5 +54,5 @@ class Gamestate:
     def moveMouse(self, pos, rel, buttons, touch):
         self.handlers[self.scene.id].onMouseMove(self, pos, rel, buttons, touch)
 
-    def pressMouse(self, pos, buttons, touch):
-        self.handlers[self.scene.id].onMousePress(self, pos, buttons, touch)
+    def pressMouse(self, pos, button, touch):
+        self.handlers[self.scene.id].onMousePress(self, pos, button, touch)
