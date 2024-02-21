@@ -33,6 +33,6 @@ def update(state: gamestate.Gamestate, deltaT):
     state.scene.timer += deltaT
 
     if (state.scene.timer > SPLASH_TIME):
-        state.setScene(MenuScene(state.screen))
+        state.pushScene(MenuScene(state.screen))
         state.scene.timer = 0
 
