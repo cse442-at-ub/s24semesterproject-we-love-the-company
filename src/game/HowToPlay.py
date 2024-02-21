@@ -2,6 +2,8 @@ import pygame
 import os
 from Buttons import Button
 
+from gamestate import *
+
 # taken from: https://stackoverflow.com/questions/42014195/rendering-text-with-multiple-lines-in-pygame
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
     words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
@@ -20,55 +22,42 @@ def blit_text(surface, text, pos, font, color=pygame.Color('black')):
         x = pos[0]  # Reset the x.
         y += word_height  # Start on new row.
 
-class Instructions:
-    def __init__(self, window, clock, path, textFont, paragraphFont):
-        self.window = window
-        self.clock = clock
-        self.path = path
-        self.textFont = textFont
-        self.paragraphFont = paragraphFont
+ID = "how_to_play"
 
-    #For this i followed what we had in menu.py 
-    #using the button class complete and following the whole layout like the menu.py
-    #for now the audio and video buttons dont do anything
-    #and the back(exit button takes back to the menu page)
-    def display_instructions_menu(self):
-        pygame.display.set_caption("We love the Company | How to Play")
-        run = True
-        instructions_window = pygame.display.set_mode((1024, 720))
-        instructions_file = open("how-to-play-text.txt")
-        instructions_text = instructions_file.read()
-        instructions_file.close()
-        while run: 
-            #this is kinda copied from the menu.py (i assume it just makes the screen)
-            window_size = instructions_window.get_size()
-            self.clock.tick(27)  # Control framerates
-            instructions_window.fill((0, 0, 0))
-            background_image = pygame.image.load(os.path.join(self.path + 'background.jpg'))
-            background_image = pygame.transform.scale(background_image, window_size)
-            instructions_window.blit(background_image, (0, 0))
+class InstructionsScene:
+    def __init__(self, screen):
+        self.id = ID
+        self.path = os.path.dirname(__file__) + "/"
 
-            menuMousePOS = pygame.mouse.get_pos()
+        self.textFont = pygame.font.SysFont("Arial", 40)
+        self.paragraphFont = pygame.font.SysFont("Arial", 30)
 
-            screen_center_x = instructions_window.get_width() // 2
-            back_button_y = instructions_window.get_height() - 50
+        with open(self.path + "how-to-play-text.txt") as instructions_file:
+            self.instructions_text = instructions_file.read()
 
-            blit_text(instructions_window,instructions_text,(0,0),self.paragraphFont)
+        screen_center_x = screen.get_width() // 2
+        back_button_y = screen.get_height() - 50
 
-            BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                            text_input="Back", font=self.textFont, base_color="white", hovering_color="blue")
+        self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
+                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue")
 
-            for button in [BackButton]:
-                button.changeColor(menuMousePOS)
-                button.update(instructions_window)
+    def initHandlers(self, state: Gamestate):
+        state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if BackButton.checkForInput(menuMousePOS):
-                        run = False
-                        print("back button pressed")
+def mouseMove(state: Gamestate, pos, rel, buttons, touch):
+    state.scene.BackButton.changeColor(pos)
 
+def mousePress(state: Gamestate, pos, buttons, touch):
+    if (state.scene.BackButton.checkForInput(pos)):
+        state.popScene()
 
-            pygame.display.flip()  # Update the display
+def render(state: Gamestate):
+
+    # the slowest thing you could possibly do
+    background_image = pygame.image.load(state.scene.path + 'background.jpg')
+    background_image = pygame.transform.scale(background_image, state.screen.get_size())
+    state.screen.blit(background_image, (0, 0))
+
+    blit_text(state.screen, state.scene.instructions_text, (0,0), state.scene.paragraphFont)
+
+    state.scene.BackButton.update(state.screen)

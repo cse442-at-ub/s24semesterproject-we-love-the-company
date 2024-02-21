@@ -4,7 +4,6 @@ import os
 from gamestate import *
 
 from Buttons import Button
-from HowToPlay import Instructions
 
 ID = "main_menu"
 
@@ -14,13 +13,7 @@ class MenuScene:
 
         self.path = os.path.dirname(__file__) + "/"
 
-        clock = pygame.time.Clock()
-
         self.textFont = pygame.font.SysFont("Arial", 40)
-        self.paragraphFont = pygame.font.SysFont("Arial", 30)
-
-        #initialize How To Play screen here
-        self.HowToPlay = Instructions(screen, clock, self.path, self.textFont, self.paragraphFont)
 
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 50
@@ -53,6 +46,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
         button.changeColor(pos)
 
 from OptionsMenu import SettingsScene
+from HowToPlay import InstructionsScene
 
 def mousePress(state: Gamestate, pos, buttons, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
@@ -62,8 +56,7 @@ def mousePress(state: Gamestate, pos, buttons, touch):
     elif (state.scene.SettingsButton.checkForInput(pos)):
         state.pushScene(SettingsScene(state.screen))
     elif (state.scene.InstructionsButton.checkForInput(pos)):
-        print("How To Play button clicked")
-        state.scene.HowToPlay.display_instructions_menu()
+        state.pushScene(InstructionsScene(state.screen))
 
 def render(state: Gamestate):
 
