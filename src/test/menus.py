@@ -10,6 +10,7 @@ import gamestate
 
 import splash
 import menu
+import OptionsMenu
 
 class SplashTests(unittest.TestCase):
     def setUp(self):
@@ -40,6 +41,7 @@ class SplashTests(unittest.TestCase):
         self.assertEqual(self.state.handlers[self.getId()].onMouseMove, gamestate.doNothing)
         self.assertEqual(self.state.handlers[self.getId()].onMousePress, gamestate.doNothing)
 
+
 class MainMenuTests(unittest.TestCase):
     def setUp(self):
         self.state = gamestate.Gamestate((1280, 720), splash.SplashScene())
@@ -51,14 +53,14 @@ class MainMenuTests(unittest.TestCase):
     def test_menu_init(self):
         self.assertEqual(self.getId(), menu.ID)
 
-    def test_mouse_move(self):
+    def test_menu_mouse_move(self):
         for button in self.state.scene.buttons:
             # tests via proxy, so not that accurate
             old = button.text
             self.state.moveMouse((button.x_pos, button.y_pos), (0, 0), (1, 0, 0), False)
             self.assertNotEqual(button.text, old)
 
-    def test_mouse_press(self):
+    def test_menu_mouse_press(self):
         self.assertTrue(self.state.running)
 
         # simulate pressing the ExitButton
@@ -77,5 +79,38 @@ class MainMenuTests(unittest.TestCase):
         self.state.render()
 
     def test_menu_nonHandlers(self):
+        self.assertEqual(self.state.handlers[self.getId()].onKeyPress, gamestate.doNothing)
+        self.assertEqual(self.state.handlers[self.getId()].onUpdate, gamestate.doNothing)
+
+
+class SettingsTests(unittest.TestCase):
+    def setUp(self):
+        self.state = gamestate.Gamestate((1280, 720), splash.SplashScene())
+        self.state.pushScene(OptionsMenu.SettingsScene(self.state.screen))
+
+    def getId(self):
+        return self.state.scene.id
+
+    def test_settings_init(self):
+        self.assertEqual(self.getId(), OptionsMenu.ID)
+
+    def test_settings_mouse_move(self):
+        for button in self.state.scene.buttons:
+            # tests via proxy, so not that accurate
+            old = button.text
+            self.state.moveMouse((button.x_pos, button.y_pos), (0, 0), (1, 0, 0), False)
+            self.assertNotEqual(button.text, old)
+
+    def test_settings_mouse_press(self):
+        
+
+        # simulate pressing the BackButton [do this last!]
+        self.state.pressMouse((self.state.scene.BackButton.x_pos, self.state.scene.BackButton.y_pos), 1, False)
+        self.assertNotEqual(self.getId(), OptionsMenu.ID)
+
+    def test_settings_render(self):
+        self.state.render()
+
+    def test_settings_nonHandlers(self):
         self.assertEqual(self.state.handlers[self.getId()].onKeyPress, gamestate.doNothing)
         self.assertEqual(self.state.handlers[self.getId()].onUpdate, gamestate.doNothing)
