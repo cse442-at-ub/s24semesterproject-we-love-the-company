@@ -20,9 +20,12 @@ class Grid:
         return '\n'.join(row_strings)
     
     def is_inbounds(self, x: int, y: int):
+        """Checks if the given pair of coordinates are inside the bounds of the grid."""
         return x >= 0 and y >= 0 and x < self.width and y < self.height
     
     def insert(self, item: str, x: int, y: int):
+        """Places an object at the given coordinates. Replaces anything that was already there."""
+        """Returns True if the item was placed successfully, or False if an idential item was already present."""
         if len(item) != 1:
             raise ValueError(f"Attempting to insert item '{item}' with invalid length ({len(item)}). Expected length of exactly 1.")
         elif item == EMPTY_SPACE:
@@ -32,12 +35,14 @@ class Grid:
         
         replaced_item = self.matrix[x][y]
         if replaced_item == item:
-            return None
+            return False
         else:
             self.matrix[x][y] = item
             return True
     
     def remove_at_location(self, x: int, y: int):
+        """Removes the object at the given coordinates, and returns the object."""
+        """If the space was already empty, returns None instead."""
         if not self.is_inbounds(x,y):
             raise ValueError(f"Attempting to remove item at out of bounds grid position ({x},{y}).")
         
@@ -49,6 +54,8 @@ class Grid:
             return removed_item
 
     def remove_all_of_type(self, item: str):
+        """Searches the grid for all copies of a given object and removes them."""
+        """Returns a list of tuples of coordinates where the objects used to be."""
         if len(item) != 1:
             raise ValueError(f"Attempting to remove item '{item}' with invalid length ({len(item)}). Expected length of exactly 1.")
         elif item == EMPTY_SPACE:
