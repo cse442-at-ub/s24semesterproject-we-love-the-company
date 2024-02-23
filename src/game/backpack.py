@@ -6,13 +6,20 @@ class BackPack:
         self.number = 0
 
     def add(self, id):
+        self.number = 0
+        if len(self.dict) > 0:
+            if type(self.dict.get(id)) == type(self.number):
+                self.number = self.dict.get(id)
         if self.number < self.capacity:
             self.number = self.number + 1
             self.dict.update({id: self.number})
 
     def remove(self,id):
-        length = len(self.dict)
-        self.number = self.number - 1
+        self.number = 0
+        if len(self.dict) > 0:
+            if type(self.dict.get(id))==type(self.number) :
+                self.number = self.dict.get(id)
+            self.number = self.number - 1
         self.dict.update({id: self.number})
         if self.number <= 0:
             self.dict.pop(id)
@@ -60,5 +67,13 @@ backpack6.add("common")
 backpack6.add("common")
 backpack6.add("common")
 backpack6.printiterm()
+
+## Test 7
+backpack6 = BackPack(5)
+backpack6.add("common")
+backpack6.add("common")
+backpack6.add("uncommon")
+backpack6.printiterm()
+
 
 
