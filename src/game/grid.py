@@ -81,6 +81,3 @@ class Grid:
             removed.append(self.remove_at_location(target[0],target[1]))
         
         return removed
-
-if __name__ == "__main__":
-    print("Tests go here!")
