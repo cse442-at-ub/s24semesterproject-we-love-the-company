@@ -7,10 +7,11 @@ class BackPack:
 
     def add(self, id):
         self.number = 0
+        count = sum(self.dict.values())
         if len(self.dict) > 0:
             if type(self.dict.get(id)) == type(self.number):
                 self.number = self.dict.get(id)
-        if self.number < self.capacity:
+        if count < self.capacity:
             self.number = self.number + 1
             self.dict.update({id: self.number})
 
@@ -69,11 +70,18 @@ backpack6.add("common")
 backpack6.printiterm()
 
 ## Test 7
-backpack6 = BackPack(5)
-backpack6.add("common")
-backpack6.add("common")
-backpack6.add("uncommon")
-backpack6.printiterm()
+backpack7 = BackPack(5)
+backpack7.add("common")
+backpack7.add("common")
+backpack7.add("uncommon")
+backpack7.printiterm()
+
+## Test 8
+backpack8 = BackPack(2)
+backpack8.add("common")
+backpack8.add("common")
+backpack8.add("uncommon")
+backpack8.printiterm()
 
 
 
