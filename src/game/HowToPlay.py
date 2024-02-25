@@ -39,7 +39,7 @@ class InstructionsScene:
         back_button_y = screen.get_height() - 50
 
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue")
+                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
@@ -49,6 +49,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.BackButton.checkForInput(pos)):
+        state.scene.BackButton.button_sound()
         state.popScene()
 
 def render(state: Gamestate):

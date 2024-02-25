@@ -2,7 +2,7 @@ import pygame
 
 #makes the button?
 class Button():
-    def __init__(self, image, pos, text_input, font, base_color, hovering_color):
+    def __init__(self, image, pos, text_input, font, base_color, hovering_color, click_sound):
         self.image = image
         self.x_pos = pos[0]
         self.y_pos = pos[1]
@@ -14,6 +14,7 @@ class Button():
             self.image = self.text
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
         self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
+        self.click_sound = click_sound
 
     def update(self, screen):
         if self.image is not None:
@@ -30,3 +31,7 @@ class Button():
             self.text = self.font.render(self.text_input, True, self.hovering_color)
         else:
             self.text = self.font.render(self.text_input, True, self.base_color)
+    
+    #when button pressed makes a sfx
+    def button_sound(self):
+        self.click_sound.play()
