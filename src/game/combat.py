@@ -18,6 +18,8 @@ class Combat:
 
     def roll_die(self, die):
         """Rolls the specified die and returns the result."""
+        if die not in self.dice:
+            raise ValueError(f"{die} is not a valid die.")
         return random.choice(list(self.dice[die]))
 
     def combat_outcome(self, player_die, enemy_die):
@@ -34,10 +36,11 @@ class Combat:
 
     def downgrade_die(self, current_die):
         """Downgrades the die type, or marks as defeated if already at lowest."""
-        if current_die == self.downgrade_path[0]:  # 'd20' is the first element after reversing
+        if current_die == self.downgrade_path[-1]:  # 'd4' should be the last element in the reversed list
             return 'defeated'
         else:
-            return self.downgrade_path[self.downgrade_path.index(current_die) - 1]
+            current_index = self.downgrade_path.index(current_die)
+            return self.downgrade_path[current_index + 1]  # Move one step down in the downgrade path
 
     def upgrade_die(self, current_die):
         """Upgrades the die type, or remains the same if already at highest."""
