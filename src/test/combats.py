@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.getcwd() + "/src/game")
 
 import unittest
-from Combat import Combat  # Adjust the import according to your project structure
+from combat import Combat  # Adjust the import according to your project structure
 
 class CombatSystemTests(unittest.TestCase):
     def setUp(self):
