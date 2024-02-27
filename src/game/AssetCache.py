@@ -11,6 +11,10 @@ def get_image(path):
     
     return image_cache[path]
 
+def is_image_cached(path):
+    """Checks if a given image path is cached. Returns True if it is, False if it isn't."""
+    return path in image_cache
+
 def uncache_image(path):
     """Removes a given image path from the image cache."""
     """If the path is not already cached, an error is thrown."""
@@ -38,6 +42,10 @@ def get_audio(path):
         audio_cache[path] = mixer.Sound(path)
     
     return audio_cache[path]
+
+def is_audio_cached(path):
+    """Checks if a given audio path is cached. Returns True if it is, False if it isn't."""
+    return path in audio_cache
 
 def uncache_audio(path):
     """Removes a given sound path from the sound cache."""

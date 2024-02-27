@@ -17,6 +17,8 @@ class AssetCacheTests(unittest.TestCase):
     def test_cache_image(self):
         AssetCache.get_image("src/game/Assets/button.png")
         self.assertIn("src/game/Assets/button.png",AssetCache.image_cache)
+        self.assertTrue(AssetCache.is_image_cached("src/game/Assets/button.png"))
+        self.assertFalse(AssetCache.is_image_cached("src/game/background.jpg"))
     
     def test_uncache_image(self):
         AssetCache.get_image("src/game/Assets/button.png")
@@ -32,6 +34,8 @@ class AssetCacheTests(unittest.TestCase):
     def test_cache_sound(self):
         AssetCache.get_audio("src/game/Assets/button_click.mp3")
         self.assertIn("src/game/Assets/button_click.mp3",AssetCache.audio_cache)
+        self.assertTrue(AssetCache.is_audio_cached("src/game/Assets/button_click.mp3"))
+        self.assertFalse(AssetCache.is_audio_cached("src/game/Assets/Background_music_menu.wav"))
     
     def test_uncache_sound(self):
         AssetCache.get_audio("src/game/Assets/button_click.mp3")
