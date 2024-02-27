@@ -18,6 +18,13 @@ def uncache_image(path):
     else:
         raise ValueError("The given path is not present in the image cache.")
 
+def flush_image_cache():
+    """Removes all entries from the image cache."""
+    """Returns the number of elements in the cache before flushing."""
+    output = len(image_cache)
+    image_cache = dict()
+    return output
+
 audio_cache = dict()
 
 def get_audio(path):
@@ -35,3 +42,10 @@ def uncache_audio(path):
         del audio_cache[path]
     else:
         raise ValueError("The given path is not present in the audio cache.")
+
+def flush_audio_cache():
+    """Removes all entries from the audio cache."""
+    """Returns the number of elements in the cache before flushing."""
+    output = len(audio_cache)
+    audio_cache = dict()
+    return output
