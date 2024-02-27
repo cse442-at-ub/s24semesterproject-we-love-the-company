@@ -17,5 +17,7 @@ if __name__ == "__main__":
     unittest.main(module="menus", verbosity=2, exit=False)
 
     unittest.main(module="grids", verbosity=2, exit=False)
+
+    unittest.main(module="cache", verbosity=2, exit=False)
     
     pygame.quit()
