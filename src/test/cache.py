@@ -20,10 +20,14 @@ class AssetCacheTests(unittest.TestCase):
     
     def test_uncache_image(self):
         AssetCache.get_image("src/game/Assets/button.png")
-        self.assertIn("src/game/Assets/button.png",AssetCache.image_cache)
-
         AssetCache.uncache_image("src/game/Assets/button.png")
         self.assertNotIn("src/game/Assets/button.png",AssetCache.image_cache)
+    
+    def test_flush_images(self):
+        AssetCache.get_image("src/game/Assets/button.png")
+        AssetCache.get_image("src/game/background.jpg")
+        self.assertEqual(AssetCache.flush_image_cache(),2)
+        self.assertEqual(AssetCache.flush_image_cache(),0)
     
     def test_cache_sound(self):
         AssetCache.get_audio("src/game/Assets/button_click.mp3")
@@ -31,7 +35,11 @@ class AssetCacheTests(unittest.TestCase):
     
     def test_uncache_sound(self):
         AssetCache.get_audio("src/game/Assets/button_click.mp3")
-        self.assertIn("src/game/Assets/button_click.mp3",AssetCache.audio_cache)
-
         AssetCache.uncache_audio("src/game/Assets/button_click.mp3")
         self.assertNotIn("src/game/Assets/button_click.mp3",AssetCache.audio_cache)
+
+    def test_flush_audio(self):
+        AssetCache.get_audio("src/game/Assets/button_click.mp3")
+        AssetCache.get_audio("src/game/Assets/Background_music_menu.wav")
+        self.assertEqual(AssetCache.flush_audio_cache(),2)
+        self.assertEqual(AssetCache.flush_audio_cache(),0)
