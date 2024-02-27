@@ -13,6 +13,18 @@ class Grid:
         for y in range(height):
             self.matrix.append([EMPTY_SPACE] * width)
     
+    def get_dimensions(self):
+        """Returns a tuple containing the height and width of the grid."""
+        return (self.width, self.height)
+    
+    def get_width(self):
+        """Returns the width of the grid."""
+        return self.width
+    
+    def get_height(self):
+        """Returns the height of the grid."""
+        return self.height
+    
     def is_inbounds(self, x: int, y: int):
         """Checks if the given pair of coordinates are inside the bounds of the grid."""
         return x >= 0 and y >= 0 and x < self.width and y < self.height
@@ -52,6 +64,24 @@ class Grid:
         else:
             self.matrix[y][x] = EMPTY_SPACE
             return removed_item
+    
+    def find_object_with_property_type(self, key):
+        """Searches the grid for objects that have all of the given keys in their data."""
+        """Returns a set of tuples for each item found."""
+        """Each tuple contains the object's coordinates (first element) and its value for the given key (second element)."""
+
+        """This is useful for rendering objects!"""
+        """Objects can have their sprite used for rendering set as a property, and this function will return a list--"""
+        """--of all sprites that must be rendered alongside their grid coordinates."""
+        output = set()
+
+        for y in range(self.height):
+            for x in range(self.width):
+                object = self.matrix[y][x]
+                if key in object:
+                    output.add(((x,y),object[key]))
+        
+        return output
     
     def find_object_with_properties(self, key_value_pairs: dict, loose_match: bool=False):
         """Searches the grid for objects that have all of the given key/value pairs in their data."""
