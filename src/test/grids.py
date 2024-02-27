@@ -19,6 +19,11 @@ class GridTests(unittest.TestCase):
         for itemB in listB:
             self.assertIn(itemB,listA)
     
+    def test_get_coordinates(self):
+        self.assertEqual(self.grid.get_dimensions(), (10,5))
+        self.assertEqual(self.grid.get_width(), 10)
+        self.assertEqual(self.grid.get_height(), 5)
+    
     def test_inbounds(self):
         for x in range(-5,15):
             for y in range(-5,15):
@@ -126,3 +131,11 @@ class GridTests(unittest.TestCase):
         # ensure the space is newly empty
         self.assertIsNone(self.grid.get_object(4,4))
         self.assertIsNone(self.grid.get_object(2,2))
+    
+    def test_property_query(self):
+        # place complex objects on the grid
+        self.assertTrue(self.grid.insert({"name":"test object","hp": 3,"shoes":None},3,3))
+        self.assertTrue(self.grid.insert({"name":"example object","hp": 3,"shoes":None},4,4))
+        self.assertTrue(self.grid.insert({"name":"test object","hp": 2,"shoes":"Big"},2,2))
+
+        self.assertSetEqual(self.grid.find_object_with_property_type("name"),{((3,3),"test object"),((4,4),"example object"),((2,2),"test object")})
