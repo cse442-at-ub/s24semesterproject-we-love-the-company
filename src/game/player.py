@@ -8,12 +8,12 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self):
+    def __init__(self, x = 0, y = 0):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
 
     @property
     def position(self):
@@ -25,7 +25,7 @@ class Player:
             obj = grid.get_object(self.x + x, self.y + y)
 
             # SUBJECT TO CHANGE !!!
-            if ("name" not in obj or obj["name"] != "wall"):
+            if (obj == None or "name" not in obj or obj["name"] != "wall"):
                 self.x += x
                 self.y += y
                 return True
@@ -53,11 +53,12 @@ class Player:
         if (abs(self.x - x) + abs(self.y - y) > range):
             return False
 
-        if (self.heldItem != None):
+        if (self.heldItem == None):
             if (grid.is_inbounds(x, y)):
-                obj = grid.remove_at_location(x, y)
-                if (obj != None):
-                    self.heldItem = obj
+                obj = grid.get_object(x, y)
+                if (obj != None and "item" in obj):
+                    grid.remove_at_location(x, y)
+                    self.heldItem = obj["item"]
                     return True
 
         return False
@@ -74,7 +75,8 @@ class Player:
     # drops currently held item to feet
     def drop(self, grid: Grid):
         if (self.heldItem != None):
-            if (grid.insert(self.heldItem, self.x, self.y)):
+            obj = {"item": self.heldItem}
+            if (grid.insert(obj, self.x, self.y)):
                 self.heldItem = None
                 return True
 
@@ -83,7 +85,8 @@ class Player:
     # drops from the backpack
     def dropFromBackpack(self, id, grid: Grid):
         if (not self.inventory.isEmpty() and id in self.inventory.dict):
-            if (grid.insert(id)):
+            obj = {"item": id}
+            if (grid.insert(obj, self.x, self.y)):
                 self.inventory.remove(id)
                 return True
 
@@ -111,5 +114,3 @@ class Player:
     # increases the die
     def increaseDie(self):
         self.hitDie = strike.upgrade_die(self.hitDie)
-
-
