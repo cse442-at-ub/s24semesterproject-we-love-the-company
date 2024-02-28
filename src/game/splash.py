@@ -5,7 +5,7 @@ import util
 
 ID = "splash"
 
-SPLASH_TIME = 2
+SPLASH_TIME = 1
 
 # scene's state
 class SplashScene:
@@ -27,19 +27,12 @@ def render(state: gamestate.Gamestate):
     # draw it
     pygame.draw.rect(state.screen, (200, 10, 10), pygame.Rect(xy[0], xy[1], wh[0], wh[1]))
 
-import menu
+from menu import MenuScene
 
 def update(state: gamestate.Gamestate, deltaT):
     state.scene.timer += deltaT
 
     if (state.scene.timer > SPLASH_TIME):
-        # mainMenu has an infinite loop yay!
-        menu.mainMenu()
-        # we have to exit early or we crash instead
-        # quitting is more graceful than crashing
-        pygame.quit()
-        quit() 
-        # @TODO uncomment once main menu exists
-        #state.setScene(mainMenuScene())
+        state.pushScene(MenuScene(state.screen))
         state.scene.timer = 0
 
