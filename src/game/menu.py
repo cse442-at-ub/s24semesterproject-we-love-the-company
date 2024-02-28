@@ -43,8 +43,11 @@ def mainMenu():
     HowToPlay = Instructions(window, clock, path, textFont, paragraphFont)
 
     while run:
+        # WHY 27 FPS??? ? ??? ????????
         clock.tick(27)  # Control framerates
         window.fill((0, 0, 0))
+
+        # the slowest thing you could possibly do
         background_image = pygame.image.load(path + 'background.jpg')
         background_image = pygame.transform.scale(background_image, window_size)
         window.blit(background_image, (0, 0))
@@ -52,6 +55,7 @@ def mainMenu():
         logo_image = pygame.image.load(path + 'logo3.png')
         logo_image = pygame.transform.scale(logo_image, window_size)
         window.blit(logo_image, (0, -200))
+
         menuMousePOS = pygame.mouse.get_pos()
 
         screen_center_x = window.get_width() // 2
@@ -61,6 +65,7 @@ def mainMenu():
         settings_button_y = window.get_height() // 2 + 50
         instruct_button_y = window.get_height() - 50
 
+        # the slowest thing you could possibly do pt2
         PlayButton = Button(image=pygame.image.load(path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
                             text_input="Play", font=textFont, base_color="white", hovering_color="blue")
 
