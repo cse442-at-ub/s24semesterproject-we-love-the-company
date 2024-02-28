@@ -1,25 +1,40 @@
 import pygame
 
-
 class Slider:
-    def __init__(self, pos, width, height, min_value, max_value):
-        self.rect = pygame.Rect(pos[0] - width // 2, pos[1] - height // 2, width, height)
-        self.handle_pos = pos[0] - width // 2, pos[1]
-        self.handle_radius = height // 2
-        self.min_value = min_value
-        self.max_value = max_value
-        self.value = min_value
+    def __init__(self, pos: tuple, width, height, min_val: int, max_val: int):
+        self.x_pos = pos[0]
+        self.y_pos = pos[1]
+        self.width = width
+        self.height = height
 
-    def update(self, screen):
-        #slider track
-        track_rect = pygame.Rect(self.rect.left, self.rect.centery - 2, self.rect.width, 4)
-        pygame.draw.rect(screen, (200, 200, 200), track_rect)
+        self.grabbed = False #flag to see if it is being dragged
 
-        #slider handle
-        pygame.draw.circle(screen, (0, 0, 0), self.handle_pos, self.handle_radius)
+        self.min = min_val
+        self.max = max_val
 
-    def move_handle(self, pos):
-        #Move the handle based on mouse position
-        x = min(max(pos[0], self.rect.left), self.rect.right)
-        self.handle_pos = (x, self.handle_pos[1])
-        self.value = int((x - self.rect.left) / self.rect.width * (self.max_value - self.min_value) + self.min_value)
+        self.value = min_val + max_val // 2  #initial val
+
+        self.slider_color = (255,255,255)
+
+        self.container_rect = pygame.Rect(self.x_pos, (self.y_pos - height // 2), width, height)  #makes the track
+
+
+    def draw(self,screen):
+        pygame.draw.rect(screen, self.slider_color, self.container_rect)
+
+    def move(self, pos):
+        self.container_rect.x = max(self.x_pos, min(pos[0], self.x_pos + self.width))
+
+    def update_value(self):
+        self.value = (self.container_rect.x - self.x_pos) / self.width * (self.max - self.min) + self.min
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.slider_rect.collidepoint(event.pos):
+                self.dragging = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                self.move(event.pos)
+                self.update_value()
