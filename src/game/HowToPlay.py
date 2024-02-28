@@ -1,6 +1,7 @@
 import pygame
 import os
 from Buttons import Button
+import AssetCache
 
 from gamestate import *
 
@@ -38,8 +39,8 @@ class InstructionsScene:
         screen_center_x = screen.get_width() // 2
         back_button_y = screen.get_height() - 50
 
-        self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+        self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
+                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
@@ -53,9 +54,7 @@ def mousePress(state: Gamestate, pos, button, touch):
         state.popScene()
 
 def render(state: Gamestate):
-
-    # the slowest thing you could possibly do
-    background_image = pygame.image.load(state.scene.path + 'background.jpg')
+    background_image = AssetCache.get_image(state.scene.path + 'background.jpg')
     background_image = pygame.transform.scale(background_image, state.screen.get_size())
     state.screen.blit(background_image, (0, 0))
 
