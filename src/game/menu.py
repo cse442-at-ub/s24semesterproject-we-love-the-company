@@ -7,6 +7,7 @@ from Buttons import Button
 
 ID = "main_menu"
 
+        
 class MenuScene:
     def __init__(self, screen):
         self.id = ID
@@ -18,7 +19,16 @@ class MenuScene:
         #this the current background music    
         pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
-
+        
+                # the slowest thing you could possibly do
+        background_image = pygame.image.load(path + 'background.jpg')
+        background_image = pygame.transform.scale(background_image, window_size)
+        window.blit(background_image, (0, 0))
+        
+        logo_image = pygame.image.load(path + 'logo3.png')
+        logo_image = pygame.transform.scale(logo_image, window_size)
+        window.blit(logo_image, (0, -200))
+        
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 50
         exit_button_y = screen.get_height() // 2 + 150
