@@ -21,8 +21,8 @@ class AudioScene:
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
                         text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
         
-        self.slider_one = Slider(pos=(screen_center_x, slider_one_y), width=200, height=20, min_val=0, max_val=100)
-        self.slider_two = Slider(pos=(screen_center_x, slider_two_y), width =200, height=20, min_val=0, max_val=100)
+        self.slider_one = Slider(screen_center_x, slider_one_y, width=200, height=20, min_val=0, max_val=100)
+        self.slider_two = Slider(screen_center_x, slider_two_y, width =200, height=20, min_val=0, max_val=100)
         
         self.buttons = [self.BackButton]
         self.sliders = [self.slider_one, self.slider_two]
@@ -43,21 +43,34 @@ class AudioScene:
             if isinstance(button, Button):
                 button.click_sound.set_volume(SFX)
 
-def mouseMove(state: Gamestate, pos, rel, buttons, touch):
-    for button in state.scene.buttons:
-        if isinstance(button, Button):
-            button.changeColor(pos)
+    def move_slider_handle(self, pos):
+        for slider in self.sliders:
+            if slider.container_rect.collidepoint(pos):
+                slider.move_handle(pos)
+                self.volume_control()
 
-    for slider in state.scene.sliders:
-        if isinstance(button, Button):
-            slider.hover(pos)
+    def update_slider_value(self, val):
+        for slider in self.sliders:
+            slider.update_value(val)
+        self.volume_control()
 
 def mousePress(state: Gamestate, pos, button, touch):
-    for slider in state.scene.sliders:
-        if slider.grabbed:
-            slider.move_slider(pos)
+    # Existing button press handling...
+    # Add logic to check if the mouse is pressed on a slider
+    if button == 1:  # Left mouse button
+        for slider in [state.scene.slider_one, state.scene.slider_two]:
+            if slider.container_rect.collidepoint(pos):
+                slider.is_dragging = True  # You need to add this attribute to your Slider class
+                slider.move_handle(pos)
 
-    if state.scene.BackButton.checkForInput(pos):
+def mouseMove(state: Gamestate, pos, rel, buttons, touch):
+    # Existing mouse move handling...
+    # Add logic to move the slider handle if dragging
+    for slider in [state.scene.slider_one, state.scene.slider_two]:
+        if slider.is_dragging:
+            slider.move_handle(pos)
+            
+    if (state.scene.BackButton.checkForInput(pos)):
         state.scene.BackButton.button_sound()
         state.popScene()
 
@@ -66,13 +79,9 @@ def render(state: Gamestate):
     background_image = pygame.transform.scale(background_image, state.screen.get_size())
     state.screen.blit(background_image, (0, 0))
 
+    for slider in state.scene.sliders:
+        slider.draw(state.screen)
+    
     for button in state.scene.buttons:
         if isinstance(button, Button):
             button.update(state.screen)
-
-    for slider in state.scene.sliders:
-        if isinstance(slider, Slider):
-            slider.update_value(state)
-
-    state.scene.volume_control()
-    state.scene.apply_volume_to_buttons()
