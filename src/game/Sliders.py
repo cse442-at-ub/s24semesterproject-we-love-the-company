@@ -31,16 +31,12 @@ class Slider:
         self.value = (self.container_rect.x - self.x_pos) / self.width * (self.max - self.min) + self.min
 
     def move_handle(self, event):
-        x = min(max(self.x_pos, self.container_rect.left), self.container_rect.right)
-        self.handle_rec = (x, self.handle_rec[1])
-        self.value = int((x - self.container_rect.left) / self.container_rect.width * (self.max - self.min) + self.min)
-
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event == pygame.MOUSEBUTTONDOWN:
             if self.handle_rec.collidepoint(event.pos):
-                self.dragging = True
-        elif event.type == pygame.MOUSEBUTTONUP:
-            self.dragging = False
-        elif event.type == pygame.MOUSEMOTION:
-            if self.dragging:
+                self.is_dragging = True
+        elif event == pygame.MOUSEBUTTONUP:
+            self.is_dragging = False
+        elif event == pygame.MOUSEMOTION:
+            if self.is_dragging:
                 self.move(event.pos)
                 self.update_value()

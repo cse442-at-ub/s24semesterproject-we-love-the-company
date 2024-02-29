@@ -61,18 +61,19 @@ def mousePress(state: Gamestate, pos, button, touch):
         for slider in [state.scene.slider_one, state.scene.slider_two]:
             if slider.container_rect.collidepoint(pos):
                 slider.is_dragging = True  # You need to add this attribute to your Slider class
-                slider.move_handle(pos)
-
-def mouseMove(state: Gamestate, pos, rel, buttons, touch):
-    # Existing mouse move handling...
-    # Add logic to move the slider handle if dragging
-    for slider in [state.scene.slider_one, state.scene.slider_two]:
-        if slider.container_rect.collidepoint(pos):
-            slider.move_handle(pos)
-
+                slider.move_handle(pos)                
     if (state.scene.BackButton.checkForInput(pos)):
         state.scene.BackButton.button_sound()
         state.popScene()
+
+def mouseMove(state: Gamestate, pos, rel, buttons, touch):
+    for slider in [state.scene.slider_one, state.scene.slider_two]:
+        if slider.container_rect.collidepoint(pos):
+            slider.move_handle(pos)
+    
+    for button in state.scene.buttons:
+        if isinstance(button, Button):
+            button.changeColor(pos)
 
 def render(state: Gamestate):
     background_image = pygame.image.load(state.scene.path + 'background.jpg')
