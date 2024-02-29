@@ -1,5 +1,9 @@
 import pygame
 
+audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
+audio_control = pygame.mixer.music.play(-1)
+button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
+
 class Slider:
     def __init__(self, xpos, ypos, width, height, min_val: int, max_val: int):
         self.x_pos = xpos
@@ -18,17 +22,26 @@ class Slider:
 
         self.handle_radius = 10  # Width of the slider handle
         self.handle_rec = pygame.Rect(self.container_rect.left, self.container_rect.centery - 2, self.container_rect.width, 4)
+        self.handle_center = self.container_rect.left + self.width // 2
 
 
     def draw(self,screen):
         pygame.draw.rect(screen, (255,255,255), self.container_rect)
-        pygame.draw.circle(screen, (0, 0, 0), (self.handle_rec.centerx, self.handle_rec.centery), self.handle_radius)
+        pygame.draw.circle(screen, (255, 0, 0), (self.handle_rec.centerx, self.handle_rec.centery), self.handle_radius)
 
     def move(self, pos):
-        self.container_rect.x = max(self.x_pos, min(pos[0], self.x_pos + self.width))
+        self.handle_center = max(self.container_rect.left, min(pos[0], self.container_rect.right))
 
     def update_value(self):
-        self.value = (self.container_rect.x - self.x_pos) / self.width * (self.max - self.min) + self.min
+        #hopefully this calculation is right
+        relative_position = self.handle_center - self.container_rect.left
+        total_width = self.container_rect.width - 2 * self.handle_radius
+
+        # Calculate the volume based on the relative position of the handle
+        volume = (relative_position / total_width) * 100  # Scale to a 0-100 range
+
+        # Update the volume of the background music
+        pygame.mixer.music.set_volume(volume / 100)  # Set volume between 0 and 1
 
     def move_handle(self, event):
         if event == pygame.MOUSEBUTTONDOWN:
@@ -37,6 +50,6 @@ class Slider:
         elif event == pygame.MOUSEBUTTONUP:
             self.is_dragging = False
         elif event == pygame.MOUSEMOTION:
-            if self.is_dragging:
+            if self.is_dragging:      
                 self.move(event.pos)
                 self.update_value()
