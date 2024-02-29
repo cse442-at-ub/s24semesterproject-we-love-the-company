@@ -16,13 +16,13 @@ class Slider:
 
         self.container_rect = pygame.Rect(self.x_pos, (self.y_pos - height // 2), width, height)  #makes the track
 
-        self.handle_width = 8  # Width of the slider handle
-        self.handle_rect = pygame.Rect(self.x_pos, self.y_pos - self.handle_width // 2, self.handle_width, self.height)
+        self.handle_radius = 10  # Width of the slider handle
+        self.handle_rec = pygame.Rect(self.container_rect.left, self.container_rect.centery - 2, self.container_rect.width, 4)
 
 
     def draw(self,screen):
         pygame.draw.rect(screen, (255,255,255), self.container_rect)
-        pygame.draw.rect(screen, (0, 0, 0), self.handle_rect)
+        pygame.draw.circle(screen, (0, 0, 0), (self.handle_rec.centerx, self.handle_rec.centery), self.handle_radius)
 
     def move(self, pos):
         self.container_rect.x = max(self.x_pos, min(pos[0], self.x_pos + self.width))
@@ -31,8 +31,12 @@ class Slider:
         self.value = (self.container_rect.x - self.x_pos) / self.width * (self.max - self.min) + self.min
 
     def move_handle(self, event):
+        x = min(max(self.x_pos, self.container_rect.left), self.container_rect.right)
+        self.handle_rec = (x, self.handle_rec[1])
+        self.value = int((x - self.container_rect.left) / self.container_rect.width * (self.max - self.min) + self.min)
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.slider_rect.collidepoint(event.pos):
+            if self.handle_rec.collidepoint(event.pos):
                 self.dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
             self.dragging = False

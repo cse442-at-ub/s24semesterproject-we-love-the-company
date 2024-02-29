@@ -67,9 +67,9 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     # Existing mouse move handling...
     # Add logic to move the slider handle if dragging
     for slider in [state.scene.slider_one, state.scene.slider_two]:
-        if slider.is_dragging:
+        if slider.container_rect.collidepoint(pos):
             slider.move_handle(pos)
-            
+
     if (state.scene.BackButton.checkForInput(pos)):
         state.scene.BackButton.button_sound()
         state.popScene()
