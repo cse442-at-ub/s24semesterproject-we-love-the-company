@@ -1,55 +1,47 @@
 import pygame
 
-audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-audio_control = pygame.mixer.music.play(-1)
-button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
-
 class Slider:
-    def __init__(self, xpos, ypos, width, height, min_val: int, max_val: int):
-        self.x_pos = xpos
-        self.y_pos = ypos
-        self.width = width
-        self.height = height
+    def __init__(self, pos: tuple, size: tuple, initial_value: float, min_value: int, max_value: int) -> None:
+        self.pos = pos
+        self.size = size
+        self.hovered = False
+        self.grabbed = False
 
-        self.is_dragging = False #flag to see if it is being dragged
+        self.min_value = min_value
+        self.max_value = max_value
 
-        self.min = min_val
-        self.max = max_val
+        # Calculate slider coordinates accurately
+        self.slider_left = self.pos[0] - self.size[0] // 2
+        self.slider_right = self.slider_left + self.size[0]
+        self.slider_top = self.pos[1] - self.size[1] // 2
 
-        self.value = min_val + max_val // 2  #initial val
+        # Calculate initial handle position based on value
+        self.handle_pos = self.slider_left + (initial_value / (self.max_value - self.min_value)) * (self.slider_right - self.slider_left)
+        self.handle_rect = pygame.Rect(self.handle_pos, self.slider_top, 10, self.size[1])
 
-        self.container_rect = pygame.Rect(self.x_pos, (self.y_pos - height // 2), width, height)  #makes the track
+        self.container_rect = pygame.Rect(self.slider_left, self.slider_top, self.size[0], self.size[1])
 
-        self.handle_radius = 10  # Width of the slider handle
-        self.handle_rec = pygame.Rect(self.container_rect.left, self.container_rect.centery - 2, self.container_rect.width, 4)
-        self.handle_center = self.container_rect.left + self.width // 2
+    def move_handle(self, pos):
+        # Clamp mouse position to slider bounds
+        new_handle_pos = max(self.slider_left, min(pos[0], self.slider_right - self.handle_rect.width))
+        self.handle_pos = new_handle_pos
+        self.handle_rect.x = self.handle_pos
 
+    def hover(self):
+        self.hovered = True
 
-    def draw(self,screen):
-        pygame.draw.rect(screen, (255,255,255), self.container_rect)
-        pygame.draw.circle(screen, (255, 0, 0), (self.handle_rec.centerx, self.handle_rec.centery), self.handle_radius)
+    def render(self, screen):
+        pygame.draw.rect(screen, (0, 0, 0), self.container_rect)
+        pygame.draw.rect(screen, (255, 0, 0), self.handle_rect)
 
-    def move(self, pos):
-        self.handle_center = max(self.container_rect.left, min(pos[0], self.container_rect.right))
+    def get_value(self):
+        # Calculate value based on handle position
+        value_range = self.slider_right - self.slider_left - 1
+        handle_val = self.handle_pos - self.slider_left
+        return (handle_val / value_range) * (self.max_value - self.min_value) + self.min_value
 
-    def update_value(self):
-        #hopefully this calculation is right
-        relative_position = self.handle_center - self.container_rect.left
-        total_width = self.container_rect.width - 2 * self.handle_radius
-
-        # Calculate the volume based on the relative position of the handle
-        volume = (relative_position / total_width) * 100  # Scale to a 0-100 range
-
-        # Update the volume of the background music
-        pygame.mixer.music.set_volume(volume / 100)  # Set volume between 0 and 1
-
-    def move_handle(self, event):
-        if event == pygame.MOUSEBUTTONDOWN:
-            if self.handle_rec.collidepoint(event.pos):
-                self.is_dragging = True
-        elif event == pygame.MOUSEBUTTONUP:
-            self.is_dragging = False
-        elif event == pygame.MOUSEMOTION:
-            if self.is_dragging:      
-                self.move(event.pos)
-                self.update_value()
+    def display_value(self, screen):
+        value_font = pygame.font.Font(None, 30)
+        value_text = value_font.render(str(int(self.get_value())), True, "white")
+        value_text_rect = value_text.get_rect(center=(self.pos[0], self.slider_top - 15))
+        screen.blit(value_text, value_text_rect)
