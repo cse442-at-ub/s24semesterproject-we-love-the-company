@@ -1,9 +1,11 @@
 import pygame
+import game
 
-pygame.mixer.init()
-audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-audio_control = pygame.mixer.music.play(-1)
-button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
+
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
+
 
 #makes the button?
 class Button():
@@ -19,7 +21,7 @@ class Button():
             self.image = self.text
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
         self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
-        self.click_sound = button_sound_que
+        self.click_sound = global_button_sound_que
 
     def update(self, screen):
         if self.image is not None:

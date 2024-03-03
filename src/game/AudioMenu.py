@@ -2,16 +2,13 @@ import pygame
 import os
 from Buttons import Button
 from Sliders import Slider
+import game
 
 from gamestate import *
 
-audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-audio_control = pygame.mixer.music.play(-1)
-button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
-
-global_audio_pack = audio_pack
-global_audio_control = audio_control
-global_button_sound_que = button_sound_que
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
 
 
 ID = "Audio_settings"
@@ -28,7 +25,7 @@ class AudioScene:
         back_button_y = screen.get_height() // 2 + 150
 
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= button_sound_que)
+                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
         
         self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 50, 0, 100)
         self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 50, 0, 100)
@@ -91,6 +88,7 @@ def render(state: Gamestate):
     background_image = pygame.image.load(state.scene.path + 'background.jpg')
     background_image = pygame.transform.scale(background_image, state.screen.get_size())
     state.screen.blit(background_image, (0, 0))
+    
 
     for slider in state.scene.sliders:
         slider.render(state.screen)
