@@ -9,6 +9,11 @@ audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav"
 audio_control = pygame.mixer.music.play(-1)
 button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
 
+global_audio_pack = audio_pack
+global_audio_control = audio_control
+global_button_sound_que = button_sound_que
+
+
 ID = "Audio_settings"
 
 class AudioScene:
@@ -32,32 +37,18 @@ class AudioScene:
         self.sliders = [self.slider_one, self.slider_two]
 
         self.buttons.extend(self.sliders)
+    
+    def update_volume(self):
+        volume = self.slider_one.get_value() / 100
+        global_audio_control.set_volume(volume) 
+        global_button_sound_que.set_volume(volume)
+    
+    def move_slider_handle(self,pos):
+        self.slider_one.move_handle(pos)
+        self.update_volume()
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
-'''
-    def volume_control(self):
-        SFX = self.slider_one.value // 100
-        BGM = self.slider_two.value // 100
-        pygame.mixer.music.set_volume(BGM)
-
-    def apply_volume_to_buttons(self):
-        SFX = self.slider_one.value / 100
-        for button in self.buttons:
-            if isinstance(button, Button):
-                button.click_sound.set_volume(SFX)
-
-    def move_slider_handle(self, pos):
-        for slider in self.sliders:
-            if slider.container_rect.collidepoint(pos):
-                slider.move_handle(pos)
-                self.volume_control()
-
-    def update_slider_value(self, val):
-        for slider in self.sliders:
-            slider.update_value(val)
-        self.volume_control()
-'''
 
 def mousePress(state: Gamestate, pos, button, touch):
     for slide in state.scene.sliders:
@@ -81,20 +72,17 @@ def mousePress(state: Gamestate, pos, button, touch):
 
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for slide in state.scene.sliders:
-        if slide.container_rect.collidepoint(pos):
-            slide.grabbed = True
-            slide.move_handle(pos)
-        
-        if slide.handle_rect.collidepoint(pos):
-            slide.hover()
-        
-        if slide.grabbed:
-            slide.move_handle(pos)
-            slide.hover()
+        # Check both container and handle collision
+        if slide.container_rect.collidepoint(pos) or slide.handle_rect.collidepoint(pos):
+            slide.hovered = True
+            if buttons[0]:  # Check if left mouse button is pressed
+                slide.grabbed = True
+                slide.move_handle(pos)
         else:
-            slide.hovered = False
-            slide.grabbed = False
-    
+            # Reset grabbed state to False only when left mouse button is not pressed
+            if not buttons[0]:
+                slide.grabbed = False
+
     for button in state.scene.buttons:
         if isinstance(button, Button):
             button.changeColor(pos)
