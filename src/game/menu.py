@@ -5,6 +5,7 @@ import AssetCache
 from gamestate import *
 
 from Buttons import Button
+from grid_game import GameScene
 
 ID = "main_menu"
 
@@ -58,6 +59,7 @@ def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
         print("Play button clicked")
         state.scene.PlayButton.button_sound()
+        state.pushScene(GameScene(state.screen))
     elif (state.scene.ExitButton.checkForInput(pos)):
         state.scene.ExitButton.button_sound()
         state.running = False
@@ -76,7 +78,3 @@ def render(state: Gamestate):
 
     for button in state.scene.buttons:
         button.update(state.screen)
-
-    #logo_image = pygame.image.load(state.scene.path + 'logo3.png')
-    #logo_image = pygame.transform.scale(logo_image, state.screen.get_size())
-    #state.screen.blit(logo_image, (0, -200))
