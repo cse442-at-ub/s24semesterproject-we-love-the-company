@@ -28,17 +28,21 @@ class AudioScene:
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
                         text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
         
-        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,20)
-        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,20)
+        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,None)
+        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,None)
         
         self.buttons = [self.BackButton]
         self.sliders = [self.slider_one, self.slider_two]
 
         self.buttons.extend(self.sliders)
     
-    #def move_slider_handle(self,pos):
-        #self.slider_one.move_handle(pos)
-        #self.update_volume()
+    def update_volume(state: Gamestate):
+        global_volume = state.scene.slider_one.get_value() / 100
+        print(global_volume)
+        pygame.mixer.music.set_volume(global_volume)
+        global_button_sound_que.set_volume(global_volume)
+
+        state.scene.slider_one.game_state.set_data("slider_value", state.scene.slider_one.current_val)
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
@@ -93,14 +97,3 @@ def render(state: Gamestate):
     for button in state.scene.buttons:
         if isinstance(button, Button):
             button.update(state.screen)
-
-# Update volume function (called when needed)
-def update_volume():
-    pygame.mixer.music.set_volume(global_volume)
-    global_button_sound_que.set_volume(global_volume)
-
-    # Inside Slider class, update_volume function
-def update_volume(self):
-        # Update the global variable with the current value
-    global global_volume
-    global_volume = self.get_value() / 100

@@ -7,13 +7,14 @@ class Slider:
         self.hovered = False
         self.grabbed = False
 
+        self.min_value = min_value
+        self.max_value = max_value
+
+
         if initial_val is not None:
             self.current_val = initial_val
         else:
             self.current_val = (self.min_value + self.max_value) / 2
-
-        self.min_value = min_value
-        self.max_value = max_value
 
         # Calculate slider coordinates accurately
         self.slider_left = self.pos[0] - self.size[0] // 2
@@ -44,7 +45,9 @@ class Slider:
         # Calculate value based on handle position
         value_range = self.slider_right - self.slider_left - 1
         handle_val = self.handle_pos - self.slider_left
-        return (handle_val / value_range) * (self.max_value - self.min_value) + self.min_value
+        val = (handle_val / value_range) * (self.max_value - self.min_value) + self.min_value
+        #print(val)
+        return val
 
     def display_value(self, screen):
         value_font = pygame.font.Font(None, 30)
