@@ -33,6 +33,9 @@ class Slider:
         self.handle_pos = new_handle_pos
         self.handle_rect.x = self.handle_pos
         self.current_val = float(self.get_value())
+    
+    def set_lable(self,lable):
+        self.lable = lable
 
     def hover(self):
         self.hovered = True
@@ -52,3 +55,10 @@ class Slider:
         value_text = value_font.render(str(int(self.get_value())), True, (0,0,100))
         value_text_rect = value_text.get_rect(center=(self.pos[0], self.slider_top - 15))
         screen.blit(value_text, value_text_rect)
+
+        lable_font = pygame.font.Font(None, 40)
+        lable_text = lable_font.render(self.lable, True, (0, 0, 0))
+        label_text_rect = lable_text.get_rect(centery=self.pos[1])
+        label_text_rect.right = self.container_rect.left - 5
+        screen.blit(lable_text, label_text_rect)
+

@@ -25,7 +25,9 @@ class AudioScene:
                         text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3") )
         
         self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,20, Gamestate)
+        self.slider_one.set_lable("BGM")
         self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,20, Gamestate)
+        self.slider_two.set_lable("SFX")
         
         self.buttons = [self.BackButton]
         self.sliders = [self.slider_one, self.slider_two]
