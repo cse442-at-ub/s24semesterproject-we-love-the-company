@@ -1,11 +1,12 @@
 import pygame
-
+from gamestate import *
 class Slider:
-    def __init__(self, pos: tuple, size: tuple, min_value: int, max_value: int, initial_val: None) -> None:
+    def __init__(self, pos: tuple, size: tuple, min_value: int, max_value: int, initial_val: None, game_state: Gamestate) -> None:
         self.pos = pos
         self.size = size
         self.hovered = False
         self.grabbed = False
+        self.game_state = game_state
 
         if initial_val is not None:
             self.current_val = initial_val

@@ -13,7 +13,7 @@ global_volume = 0.5
 
 ID = "InPause"
 
-class SettingsScene:
+class PauseScene:
     def __init__(self, screen):
         self.id = ID
         self.path = os.path.dirname(__file__) + "/"
@@ -52,6 +52,17 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
         button.changeColor(pos)
 
 def mousePress(state: Gamestate, pos, button, touch):
+    if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+        if state.scene.id == "InGame": #this should be what he play ID is
+            # In-game, push the settings scene and store the previous scene
+            state.pushScene(SettingsScene(state.screen))
+            state.scene.SettingsButton.button_sound()
+            settings_scene = state.scene
+            settings_scene.previous_scene = state.scene
+        elif state.scene.id == "InPause":
+            state.popScene()
+
+
     if (state.scene.BackButton.checkForInput(pos)):
         state.scene.BackButton.button_sound()
         state.popScene()

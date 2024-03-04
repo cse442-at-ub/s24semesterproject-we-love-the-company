@@ -2,15 +2,11 @@ import pygame
 import os
 from Buttons import Button
 from Sliders import Slider
-
+import AssetCache
 
 from gamestate import *
-import game
-global_audio_pack = game.audio_pack
-global_audio_control = game.audio_control
-global_button_sound_que = game.button_sound_que
-global_volume = 0.5
 
+audio_pack = AssetCache.get_audio("src/game/Assets/button_click.mp3")
 
 ID = "Audio_settings"
 
@@ -26,10 +22,10 @@ class AudioScene:
         back_button_y = screen.get_height() // 2 + 150
 
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3") )
         
-        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,20)
-        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,20)
+        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,20, Gamestate)
+        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,20, Gamestate)
         
         self.buttons = [self.BackButton]
         self.sliders = [self.slider_one, self.slider_two]
@@ -95,12 +91,7 @@ def render(state: Gamestate):
             button.update(state.screen)
 
 # Update volume function (called when needed)
-def update_volume():
+def update_volume(state: Gamestate):
+    global_volume = state.get_value() / 100
     pygame.mixer.music.set_volume(global_volume)
-    global_button_sound_que.set_volume(global_volume)
-
-    # Inside Slider class, update_volume function
-def update_volume(self):
-        # Update the global variable with the current value
-    global global_volume
-    global_volume = self.get_value() / 100
+    audio_pack.set_volume(global_volume)
