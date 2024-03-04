@@ -5,6 +5,12 @@ import AssetCache
 
 from gamestate import *
 
+import game
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
+global_volume = 0.5
+
 ID = "InPause"
 
 class SettingsScene:
@@ -31,13 +37,15 @@ class SettingsScene:
         self.InstButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, Inst_button_y),
                         text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-        self.buttons = [self.BackButton, self.AudioButton, self.VideoButton]
+        self.buttons = [self.BackButton, self.ResumeButton, self.SettingsButton, self.InstButton]
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
 
 
 from AudioMenu import AudioScene
+from OptionsMenu import SettingsScene
+from HowToPlay import InstructionsScene
 
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for button in state.scene.buttons:
@@ -47,7 +55,18 @@ def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.BackButton.checkForInput(pos)):
         state.scene.BackButton.button_sound()
         state.popScene()
-    pass
+    elif (state.scene.ResumeButton.checkForInput(pos)):
+        state.scene.ResumeButton.button_sound()
+        print("The game has been resumed")
+    elif (state.scene.InstButton.checkForInput(pos)):
+        state.scene.InstButton.button_sound()
+        state.pushScene(InstructionsScene(state.screen))
+        print("Instructions to how to play")
+    elif (state.scene.SettingsButton.checkForInput(pos)):
+        state.scene.SettingsButton.button_sound()
+        state.pushScene(SettingsScene(state.screen))
+        print("Instructions to how to play")
+
 
 def render(state: Gamestate):
     background_image = AssetCache.get_image(state.scene.path + 'background.jpg')

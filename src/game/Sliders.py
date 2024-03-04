@@ -1,25 +1,53 @@
 import pygame
 
-
 class Slider:
-    def __init__(self, pos, width, height, min_value, max_value):
-        self.rect = pygame.Rect(pos[0] - width // 2, pos[1] - height // 2, width, height)
-        self.handle_pos = pos[0] - width // 2, pos[1]
-        self.handle_radius = height // 2
+    def __init__(self, pos: tuple, size: tuple, min_value: int, max_value: int, initial_val: None) -> None:
+        self.pos = pos
+        self.size = size
+        self.hovered = False
+        self.grabbed = False
+
+        if initial_val is not None:
+            self.current_val = initial_val
+        else:
+            self.current_val = (self.min_value + self.max_value) / 2
+
         self.min_value = min_value
         self.max_value = max_value
-        self.value = min_value
 
-    def update(self, screen):
-        #slider track
-        track_rect = pygame.Rect(self.rect.left, self.rect.centery - 2, self.rect.width, 4)
-        pygame.draw.rect(screen, (200, 200, 200), track_rect)
+        # Calculate slider coordinates accurately
+        self.slider_left = self.pos[0] - self.size[0] // 2
+        self.slider_right = self.slider_left + self.size[0]
+        self.slider_top = self.pos[1] - self.size[1] // 2
 
-        #slider handle
-        pygame.draw.circle(screen, (0, 0, 0), self.handle_pos, self.handle_radius)
+        # Calculate initial handle position based on value
+        self.handle_pos = self.slider_left + (self.current_val / (self.max_value - self.min_value)) * (self.slider_right - self.slider_left)
+        self.handle_rect = pygame.Rect(self.handle_pos, self.slider_top, 10, self.size[1])
+
+        self.container_rect = pygame.Rect(self.slider_left, self.slider_top, self.size[0], self.size[1])
 
     def move_handle(self, pos):
-        #Move the handle based on mouse position
-        x = min(max(pos[0], self.rect.left), self.rect.right)
-        self.handle_pos = (x, self.handle_pos[1])
-        self.value = int((x - self.rect.left) / self.rect.width * (self.max_value - self.min_value) + self.min_value)
+        # Clamp mouse position to slider bounds
+        new_handle_pos = max(self.slider_left, min(pos[0], self.slider_right - self.handle_rect.width))
+        self.handle_pos = new_handle_pos
+        self.handle_rect.x = self.handle_pos
+        self.current_val = float(self.get_value())
+
+    def hover(self):
+        self.hovered = True
+
+    def render(self, screen):
+        pygame.draw.rect(screen, (0, 0, 0), self.container_rect)
+        pygame.draw.rect(screen, (255, 0, 0), self.handle_rect)
+
+    def get_value(self):
+        # Calculate value based on handle position
+        value_range = self.slider_right - self.slider_left - 1
+        handle_val = self.handle_pos - self.slider_left
+        return (handle_val / value_range) * (self.max_value - self.min_value) + self.min_value
+
+    def display_value(self, screen):
+        value_font = pygame.font.Font(None, 30)
+        value_text = value_font.render(str(int(self.get_value())), True, (0,0,100))
+        value_text_rect = value_text.get_rect(center=(self.pos[0], self.slider_top - 15))
+        screen.blit(value_text, value_text_rect)
