@@ -3,12 +3,13 @@ import os
 from Buttons import Button
 
 from gamestate import *
+import game
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
 
 ID = "settings"
 
-audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-audio_control = pygame.mixer.music.play(-1)
-button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
 
 class SettingsScene:
     def __init__(self, screen):
@@ -23,13 +24,13 @@ class SettingsScene:
         back_button_y = screen.get_height() // 2 + 150
 
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= button_sound_que)
+                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
         
         self.AudioButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
-                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= button_sound_que)
+                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
             
         self.VideoButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
-                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= button_sound_que)
+                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
 
         self.buttons = [self.BackButton, self.AudioButton, self.VideoButton]
 

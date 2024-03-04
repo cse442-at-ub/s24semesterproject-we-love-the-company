@@ -2,13 +2,14 @@ import pygame
 import os
 from Buttons import Button
 from Sliders import Slider
-import game
+
 
 from gamestate import *
-
+import game
 global_audio_pack = game.audio_pack
 global_audio_control = game.audio_control
 global_button_sound_que = game.button_sound_que
+global_volume = 0.5
 
 
 ID = "Audio_settings"
@@ -27,22 +28,17 @@ class AudioScene:
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
                         text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
         
-        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 50, 0, 100)
-        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 50, 0, 100)
+        self.slider_one = Slider((screen_center_x, slider_one_y), (200, 20), 0, 100,20)
+        self.slider_two = Slider((screen_center_x, slider_two_y), (200, 20), 0, 100,20)
         
         self.buttons = [self.BackButton]
         self.sliders = [self.slider_one, self.slider_two]
 
         self.buttons.extend(self.sliders)
     
-    def update_volume(self):
-        volume = self.slider_one.get_value() / 100
-        global_audio_control.set_volume(volume) 
-        global_button_sound_que.set_volume(volume)
-    
-    def move_slider_handle(self,pos):
-        self.slider_one.move_handle(pos)
-        self.update_volume()
+    #def move_slider_handle(self,pos):
+        #self.slider_one.move_handle(pos)
+        #self.update_volume()
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
@@ -97,3 +93,14 @@ def render(state: Gamestate):
     for button in state.scene.buttons:
         if isinstance(button, Button):
             button.update(state.screen)
+
+# Update volume function (called when needed)
+def update_volume():
+    pygame.mixer.music.set_volume(global_volume)
+    global_button_sound_que.set_volume(global_volume)
+
+    # Inside Slider class, update_volume function
+def update_volume(self):
+        # Update the global variable with the current value
+    global global_volume
+    global_volume = self.get_value() / 100

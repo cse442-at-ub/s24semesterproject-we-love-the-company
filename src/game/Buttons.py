@@ -1,7 +1,6 @@
 import pygame
+
 import game
-
-
 global_audio_pack = game.audio_pack
 global_audio_control = game.audio_control
 global_button_sound_que = game.button_sound_que

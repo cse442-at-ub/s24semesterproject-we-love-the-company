@@ -3,6 +3,10 @@ import os
 from Buttons import Button
 
 from gamestate import *
+import game
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
 
 # taken from: https://stackoverflow.com/questions/42014195/rendering-text-with-multiple-lines-in-pygame
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
@@ -39,7 +43,7 @@ class InstructionsScene:
         back_button_y = screen.get_height() - 50
 
         self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)

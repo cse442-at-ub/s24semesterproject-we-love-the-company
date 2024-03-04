@@ -1,11 +1,16 @@
 import pygame
 
 class Slider:
-    def __init__(self, pos: tuple, size: tuple, initial_value: float, min_value: int, max_value: int) -> None:
+    def __init__(self, pos: tuple, size: tuple, min_value: int, max_value: int, initial_val: None) -> None:
         self.pos = pos
         self.size = size
         self.hovered = False
         self.grabbed = False
+
+        if initial_val is not None:
+            self.current_val = initial_val
+        else:
+            self.current_val = (self.min_value + self.max_value) / 2
 
         self.min_value = min_value
         self.max_value = max_value
@@ -16,7 +21,7 @@ class Slider:
         self.slider_top = self.pos[1] - self.size[1] // 2
 
         # Calculate initial handle position based on value
-        self.handle_pos = self.slider_left + (initial_value / (self.max_value - self.min_value)) * (self.slider_right - self.slider_left)
+        self.handle_pos = self.slider_left + (self.current_val / (self.max_value - self.min_value)) * (self.slider_right - self.slider_left)
         self.handle_rect = pygame.Rect(self.handle_pos, self.slider_top, 10, self.size[1])
 
         self.container_rect = pygame.Rect(self.slider_left, self.slider_top, self.size[0], self.size[1])
@@ -26,6 +31,7 @@ class Slider:
         new_handle_pos = max(self.slider_left, min(pos[0], self.slider_right - self.handle_rect.width))
         self.handle_pos = new_handle_pos
         self.handle_rect.x = self.handle_pos
+        self.current_val = float(self.get_value())
 
     def hover(self):
         self.hovered = True
@@ -42,6 +48,6 @@ class Slider:
 
     def display_value(self, screen):
         value_font = pygame.font.Font(None, 30)
-        value_text = value_font.render(str(int(self.get_value())), True, "white")
+        value_text = value_font.render(str(int(self.get_value())), True, (0,0,100))
         value_text_rect = value_text.get_rect(center=(self.pos[0], self.slider_top - 15))
         screen.blit(value_text, value_text_rect)
