@@ -1,5 +1,6 @@
 import unittest
 import pygame
+import os
 
 class TestTests(unittest.TestCase):
 
@@ -12,10 +13,10 @@ class TestTests(unittest.TestCase):
 if __name__ == "__main__":
     pygame.init()
 
-    unittest.main(verbosity=2, exit=False)
-
-    unittest.main(module="menus", verbosity=2, exit=False)
-
-    unittest.main(module="grids", verbosity=2, exit=False)
-    
+    for file in os.scandir("./src/test/"):
+        if (file.is_file()):
+            if (file.name.endswith(".py")):
+                print("Running tests from " + file.name + ':')
+                unittest.main(module=file.name[:-3], verbosity=2, exit=False)
+                
     pygame.quit()

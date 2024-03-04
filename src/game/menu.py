@@ -1,5 +1,6 @@
 import pygame
 import os
+import AssetCache
 
 from gamestate import *
 
@@ -8,6 +9,7 @@ from grid_game import GameScene
 
 ID = "main_menu"
 
+        
 class MenuScene:
     def __init__(self, screen):
         self.id = ID
@@ -19,7 +21,7 @@ class MenuScene:
         #this the current background music    
         pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
-
+        
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 50
         exit_button_y = screen.get_height() // 2 + 150
@@ -27,19 +29,18 @@ class MenuScene:
         settings_button_y = screen.get_height() // 2 + 50
         instruct_button_y = screen.get_height() - 50
 
-         # the slowest thing you could possibly do pt2
-        self.PlayButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
-                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+        self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
+                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-        self.ExitButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
-                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+        self.ExitButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
+                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
         
         #put a settings button with the button.img. It uses the same fonts and color and hover color
-        self.SettingsButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
-                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+        self.SettingsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
+                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-        self.InstructionsButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
-                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= pygame.mixer.Sound("src/game/Assets/button_click.mp3"))
+        self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
+                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
         self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton]
         
@@ -71,8 +72,7 @@ def mousePress(state: Gamestate, pos, button, touch):
 
 def render(state: Gamestate):
 
-    # the slowest thing you could possibly do
-    background_image = pygame.image.load(state.scene.path + 'background.jpg')
+    background_image = AssetCache.get_image(state.scene.path + 'background.jpg')
     background_image = pygame.transform.scale(background_image, state.screen.get_size())
     state.screen.blit(background_image, (0, 0))
 
