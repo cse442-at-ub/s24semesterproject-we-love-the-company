@@ -3,6 +3,7 @@ import os
 import AssetCache
 
 from gamestate import *
+from grid_game import GameScene 
 
 from Buttons import Button
 
@@ -57,6 +58,8 @@ def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
         print("Play button clicked")
         state.scene.PlayButton.button_sound()
+        game_scene = GameScene(state.screen)
+        state.pushScene(game_scene)
     elif (state.scene.ExitButton.checkForInput(pos)):
         state.scene.ExitButton.button_sound()
         state.running = False
