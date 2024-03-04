@@ -4,7 +4,7 @@ import os
 from gamestate import *
 
 from Buttons import Button
-from grid_game import GridScene
+from grid_game import GameScene
 
 ID = "main_menu"
 
@@ -58,7 +58,7 @@ def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
         print("Play button clicked")
         state.scene.PlayButton.button_sound()
-        state.pushScene(GridScene(state.screen))
+        state.pushScene(GameScene(state.screen))
     elif (state.scene.ExitButton.checkForInput(pos)):
         state.scene.ExitButton.button_sound()
         state.running = False
