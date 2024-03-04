@@ -18,5 +18,5 @@ if __name__ == "__main__":
             if (file.name.endswith(".py")):
                 print("Running tests from " + file.name + ':')
                 unittest.main(module=file.name[:-3], verbosity=2, exit=False)
-
+                
     pygame.quit()
