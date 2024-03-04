@@ -3,6 +3,7 @@ import os
 from gamestate import Handler
 
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
+# Start game scene
 
 class GameScene:
     def __init__(self, screen):
