@@ -47,6 +47,11 @@ class GameScene:
 
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
+
+        # Mike's note: including the coordinates in the object data is redundant
+        # The grid itself already keeps track of that
+        # I know this was done for ease of inserting objects for testing
+        # But in future (when making levels) there should be a different way of doing this
         objects = [
             {"type": "player", "x": 5, "y": 5,"image":self.player_image},
             {"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image},
