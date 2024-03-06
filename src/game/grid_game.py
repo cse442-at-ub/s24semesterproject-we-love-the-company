@@ -57,7 +57,6 @@ class GameScene:
         # I know this was done for ease of inserting objects for testing
         # But in future (when making levels) there should be a different way of doing this
         objects = [
-            {"type": "player", "x": self.player.x, "y": self.player.y,"image":self.player_image},
             {"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image},
             {"type": "tree", "x": 1, "y": 1,"image":self.tree_image},
             {"type": "tree", "x": 8, "y": 1,"image":self.tree_image},
@@ -82,6 +81,8 @@ class GameScene:
             ((x,y),image) = pair
             self.render_image_at_coordinates(image,x,y)
 
+        self.render_image_at_coordinates(self.player_image, self.player.x, self.player.y)
+
         pygame.display.flip()
 
     def update(self, gamestate, dt):
@@ -95,19 +96,15 @@ class GameScene:
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
 
-    def movePlayer():
-        playerItem = gamestate.scene.grid.remove_at_location(prevLoc[0], prevLoc[1])
-        return gamestate.scene.grid.insert(playerItem, gamestate.scene.player.x, gamestate.scene.player.y)
+    if (key == pygame.K_a or key == pygame.K_LEFT):
+        gamestate.scene.player.moveLeft(gamestate.scene.grid)
 
-    if (key == pygame.K_a):
-        if (gamestate.scene.player.moveLeft(gamestate.scene.grid)):
-            movePlayer()
-    elif (key == pygame.K_s):
-        if (gamestate.scene.player.moveDown(gamestate.scene.grid)):
-            movePlayer()
-    elif (key == pygame.K_w):
-        if (gamestate.scene.player.moveUp(gamestate.scene.grid)):
-            movePlayer()
-    elif (key == pygame.K_d):
-        if (gamestate.scene.player.moveRight(gamestate.scene.grid)):
-            movePlayer()
+    elif (key == pygame.K_s or key == pygame.K_DOWN):
+        gamestate.scene.player.moveDown(gamestate.scene.grid)
+
+    elif (key == pygame.K_w or key == pygame.K_UP):
+        gamestate.scene.player.moveUp(gamestate.scene.grid)
+
+    elif (key == pygame.K_d or key == pygame.K_RIGHT):
+        gamestate.scene.player.moveRight(gamestate.scene.grid)
+
