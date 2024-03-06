@@ -4,7 +4,6 @@ from Buttons import Button
 from Sliders import Slider
 import AssetCache
 
-
 from gamestate import *
 import game
 global_audio_pack = game.audio_pack
@@ -12,6 +11,7 @@ global_audio_control = game.audio_control
 global_button_sound_que = game.button_sound_que
 global_volume = 0.5
 
+audio_pack = AssetCache.get_audio("src/game/Assets/button_click.mp3")
 
 ID = "Audio_settings"
 
@@ -25,6 +25,7 @@ class AudioScene:
         slider_one_y = screen.get_height() // 2 - 50
         slider_two_y = screen.get_height() // 2 + 50
         back_button_y = screen.get_height() // 2 + 150
+
 
 
         self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
@@ -90,6 +91,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
             button.changeColor(pos)
 
 def render(state: Gamestate):
+
     background_image = AssetCache.get_image(state.scene.path + 'background.jpg')
     background_image = pygame.image.load(state.scene.path + 'background.jpg')
     background_image = pygame.transform.scale(background_image, state.screen.get_size())
@@ -103,3 +105,8 @@ def render(state: Gamestate):
     for button in state.scene.buttons:
         if isinstance(button, Button):
             button.update(state.screen)
+# Update volume function (called when needed)
+#def update_volume(state: Gamestate):
+#    global_volume = state.get_value() / 100
+#    pygame.mixer.music.set_volume(global_volume)
+#    audio_pack.set_volume(global_volume)

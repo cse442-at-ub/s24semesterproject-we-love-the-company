@@ -24,6 +24,7 @@ class MenuScene:
         self.path = os.path.dirname(__file__) + "/"
 
         self.textFont = pygame.font.SysFont("Arial", 40)
+
         #this the current background music    
         pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
@@ -31,6 +32,7 @@ class MenuScene:
         
         global_audio_pack
         global_audio_control
+
 
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 50

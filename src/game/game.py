@@ -8,9 +8,7 @@ pygame.mixer.init()
 audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
 audio_control = pygame.mixer.music.play(-1)
 button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
-pygame.mixer.music.set_volume(0.1)
-
-
+pygame.mixer.music.set_volume(0.2)
 
 def gameloop(gamestate: Gamestate):
     
