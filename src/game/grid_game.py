@@ -3,6 +3,7 @@ import os
 from gamestate import Handler
 import AssetCache
 
+from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
 
@@ -43,17 +44,20 @@ class GameScene:
         gamestate.handlers[self.id] = Handler(
             onRender=self.render,
             onUpdate=self.update,
-            onMousePress=self.onMousePress,)
+            onMousePress=self.onMousePress,
+            onKeyPress=onKeyPress)
 
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
+
+        self.player = Player(5, 5)
 
         # Mike's note: including the coordinates in the object data is redundant
         # The grid itself already keeps track of that
         # I know this was done for ease of inserting objects for testing
         # But in future (when making levels) there should be a different way of doing this
         objects = [
-            {"type": "player", "x": 5, "y": 5,"image":self.player_image},
+            {"type": "player", "x": self.player.x, "y": self.player.y,"image":self.player_image},
             {"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image},
             {"type": "tree", "x": 1, "y": 1,"image":self.tree_image},
             {"type": "tree", "x": 8, "y": 1,"image":self.tree_image},
@@ -87,3 +91,23 @@ class GameScene:
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
         pass
+
+def onKeyPress(gamestate, key, mod, unicode, scancode):
+    prevLoc = gamestate.scene.player.position
+
+    def movePlayer():
+        playerItem = gamestate.scene.grid.remove_at_location(prevLoc[0], prevLoc[1])
+        return gamestate.scene.grid.insert(playerItem, gamestate.scene.player.x, gamestate.scene.player.y)
+
+    if (key == pygame.K_a):
+        if (gamestate.scene.player.moveLeft(gamestate.scene.grid)):
+            movePlayer()
+    elif (key == pygame.K_s):
+        if (gamestate.scene.player.moveDown(gamestate.scene.grid)):
+            movePlayer()
+    elif (key == pygame.K_w):
+        if (gamestate.scene.player.moveUp(gamestate.scene.grid)):
+            movePlayer()
+    elif (key == pygame.K_d):
+        if (gamestate.scene.player.moveRight(gamestate.scene.grid)):
+            movePlayer()
