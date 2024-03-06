@@ -4,8 +4,13 @@ from Buttons import Button
 import AssetCache
 
 from gamestate import *
+import game
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
 
 ID = "settings"
+
 
 class SettingsScene:
     def __init__(self, screen):
@@ -13,10 +18,12 @@ class SettingsScene:
         self.path = os.path.dirname(__file__) + "/"
         self.textFont = pygame.font.SysFont("Arial", 40)
 
+        
         screen_center_x = screen.get_width() // 2
         audio_button_y = screen.get_height() // 2 - 50
         video_button_y = screen.get_height() // 2 + 50
         back_button_y = screen.get_height() // 2 + 150
+
 
         self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
                         text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
@@ -26,6 +33,16 @@ class SettingsScene:
             
         self.VideoButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
                         text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+
+        self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
+                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+        
+        self.AudioButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
+                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+            
+        self.VideoButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
+                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+
 
         self.buttons = [self.BackButton, self.AudioButton, self.VideoButton]
 

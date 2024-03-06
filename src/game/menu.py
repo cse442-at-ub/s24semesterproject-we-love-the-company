@@ -3,9 +3,16 @@ import os
 import AssetCache
 
 from gamestate import *
+import game
 
 from Buttons import Button
 from grid_game import GameScene
+
+from gamestate import *
+
+global_audio_pack = game.audio_pack
+global_audio_control = game.audio_control
+global_button_sound_que = game.button_sound_que
 
 ID = "main_menu"
 
@@ -17,17 +24,21 @@ class MenuScene:
         self.path = os.path.dirname(__file__) + "/"
 
         self.textFont = pygame.font.SysFont("Arial", 40)
-
         #this the current background music    
         pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
+        #this the current background music   
         
+        global_audio_pack
+        global_audio_control
+
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 50
         exit_button_y = screen.get_height() // 2 + 150
         #putting the settings button in the middle of the play and exit buttons
         settings_button_y = screen.get_height() // 2 + 50
         instruct_button_y = screen.get_height() - 50
+
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
                             text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
@@ -41,6 +52,21 @@ class MenuScene:
 
         self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
                                 text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+    
+         # the slowest thing you could possibly do pt2
+        self.PlayButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
+                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound = global_button_sound_que)
+
+        self.ExitButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
+                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+        
+        #put a settings button with the button.img. It uses the same fonts and color and hover color
+        self.SettingsButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
+                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+
+        self.InstructionsButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
+                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
+
 
         self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton]
         
