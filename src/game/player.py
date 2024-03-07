@@ -94,7 +94,7 @@ class Player:
     def drop(self):
         if (self.heldItem != None):
             obj = {"item": self.heldItem}
-            if (self.grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y+1)):
                 self.heldItem = None
                 return True
 
@@ -104,7 +104,7 @@ class Player:
     def dropFromBackpack(self, id):
         if (not self.inventory.isEmpty() and id in self.inventory.dict):
             obj = {"item": id}
-            if (self.grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y+1)):
                 self.inventory.remove(id)
                 return True
 

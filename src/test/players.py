@@ -53,14 +53,14 @@ class PlayerTests(unittest.TestCase):
         self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
         self.assertTrue(self.player.drop())
-        self.assertEqual({"item": COMMON}, self.grid.get_object(0, 0))
+        self.assertEqual({"item": COMMON}, self.grid.get_object(0, 1))
 
     def test_backpack_drop(self):
         self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
         self.assertTrue(self.player.stash())
         self.assertTrue(self.player.dropFromBackpack(COMMON))
-        self.assertEqual({"item": COMMON}, self.grid.get_object(0, 0))
+        self.assertEqual({"item": COMMON}, self.grid.get_object(0, 1))
 
     def test_multiple_pickup(self):
         self.assertTrue(self.player.pickUp(1, 0))
