@@ -15,10 +15,10 @@ UNCOMMON = "uncommon"
 
 class PlayerTests(unittest.TestCase):
     def setUp(self):
-        self.grid = grid.Grid(5, 5)
+        self.grid = grid.Grid(3, 3)
         self.player = player.Player(self.grid,0,0,None)
-        self.grid.insert({"item": COMMON}, 1, 0)
-        self.grid.insert({"item": UNCOMMON}, 0, 2)
+        self.grid.insert({"item": COMMON,"obstruction":True}, 1, 0)
+        self.grid.insert({"item": UNCOMMON,"obstruction":True}, 0, 2)
 
     def test_init(self):
         self.assertIsNone(self.player.heldItem)
@@ -77,16 +77,17 @@ class PlayerTests(unittest.TestCase):
         self.assertIn(UNCOMMON, self.player.inventory.dict)
 
     def test_movement(self):
-        self.assertFalse(self.player.moveLeft())
-        self.assertEqual(self.player.position, (0, 0))
-        self.assertTrue(self.player.moveRight())
-        self.assertEqual(self.player.position, (1, 0))
-        self.assertTrue(self.player.moveDown())
+        self.assertTrue(self.player.move(1,1))
+        self.assertFalse(self.player.moveUp())
         self.assertEqual(self.player.position, (1, 1))
+        self.assertTrue(self.player.moveRight())
+        self.assertEqual(self.player.position, (2, 1))
+        self.assertTrue(self.player.moveDown())
+        self.assertEqual(self.player.position, (2, 2))
         self.assertTrue(self.player.moveUp())
-        self.assertEqual(self.player.position, (1, 0))
+        self.assertEqual(self.player.position, (2, 1))
         self.assertTrue(self.player.moveLeft())
-        self.assertEqual(self.player.position, (0, 0))
+        self.assertEqual(self.player.position, (1, 1))
 
     def test_loss(self):
         self.assertEqual("defeated", self.player.getHit())

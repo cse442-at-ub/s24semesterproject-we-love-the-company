@@ -37,17 +37,16 @@ class Player:
 
     # returns False when movement isn't possible
     def move(self, x, y):
-        current_x,current_y = self.position
-        if (self.grid.is_inbounds(current_x + x, current_y + y)):
-            obj = self.grid.get_object(current_x + x, current_y + y)
+        if (self.grid.is_inbounds(self.x + x, self.y + y)):
+            obj = self.grid.get_object(self.x + x, self.y + y)
 
             # SUBJECT TO CHANGE !!!
             if (obj == None or not obj.get("obstruction",False)):
-                player_obj = self.grid.get_object(current_x,current_y)
-                self.grid.remove_at_location(current_x,current_y)
+                current_x,current_y = self.position
+                player_obj = self.grid.get_object(self.x,self.y)
+                self.grid.remove_at_location(self.x,self.y)
                 self.grid.insert(player_obj,current_x+x,current_y+y)
                 return True
-
         return False
 
     def moveLeft(self):
