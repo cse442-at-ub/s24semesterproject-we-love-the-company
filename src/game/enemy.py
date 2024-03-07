@@ -10,16 +10,21 @@ class EnemyManager:
         self.grid = grid
     
     def list_of_enemies(self):
+        """Gets a list of all enemies in the grid."""
         return self.grid.find_object_with_properties({"name":"enemy"})
     
     def player_position(self):
+        """Finds the player in the grid."""
         player_list = list(self.grid.find_object_with_properties({"name":"player"}))
-        if len(player_list) > 1:
-            raise Exception("More than 1 player was found on the grid, cannot pathfind.")
+        if len(player_list) != 1:
+            raise Exception(f"{len(player_list)} players were found in the grid, expected 1.")
         x,y = player_list[0]
         return (x,y)
     
     def create_enemy(self,x:int,y:int,image,hitDie:str,movementDelay:int):
+        """Creates an enemy on the grid."""
+        """hitDie is their starting dice value for Strikes."""
+        """movementDelay determines how many steps must pass before they are able to move."""
         enemy_object = {
             "name":"enemy",
             "hitDie":hitDie,
@@ -31,7 +36,11 @@ class EnemyManager:
         return self.grid.insert(enemy_object,x,y)
     
     def check_obstruction(self,x:int,y:int):
-        return self.grid.get_object(x,y).get("obstruction",False)
+        obj = self.grid.get_object(x,y)
+        if obj is None:
+            return False
+        else:
+            return obj.get("obstruction",False)
     
     def next_position(self,enemy_x,enemy_y,player_x,player_y):
         if enemy_x < player_x and not self.check_obstruction(enemy_x+1,enemy_y):
@@ -51,9 +60,9 @@ class EnemyManager:
         for enemy in enemies:
             x,y=enemy
             enemy = self.grid.get_object(x,y)
-            if enemy["stepsUntilMove"] > 0:
-                enemy["stepsUntilMove"] -= 1
-            else:
+            enemy["stepsUntilMove"] -= 1
+            if enemy["stepsUntilMove"] <= 0:
+                enemy["stepsUntilMove"] = enemy["movementDelay"]
                 new_x,new_y = self.next_position(x,y,player_x,player_y)
                 if new_x != x or new_y != y:
                     self.grid.insert(enemy,new_x,new_y)

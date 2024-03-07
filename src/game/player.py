@@ -22,12 +22,22 @@ class Player:
 
         self.grid.insert(player_object,x,y)
     
+    @property
     def position(self):
-        return self.grid.find_object_with_properties({"name","player"})[0]
+        """Returns the position of the player in the grid."""
+        return list(self.grid.find_object_with_properties({"name":"player"}))[0]
+    
+    @property
+    def x(self):
+        return self.position[0]
+
+    @property
+    def y(self):
+        return self.position[1]
 
     # returns False when movement isn't possible
     def move(self, x, y):
-        current_x,current_y = self.position()
+        current_x,current_y = self.position
         if (self.grid.is_inbounds(current_x + x, current_y + y)):
             obj = self.grid.get_object(current_x + x, current_y + y)
 
@@ -54,18 +64,18 @@ class Player:
 
     def useHeld(self):
         pass
-"""
+
     # picks up an item from the ground
-    def pickUp(self, x, y, grid: Grid, range = 1):
+    def pickUp(self, x, y, range = 1):
         # check if out of range
         if (abs(self.x - x) + abs(self.y - y) > range):
             return False
 
         if (self.heldItem == None):
-            if (grid.is_inbounds(x, y)):
-                obj = grid.get_object(x, y)
+            if (self.grid.is_inbounds(x, y)):
+                obj = self.grid.get_object(x, y)
                 if (obj != None and "item" in obj):
-                    grid.remove_at_location(x, y)
+                    self.grid.remove_at_location(x, y)
                     self.heldItem = obj["item"]
                     return True
 
@@ -81,20 +91,20 @@ class Player:
         return False
 
     # drops currently held item to feet
-    def drop(self, grid: Grid):
+    def drop(self):
         if (self.heldItem != None):
             obj = {"item": self.heldItem}
-            if (grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y)):
                 self.heldItem = None
                 return True
 
         return False
 
     # drops from the backpack
-    def dropFromBackpack(self, id, grid: Grid):
+    def dropFromBackpack(self, id):
         if (not self.inventory.isEmpty() and id in self.inventory.dict):
             obj = {"item": id}
-            if (grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y)):
                 self.inventory.remove(id)
                 return True
 
@@ -121,4 +131,4 @@ class Player:
 
     # increases the die
     def increaseDie(self):
-        self.hitDie = strike.upgrade_die(self.hitDie)"""
+        self.hitDie = strike.upgrade_die(self.hitDie)

@@ -97,20 +97,20 @@ class GameScene:
 
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
+    moved = False
 
     if (key == pygame.K_a or key == pygame.K_LEFT):
-        gamestate.scene.player.moveLeft()
-        gamestate.scene.enemyManager.enemy_step()
+        moved = gamestate.scene.player.moveLeft()
+        
 
     elif (key == pygame.K_s or key == pygame.K_DOWN):
-        gamestate.scene.player.moveDown()
-        gamestate.scene.enemyManager.enemy_step()
+        moved = gamestate.scene.player.moveDown()
 
     elif (key == pygame.K_w or key == pygame.K_UP):
-        gamestate.scene.player.moveUp()
-        gamestate.scene.enemyManager.enemy_step()
+        moved = gamestate.scene.player.moveUp()
 
     elif (key == pygame.K_d or key == pygame.K_RIGHT):
-        gamestate.scene.player.moveRight()
-        gamestate.scene.enemyManager.enemy_step()
+        moved = gamestate.scene.player.moveRight()
 
+    if moved:
+        gamestate.scene.enemyManager.enemy_step()

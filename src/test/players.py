@@ -15,8 +15,8 @@ UNCOMMON = "uncommon"
 
 class PlayerTests(unittest.TestCase):
     def setUp(self):
-        self.player = player.Player()
         self.grid = grid.Grid(5, 5)
+        self.player = player.Player(self.grid,0,0,None)
         self.grid.insert({"item": COMMON}, 1, 0)
         self.grid.insert({"item": UNCOMMON}, 0, 2)
 
@@ -27,7 +27,7 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(self.player.position, (0, 0))
 
     def test_pickup(self):
-        self.assertTrue(self.player.pickUp(1, 0, self.grid))
+        self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
         self.assertTrue(self.player.stash())
         self.assertIsNone(self.player.heldItem)
@@ -35,7 +35,7 @@ class PlayerTests(unittest.TestCase):
         self.assertIn(COMMON, self.player.inventory.dict)
 
     def test_retrieve(self):
-        self.assertTrue(self.player.pickUp(1, 0, self.grid))
+        self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
         self.assertTrue(self.player.stash())
         self.assertIsNone(self.player.heldItem)
@@ -46,46 +46,46 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(COMMON, self.player.heldItem)
 
     def test_out_of_range(self):
-        self.assertFalse(self.player.pickUp(0, 2, self.grid))
+        self.assertFalse(self.player.pickUp(0, 2))
         self.assertIsNone(self.player.heldItem)
 
     def test_drop(self):
-        self.assertTrue(self.player.pickUp(1, 0, self.grid))
+        self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
-        self.assertTrue(self.player.drop(self.grid))
+        self.assertTrue(self.player.drop())
         self.assertEqual({"item": COMMON}, self.grid.get_object(0, 0))
 
     def test_backpack_drop(self):
-        self.assertTrue(self.player.pickUp(1, 0, self.grid))
+        self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
         self.assertTrue(self.player.stash())
-        self.assertTrue(self.player.dropFromBackpack(COMMON, self.grid))
+        self.assertTrue(self.player.dropFromBackpack(COMMON))
         self.assertEqual({"item": COMMON}, self.grid.get_object(0, 0))
 
     def test_multiple_pickup(self):
-        self.assertTrue(self.player.pickUp(1, 0, self.grid))
+        self.assertTrue(self.player.pickUp(1, 0))
         self.assertEqual(COMMON, self.player.heldItem)
-        self.assertTrue(self.player.moveDown(self.grid))
+        self.assertTrue(self.player.moveDown())
         self.assertEqual(self.player.position, (0, 1))
-        self.assertFalse(self.player.pickUp(0, 2, self.grid))
+        self.assertFalse(self.player.pickUp(0, 2))
         self.assertTrue(self.player.stash())
         self.assertFalse(self.player.stash())
-        self.assertTrue(self.player.pickUp(0, 2, self.grid))
+        self.assertTrue(self.player.pickUp(0, 2))
         self.assertTrue(self.player.stash())
         self.assertIsNone(self.player.heldItem)
         self.assertIn(COMMON, self.player.inventory.dict)
         self.assertIn(UNCOMMON, self.player.inventory.dict)
 
     def test_movement(self):
-        self.assertFalse(self.player.moveLeft(self.grid))
+        self.assertFalse(self.player.moveLeft())
         self.assertEqual(self.player.position, (0, 0))
-        self.assertTrue(self.player.moveRight(self.grid))
+        self.assertTrue(self.player.moveRight())
         self.assertEqual(self.player.position, (1, 0))
-        self.assertTrue(self.player.moveDown(self.grid))
+        self.assertTrue(self.player.moveDown())
         self.assertEqual(self.player.position, (1, 1))
-        self.assertTrue(self.player.moveUp(self.grid))
+        self.assertTrue(self.player.moveUp())
         self.assertEqual(self.player.position, (1, 0))
-        self.assertTrue(self.player.moveLeft(self.grid))
+        self.assertTrue(self.player.moveLeft())
         self.assertEqual(self.player.position, (0, 0))
 
     def test_loss(self):
