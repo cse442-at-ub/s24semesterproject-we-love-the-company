@@ -8,45 +8,53 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self, x = 0, y = 0):
+    def __init__(self, grid: Grid, x: int, y: int, image):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
-        self.x = x
-        self.y = y
+        self.grid = grid
 
-    @property
+        player_object = {
+            "name":"player",
+            "obstruction":True,
+            "image":image
+        }
+
+        self.grid.insert(player_object,x,y)
+    
     def position(self):
-        return (self.x, self.y)
+        return self.grid.find_object_with_properties({"name","player"})[0]
 
     # returns False when movement isn't possible
-    def move(self, x, y, grid: Grid):
-        if (grid.is_inbounds(self.x + x, self.y + y)):
-            obj = grid.get_object(self.x + x, self.y + y)
+    def move(self, x, y):
+        current_x,current_y = self.position()
+        if (self.grid.is_inbounds(current_x + x, current_y + y)):
+            obj = self.grid.get_object(current_x + x, current_y + y)
 
             # SUBJECT TO CHANGE !!!
-            if (obj == None or "name" not in obj or obj["name"] != "wall"):
-                self.x += x
-                self.y += y
+            if (obj == None or not obj.get("obstruction",False)):
+                player_obj = self.grid.get_object(current_x,current_y)
+                self.grid.remove_at_location(current_x,current_y)
+                self.grid.insert(player_obj,current_x+x,current_y+y)
                 return True
 
         return False
 
-    def moveLeft(self, grid: Grid):
-        return self.move(-1, 0, grid)
+    def moveLeft(self):
+        return self.move(-1, 0)
 
-    def moveDown(self, grid: Grid):
-        return self.move(0, 1, grid)
+    def moveDown(self):
+        return self.move(0, 1)
 
-    def moveUp(self, grid: Grid):
-        return self.move(0, -1, grid)
+    def moveUp(self):
+        return self.move(0, -1)
 
-    def moveRight(self, grid: Grid):
-        return self.move(1, 0, grid)
+    def moveRight(self):
+        return self.move(1, 0)
 
     def useHeld(self):
         pass
-
+"""
     # picks up an item from the ground
     def pickUp(self, x, y, grid: Grid, range = 1):
         # check if out of range
@@ -113,4 +121,4 @@ class Player:
 
     # increases the die
     def increaseDie(self):
-        self.hitDie = strike.upgrade_die(self.hitDie)
+        self.hitDie = strike.upgrade_die(self.hitDie)"""

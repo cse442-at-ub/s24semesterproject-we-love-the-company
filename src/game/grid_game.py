@@ -3,6 +3,7 @@ import os
 from gamestate import Handler
 import AssetCache
 
+from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
@@ -20,6 +21,7 @@ class GameScene:
         
         # Initialize the grid with calculated dimensions
         self.grid = Grid(width=grid_width, height=grid_height)
+        self.enemyManager = EnemyManager(self.grid)
         
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
@@ -50,25 +52,27 @@ class GameScene:
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
 
-        self.player = Player(5, 5)
+        self.player = Player(self.grid, 5, 5, self.player_image)
 
         # Mike's note: including the coordinates in the object data is redundant
         # The grid itself already keeps track of that
         # I know this was done for ease of inserting objects for testing
         # But in future (when making levels) there should be a different way of doing this
         objects = [
-            {"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image},
-            {"type": "tree", "x": 1, "y": 1,"image":self.tree_image},
-            {"type": "tree", "x": 8, "y": 1,"image":self.tree_image},
-            {"type": "apple", "x": 3, "y": 6,"image":self.apple_image},
-            {"type": "apple", "x": 7, "y": 2,"image":self.apple_image},
-            {"type": "apple", "x": 4, "y": 4,"image":self.apple_image},
+            #{"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image,"obstruction":True},
+            {"type": "tree", "x": 1, "y": 1,"image":self.tree_image,"obstruction":True},
+            {"type": "tree", "x": 8, "y": 1,"image":self.tree_image,"obstruction":True},
+            {"type": "apple", "x": 3, "y": 6,"image":self.apple_image,"obstruction":True},
+            {"type": "apple", "x": 7, "y": 2,"image":self.apple_image,"obstruction":True},
+            {"type": "apple", "x": 4, "y": 4,"image":self.apple_image,"obstruction":True},
             # Add more objects as needed
         ]
 
         # Insert each object into the grid
         for obj in objects:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
+        
+        self.enemyManager.create_enemy(2,3,self.enemy_image,"d6",2)
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
@@ -80,8 +84,6 @@ class GameScene:
         for pair in images_to_render:
             ((x,y),image) = pair
             self.render_image_at_coordinates(image,x,y)
-
-        self.render_image_at_coordinates(self.player_image, self.player.x, self.player.y)
 
         pygame.display.flip()
 
@@ -97,14 +99,18 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
 
     if (key == pygame.K_a or key == pygame.K_LEFT):
-        gamestate.scene.player.moveLeft(gamestate.scene.grid)
+        gamestate.scene.player.moveLeft()
+        gamestate.scene.enemyManager.enemy_step()
 
     elif (key == pygame.K_s or key == pygame.K_DOWN):
-        gamestate.scene.player.moveDown(gamestate.scene.grid)
+        gamestate.scene.player.moveDown()
+        gamestate.scene.enemyManager.enemy_step()
 
     elif (key == pygame.K_w or key == pygame.K_UP):
-        gamestate.scene.player.moveUp(gamestate.scene.grid)
+        gamestate.scene.player.moveUp()
+        gamestate.scene.enemyManager.enemy_step()
 
     elif (key == pygame.K_d or key == pygame.K_RIGHT):
-        gamestate.scene.player.moveRight(gamestate.scene.grid)
+        gamestate.scene.player.moveRight()
+        gamestate.scene.enemyManager.enemy_step()
 
