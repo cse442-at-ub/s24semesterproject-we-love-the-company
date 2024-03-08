@@ -21,7 +21,8 @@ class Gamestate:
 
     def __init__(self, screenSize, initScene):
         self.screenSize = screenSize
-        self.screen = pygame.display.set_mode(screenSize)
+        #should make the screen resizable
+        self.screen = pygame.display.set_mode(screenSize, pygame.RESIZABLE)
         self._scenes = [initScene]
         initScene.initHandlers(self)
         
@@ -56,3 +57,12 @@ class Gamestate:
 
     def pressMouse(self, pos, button, touch):
         self.handlers[self.scene.id].onMousePress(self, pos, button, touch)
+    
+    def update_scene_elements(self, width: int, height: int):
+        for scene in self._scenes:
+            scene.update_elements(width, height)
+    
+    def handle_resize(self, width: int, height: int):
+        self.screenSize = (width, height)
+        self.screen = pygame.display.set_mode(self.screenSize, pygame.RESIZABLE)
+        self.update_scene_elements(width, height)

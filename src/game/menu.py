@@ -47,6 +47,9 @@ class MenuScene:
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
+    
+    def update_elements(self, width: int, height: int):
+        pass 
 
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for button in state.scene.buttons:

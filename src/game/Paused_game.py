@@ -42,6 +42,9 @@ class PauseScene:
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
+    
+    def update_elements(self, width: int, height: int):
+        pass
 
 
 from OptionsMenu import SettingsScene
@@ -53,8 +56,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 def mousePress(state: Gamestate, pos, button, touch):
     if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-        if state.scene.id == "game_scene": #this should be what he play ID is
-            # In-game, push the settings scene and store the previous scene
+        if state.scene.id == "game_scene":
             state.is_paused = True
             state.pushScene(SettingsScene(state.screen))
             state.scene.SettingsButton.button_sound()

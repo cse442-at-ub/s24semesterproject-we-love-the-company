@@ -41,6 +41,9 @@ class AudioScene:
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
+    
+    def update_elements(self, width: int, height: int):
+        pass
 
 def mousePress(state: Gamestate, pos, button, touch):
     for slide in state.scene.sliders:
