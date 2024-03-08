@@ -61,5 +61,3 @@ class Item:
         if id not in self.dict:
             raise Exception('bad identifier!')
         return self.dict[id]
-
-
