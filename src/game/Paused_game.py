@@ -18,6 +18,7 @@ class PauseScene:
         self.id = ID
         self.path = os.path.dirname(__file__) + "/"
         self.textFont = pygame.font.SysFont("Arial", 40)
+        self.is_paused = False
 
         screen_center_x = screen.get_width() // 2
         resume_button_y = screen.get_height() // 2 - 50
@@ -43,7 +44,6 @@ class PauseScene:
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
 
 
-from AudioMenu import AudioScene
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
 
@@ -53,30 +53,29 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 def mousePress(state: Gamestate, pos, button, touch):
     if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-        if state.scene.id == "InGame": #this should be what he play ID is
+        if state.scene.id == "game_scene": #this should be what he play ID is
             # In-game, push the settings scene and store the previous scene
+            state.is_paused = True
             state.pushScene(SettingsScene(state.screen))
             state.scene.SettingsButton.button_sound()
             settings_scene = state.scene
             settings_scene.previous_scene = state.scene
-        elif state.scene.id == "InPause":
-            state.popScene()
-
-
-    if (state.scene.BackButton.checkForInput(pos)):
-        state.scene.BackButton.button_sound()
-        state.popScene()
-    elif (state.scene.ResumeButton.checkForInput(pos)):
-        state.scene.ResumeButton.button_sound()
-        print("The game has been resumed")
-    elif (state.scene.InstButton.checkForInput(pos)):
-        state.scene.InstButton.button_sound()
-        state.pushScene(InstructionsScene(state.screen))
-        print("Instructions to how to play")
-    elif (state.scene.SettingsButton.checkForInput(pos)):
-        state.scene.SettingsButton.button_sound()
-        state.pushScene(SettingsScene(state.screen))
-        print("Instructions to how to play")
+        
+        if state.is_paused:
+            if (state.scene.BackButton.checkForInput(pos)):
+                state.scene.BackButton.button_sound()
+                state.popScene()
+            elif (state.scene.ResumeButton.checkForInput(pos)):
+                state.scene.ResumeButton.button_sound()
+                print("The game has been resumed")
+            elif (state.scene.InstButton.checkForInput(pos)):
+                state.scene.InstButton.button_sound()
+                state.pushScene(InstructionsScene(state.screen))
+                print("Instructions to how to play")
+            elif (state.scene.SettingsButton.checkForInput(pos)):
+                state.scene.SettingsButton.button_sound()
+                state.pushScene(SettingsScene(state.screen))
+                print("Instructions to how to play")
 
 
 def render(state: Gamestate):

@@ -1,6 +1,7 @@
 from pygame import image, mixer
-
+import pygame
 image_cache = dict()
+pygame.mixer.init()
 
 def get_image(path):
     """Load an image from path."""
