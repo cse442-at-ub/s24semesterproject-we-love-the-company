@@ -61,4 +61,3 @@ class Slider:
         label_text_rect = lable_text.get_rect(centery=self.pos[1])
         label_text_rect.right = self.container_rect.left - 5
         screen.blit(lable_text, label_text_rect)
-
