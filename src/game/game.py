@@ -36,13 +36,6 @@ def gameloop(gamestate: Gamestate):
         elif (event.type == pygame.VIDEORESIZE):
             gamestate.handle_resize(event.w, event.h)
 
-        if hasattr(gamestate.scene, 'handle_events'):
-            gamestate.scene.handle_events(event)
-
-    # Add this to draw UI elements on the screen
-    if hasattr(gamestate.scene, 'draw_ui'):
-        gamestate.scene.draw_ui(gamestate.screen)
-
 def main():
     # initialize the game to the splash screen
     state = Gamestate((1280, 720), SplashScene())
