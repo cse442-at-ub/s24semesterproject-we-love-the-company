@@ -8,56 +8,73 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self, x = 0, y = 0):
+    def __init__(self, grid: Grid, x: int, y: int, image):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
-        self.x = x
-        self.y = y
+        self.grid = grid
 
+        player_object = {
+            "name":"player",
+            "obstruction":True,
+            "image":image
+        }
+
+        self.grid.insert(player_object,x,y)
+    
     @property
     def position(self):
-        return (self.x, self.y)
+        """Returns the position of the player in the grid."""
+        return list(self.grid.find_object_with_properties({"name":"player"}))[0]
+    
+    @property
+    def x(self):
+        return self.position[0]
+
+    @property
+    def y(self):
+        return self.position[1]
 
     # returns False when movement isn't possible
-    def move(self, x, y, grid: Grid):
-        if (grid.is_inbounds(self.x + x, self.y + y)):
-            obj = grid.get_object(self.x + x, self.y + y)
+    def move(self, x, y):
+        if (self.grid.is_inbounds(self.x + x, self.y + y)):
+            obj = self.grid.get_object(self.x + x, self.y + y)
 
             # SUBJECT TO CHANGE !!!
-            if (obj == None or "name" not in obj or obj["name"] != "wall"):
-                self.x += x
-                self.y += y
+            if (obj == None or not obj.get("obstruction",False)):
+                current_x,current_y = self.position
+                player_obj = self.grid.get_object(self.x,self.y)
+                self.grid.remove_at_location(self.x,self.y)
+                self.grid.insert(player_obj,current_x+x,current_y+y)
                 return True
-
         return False
 
-    def moveLeft(self, grid: Grid):
-        return self.move(-1, 0, grid)
+    def moveLeft(self):
+        return self.move(-1, 0)
 
-    def moveDown(self, grid: Grid):
-        return self.move(0, 1, grid)
+    def moveDown(self):
+        return self.move(0, 1)
 
-    def moveUp(self, grid: Grid):
-        return self.move(0, -1, grid)
+    def moveUp(self):
+        return self.move(0, -1)
 
-    def moveRight(self, grid: Grid):
-        return self.move(1, 0, grid)
+    def moveRight(self):
+        return self.move(1, 0)
 
     def useHeld(self):
         pass
 
     # picks up an item from the ground
-    def pickUp(self, x, y, grid: Grid, range = 1):
+    def pickUp(self, x, y, range = 1):
         # check if out of range
         if (abs(self.x - x) + abs(self.y - y) > range):
             return False
 
         if (self.heldItem == None):
-            if (grid.is_inbounds(x, y)):
-                obj = grid.get_object(x, y)
+            if (self.grid.is_inbounds(x, y)):
+                obj = self.grid.get_object(x, y)
                 if (obj != None and "item" in obj):
-                    grid.remove_at_location(x, y)
+                    self.grid.remove_at_location(x, y)
                     self.heldItem = obj["item"]
                     return True
 
@@ -73,20 +90,20 @@ class Player:
         return False
 
     # drops currently held item to feet
-    def drop(self, grid: Grid):
+    def drop(self):
         if (self.heldItem != None):
             obj = {"item": self.heldItem}
-            if (grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y+1)):
                 self.heldItem = None
                 return True
 
         return False
 
     # drops from the backpack
-    def dropFromBackpack(self, id, grid: Grid):
+    def dropFromBackpack(self, id):
         if (not self.inventory.isEmpty() and id in self.inventory.dict):
             obj = {"item": id}
-            if (grid.insert(obj, self.x, self.y)):
+            if (self.grid.insert(obj, self.x, self.y+1)):
                 self.inventory.remove(id)
                 return True
 

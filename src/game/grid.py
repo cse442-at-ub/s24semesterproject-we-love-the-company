@@ -107,7 +107,7 @@ class Grid:
                         if key in object and key_value_pairs[key] == object[key]:
                             matches += 1
                     if matches == matches_required:
-                        locations.add((y,x))
+                        locations.add((x,y))
         
         return locations
 
