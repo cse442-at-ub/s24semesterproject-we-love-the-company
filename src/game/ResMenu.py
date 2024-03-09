@@ -1,40 +1,34 @@
 import pygame
 import os
-import AssetCache
-from gamestate import Gamestate, Handler, doNothing
 from Buttons import Button
-from grid_game import GameScene
+import AssetCache
 
-ID = "main_menu"
+from gamestate import *
 
-class MenuScene:
+ID = "Res_settings"
+
+class ResolutionScene:
     def __init__(self, screen):
         self.id = ID
         self.path = os.path.dirname(__file__) + "/"
-        self.screen = screen
         self.textFont = pygame.font.SysFont("Arial", 40)
-        pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-        pygame.mixer.music.play(-1)
-        
-        # Load button assets
+
         self.button_image = AssetCache.get_image(self.path + "Assets/button.png")
         self.click_sound = AssetCache.get_audio("src/game/Assets/button_click.mp3")
-        
-        # Initialize buttons without positions
         self.buttons = []
         self.init_buttons()
-        
-        # Dynamically update button positions
+
         self.update_button_positions(screen.get_width(), screen.get_height())
+
 
     def init_buttons(self):
         # Create buttons with placeholders positions, they will be positioned in update_button_positions
-        button_labels = ["Play", "Settings", "How To Play", "Exit"]
-        for label in button_labels:
-            self.buttons.append(Button(image=self.button_image, pos=(0, 0),
-                                       text_input=label, font=self.textFont,
-                                       base_color="white", hovering_color="blue",
-                                       click_sound=self.click_sound))
+            button_labels = ["1280x720", "800x600", "Back"]
+            for label in button_labels:
+                self.buttons.append(Button(image=self.button_image, pos=(0, 0),
+                                        text_input=label, font=self.textFont,
+                                        base_color="white", hovering_color="blue",
+                                        click_sound=self.click_sound))
 
     def update_button_positions(self, width, height):
         screen_center_x = width // 2
@@ -45,7 +39,6 @@ class MenuScene:
             button_y = button_y_start + index * button_spacing
             button.rect.center = (screen_center_x, button_y)
             button.text_rect.center = (screen_center_x, button_y)
-
     def update_elements(self, width: int, height: int):
         self.update_button_positions(width, height)
 
@@ -53,12 +46,12 @@ class MenuScene:
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
 
 
+from AudioMenu import AudioScene
+from VideoMenu import VideoScene
+
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for button in state.scene.buttons:
         button.changeColor(pos)
-
-from OptionsMenu import SettingsScene
-from HowToPlay import InstructionsScene
 
 def mousePress(state: Gamestate, pos, button, touch):
     # Iterate through each button in the scene's buttons list
@@ -68,14 +61,12 @@ def mousePress(state: Gamestate, pos, button, touch):
             button.button_sound()
 
             # Execute button-specific actions
-            if button.text_input == "Play":
-                state.pushScene(GameScene(state.screen))
-            elif button.text_input == "Exit":
-                state.running = False
-            elif button.text_input == "Settings":
-                state.pushScene(SettingsScene(state.screen))  # Ensure SettingsScene is defined
-            elif button.text_input == "How To Play":
-                state.pushScene(InstructionsScene(state.screen))  # Ensure InstructionsScene is defined
+            if button.text_input == "1280x720":
+                pass
+            elif button.text_input == "Back":
+                state.popScene()
+            elif button.text_input == "800x600":
+                pass
             break  # Exit loop after finding the clicked button
 
 def render(state: Gamestate):
@@ -85,6 +76,3 @@ def render(state: Gamestate):
 
     for button in state.scene.buttons:
         button.update(state.screen)
-
-# You will need to adjust mouseMove and mousePress functions if necessary to
-# ensure they interact correctly with the dynamically positioned buttons.
