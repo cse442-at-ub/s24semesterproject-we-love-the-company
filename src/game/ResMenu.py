@@ -4,49 +4,15 @@ from Buttons import Button
 import AssetCache
 
 from gamestate import *
-import game
-global_audio_pack = game.audio_pack
-global_audio_control = game.audio_control
-global_button_sound_que = game.button_sound_que
 
-ID = "settings"
+ID = "Res_settings"
 
-
-class SettingsScene:
+class ResolutionScene:
     def __init__(self, screen):
         self.id = ID
         self.path = os.path.dirname(__file__) + "/"
         self.textFont = pygame.font.SysFont("Arial", 40)
 
-<<<<<<< HEAD
-        
-        screen_center_x = screen.get_width() // 2
-        audio_button_y = screen.get_height() // 2 - 50
-        video_button_y = screen.get_height() // 2 + 50
-        back_button_y = screen.get_height() // 2 + 150
-
-
-        self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
-        
-        self.AudioButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
-                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
-            
-        self.VideoButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
-                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
-
-        self.BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
-        
-        self.AudioButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
-                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
-            
-        self.VideoButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
-                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= global_button_sound_que)
-
-
-        self.buttons = [self.BackButton, self.AudioButton, self.VideoButton]
-=======
         self.button_image = AssetCache.get_image(self.path + "Assets/button.png")
         self.click_sound = AssetCache.get_audio("src/game/Assets/button_click.mp3")
         self.buttons = []
@@ -57,7 +23,7 @@ class SettingsScene:
 
     def init_buttons(self):
         # Create buttons with placeholders positions, they will be positioned in update_button_positions
-            button_labels = ["Audio", "Video", "Back"]
+            button_labels = ["1280x720", "800x600", "Back"]
             for label in button_labels:
                 self.buttons.append(Button(image=self.button_image, pos=(0, 0),
                                         text_input=label, font=self.textFont,
@@ -75,7 +41,6 @@ class SettingsScene:
             button.text_rect.center = (screen_center_x, button_y)
     def update_elements(self, width: int, height: int):
         self.update_button_positions(width, height)
->>>>>>> Video_settings
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
@@ -96,12 +61,12 @@ def mousePress(state: Gamestate, pos, button, touch):
             button.button_sound()
 
             # Execute button-specific actions
-            if button.text_input == "Audio":
-                state.pushScene(AudioScene(state.screen))
+            if button.text_input == "1280x720":
+                pass
             elif button.text_input == "Back":
                 state.popScene()
-            elif button.text_input == "Video":
-                state.pushScene(VideoScene(state.screen))  # Ensure SettingsScene is defined
+            elif button.text_input == "800x600":
+                pass
             break  # Exit loop after finding the clicked button
 
 def render(state: Gamestate):

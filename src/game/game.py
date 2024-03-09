@@ -38,6 +38,9 @@ def gameloop(gamestate: Gamestate):
             gamestate.moveMouse(event.pos, event.rel, event.buttons, event.touch)
         elif (event.type == pygame.MOUSEBUTTONDOWN):
             gamestate.pressMouse(event.pos, event.button, event.touch)
+        #allows to make the window resizable
+        elif (event.type == pygame.VIDEORESIZE):
+            gamestate.handle_resize(event.w, event.h)
 
 def main():
     # initialize the game to the splash screen

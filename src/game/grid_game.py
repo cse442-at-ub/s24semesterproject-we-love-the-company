@@ -1,7 +1,11 @@
 import pygame
 import os
 from gamestate import Handler
+<<<<<<< HEAD
 import AssetCache
+=======
+from Paused_game import PauseScene
+>>>>>>> Video_settings
 
 from enemy import EnemyManager
 from player import Player
@@ -46,8 +50,20 @@ class GameScene:
         gamestate.handlers[self.id] = Handler(
             onRender=self.render,
             onUpdate=self.update,
+<<<<<<< HEAD
             onMousePress=self.onMousePress,
             onKeyPress=onKeyPress)
+=======
+            onMousePress=self.onMousePress)
+    def update_elements(self, width: int, height: int):
+        pass
+    
+
+    def onKeyPress(self, gamestate, key, mod, unicode, scancode):
+        if key == pygame.K_ESCAPE:
+            # Push the Pause Menu scene onto the stack
+            gamestate.pushScene(PauseScene(gamestate.screen))
+>>>>>>> Video_settings
 
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
