@@ -1,65 +1,60 @@
 import pygame
 import os
 from Buttons import Button
+import AssetCache
 
+from gamestate import *
 
-class Settings:
-    def __init__(self, window, clock, path, textFont):
-        self.window = window
-        self.clock = clock
-        self.path = path
-        self.textFont = textFont
+ID = "settings"
 
-    #For this i followed what we had in menu.py 
-    #using the button class complete and following the whole layout like the menu.py
-    #for now the audio and video buttons dont do anything
-    #and the back(exit button takes back to the menu page)
-    def display_settings_menu(self):
-        pygame.display.set_caption("We love the Company | Options Menu")
-        run = True
-        settings_window = pygame.display.set_mode((1024, 720))
-        while run: 
-            #this is kinda copied from the menu.py (i assume it just makes the screen)
-            window_size = settings_window.get_size()
-            self.clock.tick(27)  # Control framerates
-            settings_window.fill((0, 0, 0))
-            background_image = pygame.image.load(os.path.join(self.path + 'background.jpg'))
-            background_image = pygame.transform.scale(background_image, window_size)
-            settings_window.blit(background_image, (0, 0))
+class SettingsScene:
+    def __init__(self, screen):
+        self.id = ID
+        self.path = os.path.dirname(__file__) + "/"
+        self.textFont = pygame.font.SysFont("Arial", 40)
 
-            menuMousePOS = pygame.mouse.get_pos()
+        screen_center_x = screen.get_width() // 2
+        audio_button_y = screen.get_height() // 2 - 50
+        video_button_y = screen.get_height() // 2 + 50
+        back_button_y = screen.get_height() // 2 + 150
 
-            screen_center_x = settings_window.get_width() // 2
-            audio_button_y = settings_window.get_height() // 2 - 50
-            video_button_y = settings_window.get_height() // 2 + 50
-            back_button_y = settings_window.get_height() // 2 + 150
-
-            BackButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                            text_input="Back", font=self.textFont, base_color="white", hovering_color="blue")
+        self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
+                        text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
         
-            AudioButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
-                            text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue")
+        self.AudioButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, audio_button_y),
+                        text_input="Audio", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
             
-            VideoButton = Button(image=pygame.image.load(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
-                            text_input="Display", font=self.textFont, base_color="white", hovering_color="blue")
+        self.VideoButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, video_button_y),
+                        text_input="Display", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-            for button in [AudioButton, BackButton, VideoButton]:
-                button.changeColor(menuMousePOS)
-                button.update(settings_window)
+        self.buttons = [self.BackButton, self.AudioButton, self.VideoButton]
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if AudioButton.checkForInput(menuMousePOS):
-                        print("Audio settings pressed")  # Placeholder for starting the game
-                    elif BackButton.checkForInput(menuMousePOS):
-                        run = False
-                        print("exit button pressed")
-                    elif VideoButton.checkForInput(menuMousePOS):
-                        print("Video settings pressed")
+    def initHandlers(self, state: Gamestate):
+        state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
 
 
-            pygame.display.flip()  # Update the display
-    
-    pygame.quit()
+from AudioMenu import AudioScene
+
+def mouseMove(state: Gamestate, pos, rel, buttons, touch):
+    for button in state.scene.buttons:
+        button.changeColor(pos)
+
+def mousePress(state: Gamestate, pos, button, touch):
+    if (state.scene.BackButton.checkForInput(pos)):
+        state.scene.BackButton.button_sound()
+        state.popScene()
+    elif (state.scene.AudioButton.checkForInput(pos)):
+        state.scene.AudioButton.button_sound()
+        print("Audio settings pressed")
+        state.pushScene(AudioScene(state.screen))
+    elif (state.scene.VideoButton.checkForInput(pos)):
+        state.scene.VideoButton.button_sound()
+        print("Video settings pressed")
+
+def render(state: Gamestate):
+    background_image = AssetCache.get_image(state.scene.path + 'background.jpg')
+    background_image = pygame.transform.scale(background_image, state.screen.get_size())
+    state.screen.blit(background_image, (0, 0))
+
+    for button in state.scene.buttons:
+        button.update(state.screen)
