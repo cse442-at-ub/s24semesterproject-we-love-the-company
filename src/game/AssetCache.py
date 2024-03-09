@@ -1,13 +1,10 @@
 from pygame import image, mixer
 import pygame
-<<<<<<< HEAD
 
 pygame.init()
 pygame.mixer.init()
 
 
-=======
->>>>>>> Video_settings
 image_cache = dict()
 pygame.mixer.init()
 
