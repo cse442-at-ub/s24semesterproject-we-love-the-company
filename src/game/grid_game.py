@@ -1,6 +1,7 @@
 import pygame
 import os
 from gamestate import Handler
+from Paused_game import PauseScene
 
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
@@ -42,7 +43,15 @@ class GameScene:
         gamestate.handlers[self.id] = Handler(
             onRender=self.render,
             onUpdate=self.update,
-            onMousePress=self.onMousePress,)
+            onMousePress=self.onMousePress)
+    def update_elements(self, width: int, height: int):
+        pass
+    
+
+    def onKeyPress(self, gamestate, key, mod, unicode, scancode):
+        if key == pygame.K_ESCAPE:
+            # Push the Pause Menu scene onto the stack
+            gamestate.pushScene(PauseScene(gamestate.screen))
 
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
