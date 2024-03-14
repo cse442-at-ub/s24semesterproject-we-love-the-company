@@ -101,7 +101,7 @@ class Player:
 
     # drops from the backpack
     def dropFromBackpack(self, id):
-        if (not self.inventory.isEmpty() and id in self.inventory.dict):
+        if (not self.inventory.isEmpty() and id in self.inventory.items):
             obj = {"item": id}
             if (self.grid.insert(obj, self.x, self.y+1)):
                 self.inventory.remove(id)
@@ -112,7 +112,7 @@ class Player:
     # takes item from inventory and puts into hands
     def retrieve(self, id):
         if (self.heldItem == None and not self.inventory.isEmpty()):
-            if (id in self.inventory.dict):
+            if (id in self.inventory.items):
                 self.heldItem = id
                 self.inventory.remove(id)
                 return True
