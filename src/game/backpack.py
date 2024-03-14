@@ -4,12 +4,12 @@ class Backpack:
         self.items = {}
         self.current_capacity = 0
 
-    def add(self, item):
+    def add(self, id: str):
         if self.current_capacity < self.capacity:
-            if item.identifier in self.items:
-                self.items[item.identifier] += 1
+            if id in self.items:
+                self.items[id] += 1
             else:
-                self.items[item.identifier] = 1
+                self.items[id] = 1
             self.current_capacity += 1
         else:
             raise Exception('Backpack is full')

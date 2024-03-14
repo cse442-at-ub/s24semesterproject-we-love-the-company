@@ -32,7 +32,7 @@ class PlayerTests(unittest.TestCase):
         self.assertTrue(self.player.stash())
         self.assertIsNone(self.player.heldItem)
         self.assertFalse(self.player.inventory.isEmpty())
-        self.assertIn(COMMON, self.player.inventory.dict)
+        self.assertIn(COMMON, self.player.inventory.items)
 
     def test_retrieve(self):
         self.assertTrue(self.player.pickUp(1, 0))
@@ -73,8 +73,8 @@ class PlayerTests(unittest.TestCase):
         self.assertTrue(self.player.pickUp(0, 2))
         self.assertTrue(self.player.stash())
         self.assertIsNone(self.player.heldItem)
-        self.assertIn(COMMON, self.player.inventory.dict)
-        self.assertIn(UNCOMMON, self.player.inventory.dict)
+        self.assertIn(COMMON, self.player.inventory.items)
+        self.assertIn(UNCOMMON, self.player.inventory.items)
 
     def test_movement(self):
         self.assertTrue(self.player.move(1,1))

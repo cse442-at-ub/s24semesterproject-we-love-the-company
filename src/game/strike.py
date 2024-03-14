@@ -5,7 +5,7 @@ import sys
 sys.path.append(os.getcwd() + "/src/game")
 from combat import Combat
 from backpack import Backpack
-from item import Item, Sword, Shield, Potion, Boots  
+from item import Items, Sword, Shield, Potion, Boots  
 
 
 class Strike(Combat):
