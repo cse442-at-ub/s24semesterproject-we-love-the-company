@@ -8,7 +8,11 @@ from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
 
+from value import *
+
 import util
+
+ITEM_IMAGE_SCALE = 0.075
 
 class GameScene:
     def __init__(self, screen):
@@ -19,8 +23,8 @@ class GameScene:
         self.in_inventory = False
         self.inventory_timer = 1.0
 
-        self.textFont = pygame.font.SysFont("Arial", 40)
-        self.subTextFont = pygame.font.SysFont("Arial", 25)
+        self.textFont = pygame.font.SysFont("Arial", 35)
+        self.subTextFont = pygame.font.SysFont("Arial", 20)
 
 
         # Calculate the grid size based on the screen size and cell size
@@ -94,7 +98,7 @@ class GameScene:
             ((x,y),image) = pair
             self.render_image_at_coordinates(image,x,y)
 
-        if (self.inventory_timer < 1.0):
+        if (self.inventory_timer < 1.0): # culling for if inventory open
 
             # get x position of backpack
             xposR = util.lerp(0.6, 1.0, self.inventory_timer * self.inventory_timer)
@@ -105,33 +109,46 @@ class GameScene:
 
             # draw items in backpack
             itemPos = xposR + 0.025
-            if (itemPos < 1.0):
+            if (itemPos < 1.0): # culling
                 y = 0
-                img_size = swidth * 0.1
+                img_size = swidth * ITEM_IMAGE_SCALE
                 spacing = img_size * 0.1
 
-                test_img = pygame.transform.scale(self.player_image, (img_size, img_size))
-
+                # CHANGE THIS LATER!!!!!
+                # for testing purposes
                 self.player.inventory.items["common"] = 2
                 self.player.inventory.items["arrow"] = 1
 
+                # draw backpack value
+                ypos = 0.01 * swidth
+                val = value(self.player.inventory, gamestate.items)
+                self.screen.blit(self.textFont.render("Value: " + str(val), True, (255, 255, 255)), (itemPos * swidth, ypos))
+
+                # iterate over player inventory
                 for itemz in self.player.inventory.items.items():
                     if itemz[0] in gamestate.items.dict:
-                        ypos = y * (img_size + spacing) + 0.025 * swidth
+                        # calculate y positioning
+                        ypos = y * (img_size + spacing) + 0.05 * swidth
+
                         count = itemz[1]
                         item = gamestate.items.get(itemz[0])
-                        
-                        # images don't exist for these :) have this for now
-                        self.screen.blit(test_img, (itemPos * swidth, ypos, img_size, img_size))
 
+                        # scale and get image
+                        img = pygame.transform.scale(AssetCache.get_image(item.image), (img_size, img_size))
+                        
+                        self.screen.blit(img, (itemPos * swidth, ypos, img_size, img_size))
+
+                        # calculate where to put the text
                         textX = itemPos * swidth + img_size + spacing
 
-                        self.screen.blit(self.textFont.render(item.name, True, (255, 255, 255)), (textX, ypos + spacing))
+                        # draw title and count
+                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, (255, 255, 255)), (textX, ypos + spacing))
                         theight = self.textFont.get_height()
 
+                        # draw description
                         self.screen.blit(self.subTextFont.render(item.description, True, (255, 255, 255)), (textX, ypos + spacing * 2 + theight))
-                        
 
+                        # advance to next item
                         y += 1
                     else:
                         print(itemz[0] + " doesn't identify an item")

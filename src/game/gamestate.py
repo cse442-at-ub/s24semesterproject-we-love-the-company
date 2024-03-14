@@ -30,12 +30,6 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
-        self.items.add(Common())
-        self.items.add(Sword())
-        self.items.add(Shield())
-        self.items.add(Potion())
-        self.items.add(Boots())
-        self.items.add(Arrow())
     
     @property
     def scene(self):
