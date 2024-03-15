@@ -51,6 +51,8 @@ class GameScene:
         self.apple_image = AssetCache.get_image(os.path.join(self.path, "Assets", "apple.png"))
         self.apple_image = pygame.transform.scale(self.apple_image, (self.cell_size, self.cell_size))
 
+        self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
+        self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
         # Populate the grid with initial objects
         self.populate_grid()
 
@@ -169,12 +171,15 @@ class GameScene:
         # Implement interactions based on mouse press
         pass
 
+from Paused_game import PauseScene
+
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
     if (not gamestate.scene.in_inventory):
         if (key == pygame.K_a or key == pygame.K_LEFT):
             moved = gamestate.scene.player.moveLeft()
+
 
         elif (key == pygame.K_s or key == pygame.K_DOWN):
             moved = gamestate.scene.player.moveDown()
@@ -187,7 +192,13 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
 
 
         if moved:
+            gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
+            
 
     if (key == pygame.K_TAB):
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
+        gamestate.scene.inventory_sound.play()
+
+    if (key == pygame.K_ESCAPE):
+         gamestate.pushScene(PauseScene(gamestate.screen))
