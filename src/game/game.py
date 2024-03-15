@@ -4,12 +4,6 @@ from gamestate import Gamestate
 
 from splash import SplashScene
 
-pygame.mixer.init() 
-audio_pack = pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-audio_control = pygame.mixer.music.play(-1)
-button_sound_que = pygame.mixer.Sound("src/game/Assets/button_click.mp3")
-pygame.mixer.music.set_volume(0.2)
-
 def gameloop(gamestate: Gamestate):
     
     # clear
@@ -38,9 +32,6 @@ def gameloop(gamestate: Gamestate):
             gamestate.moveMouse(event.pos, event.rel, event.buttons, event.touch)
         elif (event.type == pygame.MOUSEBUTTONDOWN):
             gamestate.pressMouse(event.pos, event.button, event.touch)
-        #allows to make the window resizable
-        elif (event.type == pygame.VIDEORESIZE):
-            gamestate.handle_resize(event.w, event.h)
 
 def main():
     # initialize the game to the splash screen

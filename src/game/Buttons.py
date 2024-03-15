@@ -1,11 +1,5 @@
 import pygame
 
-import game
-global_audio_pack = game.audio_pack
-global_audio_control = game.audio_control
-global_button_sound_que = game.button_sound_que
-
-
 #makes the button?
 class Button():
     def __init__(self, image, pos, text_input, font, base_color, hovering_color, click_sound):
@@ -20,7 +14,7 @@ class Button():
             self.image = self.text
         self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
         self.text_rect = self.text.get_rect(center=(self.x_pos, self.y_pos))
-        self.click_sound = global_button_sound_que
+        self.click_sound = click_sound
 
     def update(self, screen):
         if self.image is not None:

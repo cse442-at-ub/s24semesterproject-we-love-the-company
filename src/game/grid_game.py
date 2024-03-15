@@ -3,6 +3,8 @@ import os
 from gamestate import Gamestate, Handler
 import AssetCache
 
+from enemy import EnemyManager
+from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
 
@@ -31,21 +33,22 @@ class GameScene:
         
         # Initialize the grid with calculated dimensions
         self.grid = Grid(width=grid_width, height=grid_height)
+        self.enemyManager = EnemyManager(self.grid)
         
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
         
         # Load and resize images to fit the cell size
-        self.player_image = pygame.image.load(os.path.join(self.path, "Assets", "player.png"))
+        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
         self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
         
-        self.enemy_image = pygame.image.load(os.path.join(self.path, "Assets", "enemy.png"))
+        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
         self.enemy_image = pygame.transform.scale(self.enemy_image, (self.cell_size, self.cell_size))
         
-        self.tree_image = pygame.image.load(os.path.join(self.path, "Assets", "tree.png"))
+        self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "tree.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (self.cell_size, self.cell_size))
 
-        self.apple_image = pygame.image.load(os.path.join(self.path, "Assets", "apple.png"))
+        self.apple_image = AssetCache.get_image(os.path.join(self.path, "Assets", "apple.png"))
         self.apple_image = pygame.transform.scale(self.apple_image, (self.cell_size, self.cell_size))
 
         # Populate the grid with initial objects
@@ -55,53 +58,44 @@ class GameScene:
         gamestate.handlers[self.id] = Handler(
             onRender=self.render,
             onUpdate=self.update,
-            onMousePress=self.onMousePress)
-    def update_elements(self, width: int, height: int):
-        pass 
-    
-
-    def onKeyPress(self, gamestate, key, mod, unicode, scancode):
-        if key == pygame.K_ESCAPE:
-            # Push the Pause Menu scene onto the stack
-            gamestate.pushScene(PauseScene(gamestate.screen))
+            onMousePress=self.onMousePress,
+            onKeyPress=onKeyPress)
 
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
+
+        self.player = Player(self.grid, 5, 5, self.player_image)
+
+        # Mike's note: including the coordinates in the object data is redundant
+        # The grid itself already keeps track of that
+        # I know this was done for ease of inserting objects for testing
+        # But in future (when making levels) there should be a different way of doing this
         objects = [
-            {"type": "player", "x": 5, "y": 5},
-            {"type": "enemy", "x": 2, "y": 3},
-            {"type": "tree", "x": 1, "y": 1},
-            {"type": "tree", "x": 8, "y": 1},
-            {"type": "apple", "x": 3, "y": 6},
-            {"type": "apple", "x": 7, "y": 2},
-            {"type": "apple", "x": 4, "y": 4},
+            #{"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image,"obstruction":True},
+            {"type": "tree", "x": 1, "y": 1,"image":self.tree_image,"obstruction":True},
+            {"type": "tree", "x": 8, "y": 1,"image":self.tree_image,"obstruction":True},
+            {"type": "apple", "x": 3, "y": 6,"image":self.apple_image,"obstruction":True},
+            {"type": "apple", "x": 7, "y": 2,"image":self.apple_image,"obstruction":True},
+            {"type": "apple", "x": 4, "y": 4,"image":self.apple_image,"obstruction":True},
             # Add more objects as needed
         ]
 
         # Insert each object into the grid
         for obj in objects:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
+        
+        self.enemyManager.create_enemy(2,3,self.enemy_image,"d6",2)
+    
+    def render_image_at_coordinates(self,image,x,y):
+        return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
 
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
         cell_size = 64  # Define the size of each cell in the grid
-        for y in range(self.grid.height):
-            for x in range(self.grid.width):
-                obj = self.grid.get_object(x, y)
-                if obj is not None:
-                    # Adjust rendering for new object types
-                    if obj["type"] == "player":
-                        self.screen.blit(self.player_image, (x * self.cell_size, y * self.cell_size))
-                    elif obj["type"] == "enemy":
-                        self.screen.blit(self.enemy_image, (x * self.cell_size, y * self.cell_size))
-                    elif obj["type"] == "tree":
-                        self.screen.blit(self.tree_image, (x * self.cell_size, y * self.cell_size))
-                    elif obj["type"] == "apple":
-                        self.screen.blit(self.apple_image, (x * self.cell_size, y * self.cell_size))
-                else:
-                    # Draw grid lines for empty cells
-                    rect = pygame.Rect(x * cell_size, y * cell_size, cell_size, cell_size)
-                    pygame.draw.rect(self.screen, (255, 255, 255), rect, 1)  # Draw empty cell borders
+        images_to_render = self.grid.find_object_with_property_type("image")
+        for pair in images_to_render:
+            ((x,y),image) = pair
+            self.render_image_at_coordinates(image,x,y)
 
         if (self.inventory_timer < 1.0): # culling for if inventory open
 
