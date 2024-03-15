@@ -19,7 +19,7 @@ class MenuScene:
         self.textFont = pygame.font.SysFont("Arial", 40)
 
         #this the current background music    
-        pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
+        pygame.mixer.music.load("Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
         
         screen_center_x = screen.get_width() // 2
@@ -28,21 +28,26 @@ class MenuScene:
         #putting the settings button in the middle of the play and exit buttons
         settings_button_y = screen.get_height() // 2 + 50
         instruct_button_y = screen.get_height() - 50
+        credit_button_y = screen.get_height() - 130
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
-                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+
+                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
         self.ExitButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
-                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
         
         #put a settings button with the button.img. It uses the same fonts and color and hover color
         self.SettingsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
-                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
         self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
-                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
-        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton]
+        self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
+                                text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
+
+        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton]
         
 
     def initHandlers(self, state: Gamestate):
@@ -54,6 +59,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
+from credits import CreditsScene
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
@@ -69,6 +75,9 @@ def mousePress(state: Gamestate, pos, button, touch):
     elif (state.scene.InstructionsButton.checkForInput(pos)):
         state.scene.InstructionsButton.button_sound()
         state.pushScene(InstructionsScene(state.screen))
+    elif (state.scene.CreditsButton.checkForInput(pos)):
+        state.scene.CreditsButton.button_sound()
+        state.pushScene(CreditsScene(state.screen))
 
 def render(state: Gamestate):
 

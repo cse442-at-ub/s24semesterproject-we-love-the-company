@@ -26,7 +26,6 @@ class GameScene:
         self.textFont = pygame.font.SysFont("Arial", 35)
         self.subTextFont = pygame.font.SysFont("Arial", 20)
 
-
         # Calculate the grid size based on the screen size and cell size
         screen_width, screen_height = screen.get_size()
         grid_width = screen_width // self.cell_size
@@ -89,6 +88,13 @@ class GameScene:
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
+
+
+
+
+
+    def update(self, gamestate, dt):
+        # Add logic to update objects in the grid as needed
 
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
@@ -173,7 +179,6 @@ class GameScene:
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
-
     if (not gamestate.scene.in_inventory):
         if (key == pygame.K_a or key == pygame.K_LEFT):
             moved = gamestate.scene.player.moveLeft()
