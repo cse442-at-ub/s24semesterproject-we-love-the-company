@@ -89,13 +89,6 @@ class GameScene:
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
 
-
-
-
-
-    def update(self, gamestate, dt):
-        # Add logic to update objects in the grid as needed
-
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
         cell_size = 64  # Define the size of each cell in the grid
