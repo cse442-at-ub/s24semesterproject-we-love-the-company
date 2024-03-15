@@ -40,7 +40,7 @@ class CreditsScene:
         back_button_y = screen.get_height() - 50
 
         self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
-                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
+                    text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
