@@ -1,17 +1,29 @@
 import pygame
 import os
-from gamestate import Handler
-from Paused_game import PauseScene
+from gamestate import Gamestate, Handler
+import AssetCache
 
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 # Start game scene
+
+from value import *
+
+import util
+
+ITEM_IMAGE_SCALE = 0.075
 
 class GameScene:
     def __init__(self, screen):
         self.screen = screen
         self.id = "game_scene"
         self.cell_size = 64  # Define the size of each cell in the grid
-        
+
+        self.in_inventory = False
+        self.inventory_timer = 1.0
+
+        self.textFont = pygame.font.SysFont("Arial", 35)
+        self.subTextFont = pygame.font.SysFont("Arial", 20)
+
         # Calculate the grid size based on the screen size and cell size
         screen_width, screen_height = screen.get_size()
         grid_width = screen_width // self.cell_size
@@ -70,7 +82,7 @@ class GameScene:
         for obj in objects:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
 
-    def render(self, gamestate):
+    def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
         cell_size = 64  # Define the size of each cell in the grid
         for y in range(self.grid.height):
@@ -91,12 +103,97 @@ class GameScene:
                     rect = pygame.Rect(x * cell_size, y * cell_size, cell_size, cell_size)
                     pygame.draw.rect(self.screen, (255, 255, 255), rect, 1)  # Draw empty cell borders
 
+        if (self.inventory_timer < 1.0): # culling for if inventory open
+
+            # get x position of backpack
+            xposR = util.lerp(0.6, 1.0, self.inventory_timer * self.inventory_timer)
+            swidth = self.screen.get_width()
+
+            # draw backpack background
+            pygame.draw.rect(self.screen, (25, 30, 40), (xposR * swidth, 0, (1.1 - xposR) * swidth, self.screen.get_height()))
+
+            # draw items in backpack
+            itemPos = xposR + 0.025
+            if (itemPos < 1.0): # culling
+                y = 0
+                img_size = swidth * ITEM_IMAGE_SCALE
+                spacing = img_size * 0.1
+
+                # CHANGE THIS LATER!!!!!
+                # for testing purposes
+                self.player.inventory.items["common"] = 2
+                self.player.inventory.items["arrow"] = 1
+
+                # draw backpack value
+                ypos = 0.01 * swidth
+                val = value(self.player.inventory, gamestate.items)
+                self.screen.blit(self.textFont.render("Value: " + str(val), True, (255, 255, 255)), (itemPos * swidth, ypos))
+
+                # iterate over player inventory
+                for itemz in self.player.inventory.items.items():
+                    if itemz[0] in gamestate.items.dict:
+                        # calculate y positioning
+                        ypos = y * (img_size + spacing) + 0.05 * swidth
+
+                        count = itemz[1]
+                        item = gamestate.items.get(itemz[0])
+
+                        # scale and get image
+                        img = pygame.transform.scale(AssetCache.get_image(item.image), (img_size, img_size))
+                        
+                        self.screen.blit(img, (itemPos * swidth, ypos, img_size, img_size))
+
+                        # calculate where to put the text
+                        textX = itemPos * swidth + img_size + spacing
+
+                        # draw title and count
+                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, (255, 255, 255)), (textX, ypos + spacing))
+                        theight = self.textFont.get_height()
+
+                        # draw description
+                        self.screen.blit(self.subTextFont.render(item.description, True, (255, 255, 255)), (textX, ypos + spacing * 2 + theight))
+
+                        # advance to next item
+                        y += 1
+                    else:
+                        print(itemz[0] + " doesn't identify an item")
+
         pygame.display.flip()
 
     def update(self, gamestate, dt):
         # Add logic to update objects in the grid as needed
+
+        # control vfx for backpack fade in/out
+        if (self.in_inventory):
+            self.inventory_timer = max(self.inventory_timer - dt, 0.0)
+        else:
+            self.inventory_timer = min(self.inventory_timer + dt, 1.0)
+
         pass
 
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
         pass
+
+def onKeyPress(gamestate, key, mod, unicode, scancode):
+    prevLoc = gamestate.scene.player.position
+    moved = False
+    if (not gamestate.scene.in_inventory):
+        if (key == pygame.K_a or key == pygame.K_LEFT):
+            moved = gamestate.scene.player.moveLeft()
+
+        elif (key == pygame.K_s or key == pygame.K_DOWN):
+            moved = gamestate.scene.player.moveDown()
+
+        elif (key == pygame.K_w or key == pygame.K_UP):
+            moved = gamestate.scene.player.moveUp()
+
+        elif (key == pygame.K_d or key == pygame.K_RIGHT):
+            moved = gamestate.scene.player.moveRight()
+
+
+        if moved:
+            gamestate.scene.enemyManager.enemy_step()
+
+    if (key == pygame.K_TAB):
+        gamestate.scene.in_inventory = not gamestate.scene.in_inventory

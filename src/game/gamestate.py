@@ -1,5 +1,6 @@
 import pygame
 
+from item import *
 
 # function for nothing
 def doNothing(*args):
@@ -28,6 +29,8 @@ class Gamestate:
         
         self.clock = pygame.time.Clock()
         self.running = True
+
+        self.items = Items()
     
     @property
     def scene(self):

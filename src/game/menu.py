@@ -15,7 +15,9 @@ class MenuScene:
         self.path = os.path.dirname(__file__) + "/"
         self.screen = screen
         self.textFont = pygame.font.SysFont("Arial", 40)
-        pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
+
+        #this the current background music    
+        pygame.mixer.music.load(self.path + "Assets/Background_music_menu.wav")
         pygame.mixer.music.play(-1)
         #this the current background music   
         
@@ -62,6 +64,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
+from credits import CreditsScene
 
 def mousePress(state: Gamestate, pos, button, touch):
     # Iterate through each button in the scene's buttons list
