@@ -31,6 +31,7 @@ class MenuScene:
         credit_button_y = screen.get_height() - 130
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
+
                             text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
         self.ExitButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
@@ -45,7 +46,6 @@ class MenuScene:
 
         self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
                                 text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
-
 
         self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton]
         

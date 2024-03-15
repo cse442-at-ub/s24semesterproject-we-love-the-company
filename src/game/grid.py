@@ -66,7 +66,7 @@ class Grid:
             return removed_item
     
     def find_object_with_property_type(self, key):
-        """Searches the grid for objects that have all of the given keys in their data."""
+        """Searches the grid for objects that have the given key in their data."""
         """Returns a set of tuples for each item found."""
         """Each tuple contains the object's coordinates (first element) and its value for the given key (second element)."""
 
@@ -107,7 +107,7 @@ class Grid:
                         if key in object and key_value_pairs[key] == object[key]:
                             matches += 1
                     if matches == matches_required:
-                        locations.add((y,x))
+                        locations.add((x,y))
         
         return locations
 
