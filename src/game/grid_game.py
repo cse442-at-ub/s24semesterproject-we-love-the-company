@@ -39,7 +39,7 @@ class GameScene:
         self.path = os.path.dirname(__file__)
         
         # Load and resize images to fit the cell size
-        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
+        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
         
         self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
