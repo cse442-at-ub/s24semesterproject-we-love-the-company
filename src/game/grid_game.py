@@ -6,6 +6,7 @@ import AssetCache
 from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
+from combat import Combat
 # Start game scene
 
 from value import *
@@ -19,6 +20,7 @@ class GameScene:
         self.screen = screen
         self.id = "game_scene"
         self.cell_size = 64  # Define the size of each cell in the grid
+        self.combat_manager = Combat()
 
         self.in_inventory = False
         self.inventory_timer = 1.0
@@ -180,7 +182,6 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
         if (key == pygame.K_a or key == pygame.K_LEFT):
             moved = gamestate.scene.player.moveLeft()
 
-
         elif (key == pygame.K_s or key == pygame.K_DOWN):
             moved = gamestate.scene.player.moveDown()
 
@@ -190,11 +191,37 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
         elif (key == pygame.K_d or key == pygame.K_RIGHT):
             moved = gamestate.scene.player.moveRight()
 
-
         if moved:
             gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
-            
+
+            enemy_list = gamestate.scene.grid.find_object_with_properties({"name":"enemy"})
+            player_x,player_y = list(gamestate.scene.grid.find_object_with_properties({"name":"player"}))[0]
+            for enemy_x,enemy_y in enemy_list:
+                if gamestate.scene.grid.is_adjacent(player_x,player_y,enemy_x,enemy_y,True):
+                    # Combat happens here
+                    player_die = gamestate.scene.player.hitDie
+
+                    enemy_object = gamestate.scene.grid.get_object(enemy_x,enemy_y)
+                    enemy_die = enemy_object["hitDie"]
+                    print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
+                    
+                    winner = gamestate.scene.combat_manager.combat_outcome(player_die, enemy_die)
+                    print(f"Winner is {winner}")
+                    if winner == 'player':
+                        next_enemy_die = gamestate.scene.combat_manager.downgrade_die(enemy_die)
+                        print(f"Enemy die reduced to {next_enemy_die}")
+                        if next_enemy_die == 'defeated':
+                            gamestate.scene.grid.remove_at_location(enemy_x,enemy_y)
+                        else:
+                            enemy_object["hitDie"] = next_enemy_die
+                    elif winner == 'enemy':
+                        next_player_die = gamestate.scene.combat_manager.downgrade_die(player_die)
+                        print(f"Player die reduced to {next_player_die}")
+                        if next_player_die == 'defeated':
+                            gamestate.popScene()
+                        else:
+                            gamestate.scene.player.hitDie = next_player_die
 
     if (key == pygame.K_TAB):
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
