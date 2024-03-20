@@ -2,6 +2,7 @@ import pygame
 import os
 from gamestate import Gamestate, Handler
 import AssetCache
+from random import randint, choice
 
 from enemy import EnemyManager
 from player import Player
@@ -88,7 +89,14 @@ class GameScene:
         for obj in objects:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
         
-        self.enemyManager.create_enemy(2,3,self.enemy_image,"d6",2)
+        for i in range(5):
+            while not self.enemyManager.create_enemy(
+                    randint(0,self.grid.width-1),
+                    randint(0,self.grid.height-1),
+                    self.enemy_image,
+                    choice(self.combat_manager.upgrade_path),
+                    randint(1,5)):
+                pass
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
@@ -206,21 +214,28 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
                     enemy_die = enemy_object["hitDie"]
                     print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
                     
+                    # Dice roll
                     winner = gamestate.scene.combat_manager.combat_outcome(player_die, enemy_die)
                     print(f"Winner is {winner}")
                     if winner == 'player':
+                        # Player wins the fight
                         next_enemy_die = gamestate.scene.combat_manager.downgrade_die(enemy_die)
                         print(f"Enemy die reduced to {next_enemy_die}")
                         if next_enemy_die == 'defeated':
+                            # Remove the enemy from the board if they are defeated
                             gamestate.scene.grid.remove_at_location(enemy_x,enemy_y)
                         else:
+                            # Otherwise, reduce their die
                             enemy_object["hitDie"] = next_enemy_die
                     elif winner == 'enemy':
                         next_player_die = gamestate.scene.combat_manager.downgrade_die(player_die)
                         print(f"Player die reduced to {next_player_die}")
                         if next_player_die == 'defeated':
+                            # Return to main menu when the player is defeated
                             gamestate.popScene()
+                            break
                         else:
+                            # Otherwise, reduce their die
                             gamestate.scene.player.hitDie = next_player_die
 
     if (key == pygame.K_TAB):
