@@ -8,16 +8,22 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self, grid: Grid, x: int, y: int, image):
+    def __init__(self, grid: Grid, x: int, y: int, image, moving_image):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
         self.grid = grid
+        #NEW introduced a new image to load and a cooldown period to make it load
+        self.image = image
+        self.moving_image = moving_image
+        self.moving_time = 0.0
+        self.cooldown_time = 0.3
+        self.is_moving = False
 
         player_object = {
             "name":"player",
             "obstruction":True,
-            "image":image
+            "image":self.image
         }
 
         self.grid.insert(player_object,x,y)
@@ -36,6 +42,7 @@ class Player:
         return self.position[1]
 
     # returns False when movement isn't possible
+    # NEW now it checks for the flag too and sets the cooldown time
     def move(self, x, y):
         if (self.grid.is_inbounds(self.x + x, self.y + y)):
             obj = self.grid.get_object(self.x + x, self.y + y)
@@ -46,8 +53,31 @@ class Player:
                 player_obj = self.grid.get_object(self.x,self.y)
                 self.grid.remove_at_location(self.x,self.y)
                 self.grid.insert(player_obj,current_x+x,current_y+y)
+                
+                #NEW 
+                self.is_moving = True
+                self.moving_time = self.cooldown_time
                 return True
         return False
+
+
+    #NEW method to update based on cooldown time
+    def update(self, dt):
+        
+        if self.is_moving:
+            self.moving_time -= dt
+            if self.moving_time <= 0:
+                self.is_moving = False
+
+        self.update_image()
+
+    #NEW updates the image when moving
+    def update_image(self):
+        if self.is_moving:
+            self.grid.update_object_image(self.position[0], self.position[1], self.moving_image)
+            #self.is_moving = False
+        else:
+            self.grid.update_object_image(self.position[0], self.position[1], self.image)
 
     def moveLeft(self):
         return self.move(-1, 0)

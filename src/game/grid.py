@@ -37,6 +37,14 @@ class Grid:
             return None
         else:
             return self.matrix[y][x]
+
+   #this is to load the new image 
+    #NEW to update image on the grid
+    def update_object_image(self, x, y, new_image):
+        if self.is_inbounds(x,y):
+            obj = self.get_object(x,y)
+            if obj is not None:
+                obj["image"] = new_image
     
     def insert(self, item: dict, x: int, y: int):
         """Places an object at the given coordinates."""

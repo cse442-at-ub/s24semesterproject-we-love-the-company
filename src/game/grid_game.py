@@ -41,6 +41,11 @@ class GameScene:
         # Load and resize images to fit the cell size
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
+
+        #this is for the player model when it running
+        #changes it to this when moving (NEW)
+        self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
+        self.player_run_image = pygame.transform.scale(self.player_run_image, (self.cell_size, self.cell_size))
         
         self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
         self.enemy_image = pygame.transform.scale(self.enemy_image, (self.cell_size, self.cell_size))
@@ -66,7 +71,7 @@ class GameScene:
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
 
-        self.player = Player(self.grid, 5, 5, self.player_image)
+        self.player = Player(self.grid, 5, 5, self.player_image, self.player_run_image)
 
         # Mike's note: including the coordinates in the object data is redundant
         # The grid itself already keeps track of that
@@ -165,6 +170,10 @@ class GameScene:
         else:
             self.inventory_timer = min(self.inventory_timer + dt, 1.0)
 
+        #NEW updates the image with the cooldown timer
+        self.player.update_image()
+        self.player.update(dt)
+
         pass
 
     def onMousePress(self, gamestate, pos, button, touch):
@@ -192,11 +201,13 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
 
 
         if moved:
+            #sound played when moving
             gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
             
 
     if (key == pygame.K_TAB):
+        #sound played when inventory opened
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
         gamestate.scene.inventory_sound.play()
 
