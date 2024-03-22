@@ -120,3 +120,13 @@ class Grid:
             removed.append(self.remove_at_location(target[0],target[1]))
         
         return removed
+    
+    def is_adjacent(self, first_x: int, first_y: int, second_x: int, second_y: int, include_corners: bool=False):
+        """Checks whether two sets of coordinates are considered adjacent."""
+        """If include_corners is set to True, then diagonal tiles are also considered adjacent."""
+        if include_corners:
+            dist = max(abs(first_x - second_x), abs(first_y - second_y))
+            return dist <= 1
+        else:
+            dist = abs(first_x - second_x) + abs(first_y - second_y)
+            return dist == 1
