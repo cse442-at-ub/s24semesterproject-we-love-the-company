@@ -6,7 +6,7 @@ import AssetCache
 from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
-# Start game scene
+# Start game scene 
 
 class GameScene:
     def __init__(self, screen):
