@@ -60,10 +60,10 @@ class GameScene:
         # But in future (when making levels) there should be a different way of doing this
         objects = [
             #{"type": "enemy", "x": 2, "y": 3,"image":self.enemy_image,"obstruction":True},
-            {"type": "tree", "x": 1, "y": 1,"image":self.tree_image,"obstruction":True},
-            {"type": "tree", "x": 8, "y": 1,"image":self.tree_image,"obstruction":True},
-            {"type": "apple", "x": 3, "y": 6,"image":self.apple_image,"obstruction":True},
-            {"type": "apple", "x": 7, "y": 2,"image":self.apple_image,"obstruction":True},
+            {"type": "tree", "x": 1, "y": 0,"image":self.tree_image,"obstruction":True},
+            {"type": "tree", "x": 8, "y": 0,"image":self.tree_image,"obstruction":True},
+            {"type": "apple", "x": 3, "y": 9,"image":self.apple_image,"obstruction":True},
+            {"type": "apple", "x": 14, "y": 4,"image":self.apple_image,"obstruction":True},
             {"type": "apple", "x": 4, "y": 4,"image":self.apple_image,"obstruction":True},
             # Add more objects as needed
         ]
