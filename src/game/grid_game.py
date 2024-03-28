@@ -18,7 +18,7 @@ CELL_SIZE = 32  # Define the size of each cell in the grid
 ITEM_IMAGE_SCALE = 0.075
 
 DICE_ROLL_TIME = 0.5
-DICE_ROLL_SPEED = 0.1
+DICE_ROLL_SPEED = 0.05
 DICE_STAY_TIME = 1.0
 
 
@@ -36,6 +36,9 @@ class GameScene:
         self.combat_timer = 0.0
         self.player_roll = None
         self.enemy_roll = None
+        self.player_rand = 0
+        self.enemy_rand = 0
+        self.last_rand = -DICE_ROLL_SPEED
 
         self.textFont = pygame.font.SysFont("Arial", 35)
         self.subTextFont = pygame.font.SysFont("Arial", 20)
@@ -171,10 +174,14 @@ class GameScene:
             enemy_coords = self.in_combat_with[self.cur_combat_enemy]
             player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
 
+            # draw backdrop above fighters
             self.render_image_at_coordinates(self.dice_backdrop, player_x, player_y - 1)
             self.render_image_at_coordinates(self.dice_backdrop, enemy_coords[0], enemy_coords[1] - 1)
 
             if (self.combat_timer > DICE_ROLL_TIME):
+                # draw final result
+
+                # get color, green for win, red for loss, gray for draw
                 player_color = (0, 255, 10) if self.player_roll > self.enemy_roll else (255, 0, 10)
                 enemy_color = (0, 255, 10) if self.enemy_roll > self.player_roll else (255, 0, 10)
 
@@ -182,6 +189,7 @@ class GameScene:
                     player_color = (150, 150, 150)
                     enemy_color = (150, 150, 150)
 
+                # the numbers are drawn "centered" in the box
                 width, height = self.combatFont.size(str(self.player_roll))
                 player_text = self.combatFont.render(str(self.player_roll), True, player_color)
                 self.screen.blit(player_text, (player_x * CELL_SIZE + CELL_SIZE / 2 - width / 2, (player_y - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
@@ -191,18 +199,25 @@ class GameScene:
                 self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
 
             else:
-                player_die = gamestate.scene.player.hitDie
-                enemy_object = gamestate.scene.grid.get_object(enemy_coords[0], enemy_coords[1])
-                enemy_die = enemy_object["hitDie"]
+                # draw dice roll effect
 
-                player_roll = self.combat_manager.roll_die(player_die)
-                width, height = self.combatFont.size(str(player_roll))
-                player_text = self.combatFont.render(str(player_roll), True, (255, 255, 255))
+                if (self.combat_timer - self.last_rand >= DICE_ROLL_SPEED):
+                    self.last_rand = self.combat_timer
+
+                    player_die = gamestate.scene.player.hitDie
+                    enemy_object = gamestate.scene.grid.get_object(enemy_coords[0], enemy_coords[1])
+                    enemy_die = enemy_object["hitDie"]
+
+                    self.player_rand = self.combat_manager.roll_die(player_die)
+                    self.enemy_rand = self.combat_manager.roll_die(enemy_die)
+
+                width, height = self.combatFont.size(str(self.player_rand))
+                player_text = self.combatFont.render(str(self.player_rand), True, (255, 255, 255))
                 self.screen.blit(player_text, (player_x * CELL_SIZE + CELL_SIZE / 2 - width / 2, (player_y - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
             
-                enemy_roll = self.combat_manager.roll_die(enemy_die)
-                width, height = self.combatFont.size(str(enemy_roll))
-                enemy_text = self.combatFont.render(str(enemy_roll), True, (255, 255, 255))
+                
+                width, height = self.combatFont.size(str(self.enemy_rand))
+                enemy_text = self.combatFont.render(str(self.enemy_rand), True, (255, 255, 255))
                 self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
 
 
@@ -231,7 +246,13 @@ class GameScene:
                 # draw backpack value
                 ypos = 0.01 * swidth
                 val = value(self.player.inventory, gamestate.items)
-                self.screen.blit(self.textFont.render("Value: " + str(val), True, (255, 255, 255)), (itemPos * swidth, ypos))
+                valText = self.textFont.render("Value: " + str(val), True, (255, 255, 255))
+                self.screen.blit(valText, (itemPos * swidth, ypos))
+
+                # draw hit die
+                hitDieImage = AssetCache.get_image(self.combat_manager.get_icon_path(self.player.hitDie))
+                hitDieImage = pygame.transform.scale(hitDieImage, (valText.get_height(), valText.get_height()))
+                self.screen.blit(hitDieImage, (itemPos * swidth + valText.get_width() + spacing, ypos + valText.get_height() / 2 - hitDieImage.get_height() / 2))
 
                 # iterate over player inventory
                 for itemz in self.player.inventory.items.items():
@@ -278,6 +299,7 @@ class GameScene:
 
     def update_combat(self, gamestate, dt):
         if (len(self.in_combat_with) > 0):
+
             self.combat_timer += dt
 
             # combat with enemy done
@@ -315,8 +337,10 @@ class GameScene:
                             # Otherwise, reduce their die
                             gamestate.scene.player.hitDie = next_player_die
 
+                # advance to next player
                 self.cur_combat_enemy += 1
                 self.combat_timer = 0.0
+                self.last_rand = -DICE_ROLL_SPEED
                 self.player_roll = None
                 self.enemy_roll = None
                     
@@ -358,7 +382,24 @@ from Paused_game import PauseScene
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
-    if (not gamestate.scene.in_inventory and len(gamestate.scene.in_combat_with) == 0):
+
+    if (len(gamestate.scene.in_combat_with) != 0):
+        # skip combat animations
+        add_amount = DICE_STAY_TIME if gamestate.scene.combat_timer >= DICE_ROLL_TIME else DICE_ROLL_TIME - gamestate.scene.combat_timer
+
+        if (key == pygame.K_a or key == pygame.K_LEFT):
+            gamestate.scene.combat_timer += add_amount
+
+        elif (key == pygame.K_s or key == pygame.K_DOWN):
+            gamestate.scene.combat_timer += add_amount
+
+        elif (key == pygame.K_w or key == pygame.K_UP):
+            gamestate.scene.combat_timer += add_amount
+
+        elif (key == pygame.K_d or key == pygame.K_RIGHT):
+            gamestate.scene.combat_timer += add_amount
+
+    elif (not gamestate.scene.in_inventory):
         if (key == pygame.K_a or key == pygame.K_LEFT):
             moved = gamestate.scene.player.moveLeft()
 
@@ -387,6 +428,7 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
                 # hacky little way to avoid writing better code
                 gamestate.scene.cur_combat_enemy = -1
                 gamestate.scene.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
+                gamestate.scene.last_rand = -DICE_ROLL_SPEED
 
     if (key == pygame.K_TAB):
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
