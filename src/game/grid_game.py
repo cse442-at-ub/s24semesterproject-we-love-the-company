@@ -14,25 +14,37 @@ from value import *
 
 import util
 
+CELL_SIZE = 32  # Define the size of each cell in the grid
 ITEM_IMAGE_SCALE = 0.075
+
+DICE_ROLL_TIME = 0.5
+DICE_ROLL_SPEED = 0.1
+DICE_STAY_TIME = 1.0
+
 
 class GameScene:
     def __init__(self, screen):
         self.screen = screen
         self.id = "game_scene"
-        self.cell_size = 32  # Define the size of each cell in the grid
         self.combat_manager = Combat()
 
         self.in_inventory = False
         self.inventory_timer = 1.0
 
+        self.in_combat_with = []
+        self.cur_combat_enemy = -1
+        self.combat_timer = 0.0
+        self.player_roll = None
+        self.enemy_roll = None
+
         self.textFont = pygame.font.SysFont("Arial", 35)
         self.subTextFont = pygame.font.SysFont("Arial", 20)
+        self.combatFont = pygame.font.SysFont("Arial", CELL_SIZE)
 
         # Calculate the grid size based on the screen size and cell size
         screen_width, screen_height = screen.get_size()
-        grid_width = screen_width // self.cell_size
-        grid_height = screen_height // self.cell_size
+        grid_width = screen_width // CELL_SIZE
+        grid_height = screen_height // CELL_SIZE
         
         # Initialize the grid with calculated dimensions
         self.grid = Grid(width=grid_width, height=grid_height)
@@ -40,19 +52,22 @@ class GameScene:
         
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
-        
+
         # Load and resize images to fit the cell size
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
-        self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
+        self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
         self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
-        self.enemy_image = pygame.transform.scale(self.enemy_image, (self.cell_size, self.cell_size))
+        self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
         
         self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "tree.png"))
-        self.tree_image = pygame.transform.scale(self.tree_image, (self.cell_size, self.cell_size))
+        self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
 
         self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stone.png"))
-        self.stone_image = pygame.transform.scale(self.stone_image, (self.cell_size, self.cell_size))
+        self.stone_image = pygame.transform.scale(self.stone_image, (CELL_SIZE, CELL_SIZE))
+
+        self.dice_backdrop = AssetCache.get_image(os.path.join(self.path, "Assets", "dice_icons", "square.png"))
+        self.dice_backdrop = pygame.transform.scale(self.dice_backdrop, (CELL_SIZE, CELL_SIZE))
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
@@ -148,16 +163,50 @@ class GameScene:
                 pass
     
     def render_image_at_coordinates(self,image,x,y):
-        return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
+        return self.screen.blit(image, (x * CELL_SIZE, y * CELL_SIZE))
 
-    def render(self, gamestate: Gamestate):
-        self.screen.fill((0, 0, 0))
-        cell_size = 32  # Define the size of each cell in the grid
-        images_to_render = self.grid.find_object_with_property_type("image")
-        for pair in images_to_render:
-            ((x,y),image) = pair
-            self.render_image_at_coordinates(image,x,y)
+    def render_combat(self, gamestate: Gamestate):
+        if (len(self.in_combat_with) > 0 and self.cur_combat_enemy >= 0):
+            
+            enemy_coords = self.in_combat_with[self.cur_combat_enemy]
+            player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
 
+            self.render_image_at_coordinates(self.dice_backdrop, player_x, player_y - 1)
+            self.render_image_at_coordinates(self.dice_backdrop, enemy_coords[0], enemy_coords[1] - 1)
+
+            if (self.combat_timer > DICE_ROLL_TIME):
+                player_color = (0, 255, 10) if self.player_roll > self.enemy_roll else (255, 0, 10)
+                enemy_color = (0, 255, 10) if self.enemy_roll > self.player_roll else (255, 0, 10)
+
+                if (self.player_roll == self.enemy_roll):
+                    player_color = (150, 150, 150)
+                    enemy_color = (150, 150, 150)
+
+                width, height = self.combatFont.size(str(self.player_roll))
+                player_text = self.combatFont.render(str(self.player_roll), True, player_color)
+                self.screen.blit(player_text, (player_x * CELL_SIZE + CELL_SIZE / 2 - width / 2, (player_y - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
+            
+                width, height = self.combatFont.size(str(self.enemy_roll))
+                enemy_text = self.combatFont.render(str(self.enemy_roll), True, enemy_color)
+                self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
+
+            else:
+                player_die = gamestate.scene.player.hitDie
+                enemy_object = gamestate.scene.grid.get_object(enemy_coords[0], enemy_coords[1])
+                enemy_die = enemy_object["hitDie"]
+
+                player_roll = self.combat_manager.roll_die(player_die)
+                width, height = self.combatFont.size(str(player_roll))
+                player_text = self.combatFont.render(str(player_roll), True, (255, 255, 255))
+                self.screen.blit(player_text, (player_x * CELL_SIZE + CELL_SIZE / 2 - width / 2, (player_y - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
+            
+                enemy_roll = self.combat_manager.roll_die(enemy_die)
+                width, height = self.combatFont.size(str(enemy_roll))
+                enemy_text = self.combatFont.render(str(enemy_roll), True, (255, 255, 255))
+                self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
+
+
+    def render_backpack(self, gamestate: Gamestate):
         if (self.inventory_timer < 1.0): # culling for if inventory open
 
             # get x position of backpack
@@ -213,7 +262,81 @@ class GameScene:
                     else:
                         print(itemz[0] + " doesn't identify an item")
 
+    def render(self, gamestate: Gamestate):
+        self.screen.fill((0, 0, 0))
+        
+        images_to_render = self.grid.find_object_with_property_type("image")
+        for pair in images_to_render:
+            ((x,y),image) = pair
+            self.render_image_at_coordinates(image,x,y)
+
+        self.render_combat(gamestate)
+
+        self.render_backpack(gamestate)
+
         pygame.display.flip()
+
+    def update_combat(self, gamestate, dt):
+        if (len(self.in_combat_with) > 0):
+            self.combat_timer += dt
+
+            # combat with enemy done
+            if (self.combat_timer > DICE_STAY_TIME + DICE_ROLL_TIME):
+
+                # kill enemy/player
+                if (self.cur_combat_enemy >= 0):
+                    enemy_coords = self.in_combat_with[self.cur_combat_enemy]
+
+                    winner = gamestate.scene.combat_manager.outcome(self.player_roll, self.enemy_roll)
+
+                    if winner == 'player': 
+                        enemy_object = gamestate.scene.grid.get_object(enemy_coords[0], enemy_coords[1])
+                        enemy_die = enemy_object["hitDie"]
+
+                        # Player wins the fight
+                        next_enemy_die = gamestate.scene.combat_manager.downgrade_die(enemy_die)
+                        print(f"Enemy die reduced to {next_enemy_die}")
+
+                        if next_enemy_die == 'defeated':
+                            # Remove the enemy from the board if they are defeated
+                            gamestate.scene.grid.remove_at_location(enemy_coords[0], enemy_coords[1])
+                        else:
+                            # Otherwise, reduce their die
+                            enemy_object["hitDie"] = next_enemy_die
+                    
+                    elif winner == 'enemy':
+                        next_player_die = gamestate.scene.combat_manager.downgrade_die(gamestate.scene.player.hitDie)
+                        print(f"Player die reduced to {next_player_die}")
+                        if next_player_die == 'defeated':
+                            # Return to main menu when the player is defeated
+                            gamestate.popScene()
+                            return
+                        else:
+                            # Otherwise, reduce their die
+                            gamestate.scene.player.hitDie = next_player_die
+
+                self.cur_combat_enemy += 1
+                self.combat_timer = 0.0
+                self.player_roll = None
+                self.enemy_roll = None
+                    
+                # combat with all enemies done
+                if (self.cur_combat_enemy >= len(self.in_combat_with)):
+                    self.in_combat_with = []
+                    return
+                    
+                # go to next enemy
+                # Combat happens here
+                player_die = gamestate.scene.player.hitDie
+
+                enemy_coords = self.in_combat_with[self.cur_combat_enemy]
+                enemy_object = gamestate.scene.grid.get_object(enemy_coords[0], enemy_coords[1])
+                enemy_die = enemy_object["hitDie"]
+                print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
+
+                # Dice roll
+                self.player_roll = gamestate.scene.combat_manager.roll_die(player_die)
+                self.enemy_roll = gamestate.scene.combat_manager.roll_die(enemy_die)
 
     def update(self, gamestate, dt):
         # Add logic to update objects in the grid as needed
@@ -224,7 +347,7 @@ class GameScene:
         else:
             self.inventory_timer = min(self.inventory_timer + dt, 1.0)
 
-        pass
+        self.update_combat(gamestate, dt)
 
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
@@ -235,7 +358,7 @@ from Paused_game import PauseScene
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
-    if (not gamestate.scene.in_inventory):
+    if (not gamestate.scene.in_inventory and len(gamestate.scene.in_combat_with) == 0):
         if (key == pygame.K_a or key == pygame.K_LEFT):
             moved = gamestate.scene.player.moveLeft()
 
@@ -252,40 +375,18 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
             gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
 
-            enemy_list = gamestate.scene.grid.find_object_with_properties({"name":"enemy"})
-            player_x,player_y = list(gamestate.scene.grid.find_object_with_properties({"name":"player"}))[0]
-            for enemy_x,enemy_y in enemy_list:
-                if gamestate.scene.grid.is_adjacent(player_x,player_y,enemy_x,enemy_y,True):
-                    # Combat happens here
-                    player_die = gamestate.scene.player.hitDie
+            gamestate.scene.in_combat_with = []
 
-                    enemy_object = gamestate.scene.grid.get_object(enemy_x,enemy_y)
-                    enemy_die = enemy_object["hitDie"]
-                    print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
+            enemy_list = gamestate.scene.grid.find_object_with_properties({"name": "enemy"})
+            player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
+            for enemy_x,enemy_y in enemy_list:
+                if gamestate.scene.grid.is_adjacent(player_x, player_y, enemy_x, enemy_y, True):
+                    gamestate.scene.in_combat_with.append((enemy_x, enemy_y))
                     
-                    # Dice roll
-                    winner = gamestate.scene.combat_manager.combat_outcome(player_die, enemy_die)
-                    print(f"Winner is {winner}")
-                    if winner == 'player':
-                        # Player wins the fight
-                        next_enemy_die = gamestate.scene.combat_manager.downgrade_die(enemy_die)
-                        print(f"Enemy die reduced to {next_enemy_die}")
-                        if next_enemy_die == 'defeated':
-                            # Remove the enemy from the board if they are defeated
-                            gamestate.scene.grid.remove_at_location(enemy_x,enemy_y)
-                        else:
-                            # Otherwise, reduce their die
-                            enemy_object["hitDie"] = next_enemy_die
-                    elif winner == 'enemy':
-                        next_player_die = gamestate.scene.combat_manager.downgrade_die(player_die)
-                        print(f"Player die reduced to {next_player_die}")
-                        if next_player_die == 'defeated':
-                            # Return to main menu when the player is defeated
-                            gamestate.popScene()
-                            break
-                        else:
-                            # Otherwise, reduce their die
-                            gamestate.scene.player.hitDie = next_player_die
+            if (len(gamestate.scene.in_combat_with) > 0):
+                # hacky little way to avoid writing better code
+                gamestate.scene.cur_combat_enemy = -1
+                gamestate.scene.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
 
     if (key == pygame.K_TAB):
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
