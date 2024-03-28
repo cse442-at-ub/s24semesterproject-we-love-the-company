@@ -71,6 +71,8 @@ def mousePress(state: Gamestate, pos, button, touch):
         print("Play button clicked")
         state.scene.PlayButton.button_sound()
         pygame.mixer_music.stop()
+        #to start level one
+        #state.pushScene(GameScene(state.screen))
         state.pushScene(level2Scene(state.screen))
     elif (state.scene.ExitButton.checkForInput(pos)):
         state.scene.ExitButton.button_sound()
