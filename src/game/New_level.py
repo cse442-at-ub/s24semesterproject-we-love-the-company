@@ -78,7 +78,7 @@ class level2Scene:
     def populate_grid(self):
         # Define the objects to populate the grid, now including trees and apples
 
-        self.player = Player(self.grid, 5, 5, self.player_image)
+        self.player = Player(self.grid, 5, 5, self.player_image, self.player_run_image)
 
         # Mike's note: including the coordinates in the object data is redundant
         # The grid itself already keeps track of that
@@ -108,7 +108,7 @@ class level2Scene:
             "##                          #         ##",
             "## ### ##### ##### ###### ### ### ### ##",
             "##        #     #    #  #     # # #   ##",
-            "##       ### # ### #### # # # ### ### ##",
+            "## # #   ### # ### #### # # # ### ### ##",
             "##       # # # #      # #   #     #   ##",
             "## ### # # # # ## ### # # # ####### ###",
             "##     #   # #      # # #         #   ##",
@@ -119,10 +119,10 @@ class level2Scene:
             "## ####### ### ###   ####  ######### ##",
             "##               #   #       #       ##",
             "#### ##### ####### ### ##### # ##### ##",
-            "##     #       #     # #       #     ##",
+            "##     #             # #       #     ##",
             "## ### ### ### ##### # # # ### #######",
-            "## #     # # # #     #   # # #       ##",
-            "## ##### # # # # ##### ### # ####### ##",
+            "## #     #   # #     #   # # #       ##",
+            "## ##### #   # # ##### ### # ####### ##",
             "##       #   # #       #               ",
             "########################################"
         ]
@@ -233,6 +233,9 @@ class level2Scene:
             self.inventory_timer = max(self.inventory_timer - dt, 0.0)
         else:
             self.inventory_timer = min(self.inventory_timer + dt, 1.0)
+
+        self.player.update_image()
+        self.player.update(dt)
 
         pass
 
