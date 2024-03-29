@@ -84,7 +84,7 @@ class EnemyManager:
                     if self.check_obstruction(next[0],next[1]):
                         # if something is in the way, stop and retry
                         obj["path"] = []
-                        return self.next_position(self,enemy_x,enemy_y,player_x,player_y)
+                        return self.next_position(enemy_x,enemy_y,player_x,player_y)
                     return next
                 else:
                     # if there is no known path, wander instead
