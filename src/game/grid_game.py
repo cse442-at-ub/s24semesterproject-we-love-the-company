@@ -40,7 +40,10 @@ class GameScene:
         
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
-        
+
+        self.background_image = AssetCache.get_image(os.path.join(self.path, "Assets", "level1.png"))
+        self.background_image = pygame.transform.scale(self.background_image, (screen_width, screen_height))
+
         # Load and resize images to fit the cell size
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
         self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
@@ -151,7 +154,7 @@ class GameScene:
         return self.screen.blit(image, (x * self.cell_size, y * self.cell_size))
 
     def render(self, gamestate: Gamestate):
-        self.screen.fill((0, 0, 0))
+        self.screen.blit(self.background_image, (0, 0))
         cell_size = 32  # Define the size of each cell in the grid
         images_to_render = self.grid.find_object_with_property_type("image")
         for pair in images_to_render:
