@@ -100,7 +100,13 @@ class GameScene:
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
-
+    
+    if (key == pygame.K_TAB):  
+        backpack_image = AssetCache.get_image(os.path.join(gamestate.scene.path, "Assets", "backpack.png"))
+        backpack_image = pygame.transform.scale(backpack_image, gamestate.scene.screen.get_size())
+        gamestate.scene.screen.blit(backpack_image, (0, 0))
+        pygame.display.flip()
+        
     if (key == pygame.K_a or key == pygame.K_LEFT):
         moved = gamestate.scene.player.moveLeft()
         
