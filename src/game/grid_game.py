@@ -95,18 +95,42 @@ class GameScene:
 
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
-        pass
+        pos = pygame.mouse.get_pos()
+        button = pygame.mouse.get_pressed()
+
+        if any(button): 
+           pos_x = pos[0]
+           pos_y = pos[1]
+           pos_player_x = self.player.position[0]
+           pos_player_y = self.player.position[1]
+           
+           if pos_x<320 and pos_x>260 and pos_y<320 and pos_y>260 and pos_player_x >=3 and pos_player_x<=5 and pos_player_y >=3 and pos_player_y<=5 :
+               self.grid.remove_at_location(4,4)
+
+           if pos_x<252 and pos_x>199 and pos_y<631 and pos_y>586 and pos_player_x >=2 and pos_player_x<=4 and pos_player_y >=8 and pos_player_y<=10 :
+               self.grid.remove_at_location(3,9)
+
+           if pos_x<959 and pos_x>895 and pos_y<320 and pos_y>260 and pos_player_y >=3 and pos_player_y<=5 and pos_player_x >=13 and pos_player_x<=15 :
+               self.grid.remove_at_location(14,4)
+        
+        
 
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
-    
+
     if (key == pygame.K_TAB):  
         backpack_image = AssetCache.get_image(os.path.join(gamestate.scene.path, "Assets", "backpack.png"))
         backpack_image = pygame.transform.scale(backpack_image, gamestate.scene.screen.get_size())
         gamestate.scene.screen.blit(backpack_image, (0, 0))
         pygame.display.flip()
-        
+
+    if (key == pygame.K_TAB):  
+        backpack_image = AssetCache.get_image(os.path.join(gamestate.scene.path, "Assets", "backpack.png"))
+        backpack_image = pygame.transform.scale(backpack_image, gamestate.scene.screen.get_size())
+        gamestate.scene.screen.blit(backpack_image, (0, 0))
+        pygame.display.flip()
+
     if (key == pygame.K_a or key == pygame.K_LEFT):
         moved = gamestate.scene.player.moveLeft()
         
