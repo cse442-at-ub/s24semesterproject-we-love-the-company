@@ -156,7 +156,7 @@ class GameScene:
         # Enemy positions
         self.enemyManager.create_enemy(22, 3, self.enemy_image, "d6", 2)
 
-        for i in range(5):
+        for i in range(4):
             while not self.enemyManager.create_enemy(
                     randint(0,self.grid.width-1),
                     randint(0,self.grid.height-1),
