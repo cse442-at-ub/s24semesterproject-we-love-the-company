@@ -35,7 +35,7 @@ def gameloop(gamestate: Gamestate):
 
 def main():
     # initialize the game to the splash screen
-    state = Gamestate((1280, 720), SplashScene())
+    state = Gamestate((760, 900), SplashScene())
 
     # set the window title
     pygame.display.set_caption("We Love The Company.")

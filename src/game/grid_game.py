@@ -20,7 +20,7 @@ class GameScene:
     def __init__(self, screen):
         self.screen = screen
         self.id = "game_scene"
-        self.cell_size = 32  # Define the size of each cell in the grid
+        self.cell_size = 20 # Define the size of each cell in the grid
         self.combat_manager = Combat()
 
         self.in_inventory = False
@@ -44,6 +44,12 @@ class GameScene:
         self.background_image = AssetCache.get_image(os.path.join(self.path, "Assets", "level1.png"))
         self.background_image = pygame.transform.scale(self.background_image, (screen_width, screen_height))
 
+
+        bg_width, bg_height = self.background_image.get_rect().size
+
+        # Set the display mode to match the size of the background image
+        self.screen = pygame.display.set_mode((bg_width, bg_height))
+
         # Load and resize images to fit the cell size
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
         self.player_image = pygame.transform.scale(self.player_image, (self.cell_size, self.cell_size))
@@ -54,8 +60,8 @@ class GameScene:
         self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "tree.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (self.cell_size, self.cell_size))
 
-        self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stone.png"))
-        self.stone_image = pygame.transform.scale(self.stone_image, (self.cell_size, self.cell_size))
+        self.empty_image = AssetCache.get_image(os.path.join(self.path, "Assets", "empty.png"))
+        self.empty_image = pygame.transform.scale(self.empty_image, (self.cell_size, self.cell_size))
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
@@ -79,17 +85,6 @@ class GameScene:
         # I know this was done for ease of inserting objects for testing
         # But in future (when making levels) there should be a different way of doing this
  # Create the objects list for trees and apples
-        objects = []
-
-        # Create trees along the top and bottom boundaries
-        for x in range(self.grid.width):
-            objects.append({"type": "tree", "x": x, "y": 0, "image": self.tree_image, "obstruction": True})
-            objects.append({"type": "tree", "x": x, "y": self.grid.height - 1, "image": self.tree_image, "obstruction": True})
-
-        # Create trees along the left and right boundaries
-        for y in range(1, self.grid.height):  # Avoiding corners
-            objects.append({"type": "tree", "x": 0, "y": y, "image": self.tree_image, "obstruction": True})
-            objects.append({"type": "tree", "x": self.grid.width - 1, "y": y, "image": self.tree_image, "obstruction": True})
 
         # Initialize an empty list to hold all the maze objects
         internal_layout = []
@@ -98,40 +93,63 @@ class GameScene:
         # "#" represents a stone, " " represents an open path
 
         maze_design = [
-            "                                       ",
-            "  #    #                               ",
-            "  # #  #  ##########    ############   ",
-            "  # #  #  #             #        # #   ",
-            "  # #  #  # #######     #  ####### #   ",
-            "  # #  #  #       #      # # #         ",
-            "    #     #       #    # # # #         ",
-            "  ##########      #### # # # #  #####  ",
-            "  #        #                        #  ",
-            "  # ###### # ### ###      ##### #####  ",
-            "  # #    # # #     #      #         #  ",
-            "  # #    #   # ### #      #         #  ",
-            "  # #    # # #     #      #         #  ",
-            "  # # ## # # ### ###      #         #  ",
-            "  # #    # #              #         #  ",
-            "  # #    # #              ###########  ",
-            "  # #    # #                           ",
-            "  # ##  ## #                           ",
-            "  #        #                           ",
-            "  ####  ############# # # # ########## ",
-            "                      # # #            ",
-            "                                       "
+            "######################################",
+            "######################################",
+            "######################################",
+            "##    ### # ##########################",
+            "## ## ### # ##########################",
+            "## ##     # ##########################",
+            "## ##     # ##########################",
+            "## #### ### ##########################",
+            "## #### ###   ###             ########",
+            "## #### #####     ######## ###########",
+            "## #### ###### ########### ###########",
+            "## #### ###### ########### ###########",
+            "## #### ###### ########### ###########",
+            "## #### ###### ########### ###########",
+            "## #### ###### ########### ###########",
+            "####### ###### ########### ###########",
+            "####### ###### ###########  ##########",
+            "####### ###### ######       ##########",
+            "####### ###### ####### ############# ",
+            "#     # ###### ####### ########      #",
+            "# ### # ######   ##### ######## ######",
+            "# ### #          ##### ######## ######",
+            "# ##         ###                ######",
+            "# ######     #########################",
+            "# ######     #########################",
+            "#  ##### ## ##########################",
+            "#  ##### ## ##########################",
+            "#  ##### #############################",
+            "#  ##### #############################",
+            "  ###### #############################",
+            " ####### #############################",
+            " ####### #############################",
+            " ####### #############################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "######## #### ########################",
+            "####                    ##############",
+            "######################################",
+
+ 
+
         ]
 
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
             for x, col in enumerate(row):
                 if col == "#":
-                    # Add a stone tile at the corresponding location
-                    internal_layout.append({"type": "stone", "x": x, "y": y, "image": self.stone_image, "obstruction": True})
+                    # Add a empty tile at the corresponding location
+                    internal_layout.append({"type": "empty", "x": x, "y": y, "image": self.empty_image, "obstruction": True})
 
-        # Insert each object into the grid
-        for obj in objects:
-            self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
 
         # Insert each object into the grid
         for obj in internal_layout:
