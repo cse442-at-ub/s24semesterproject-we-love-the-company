@@ -1,6 +1,7 @@
 import pygame
 
 from item import *
+from highscore import Highscores
 
 # function for nothing
 def doNothing(*args):
@@ -30,6 +31,7 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
+        self.scores = Highscores()
     
     @property
     def scene(self):

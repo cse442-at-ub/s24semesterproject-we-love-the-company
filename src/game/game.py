@@ -44,6 +44,9 @@ def main():
     while state.running:
         gameloop(state)
 
+    # game is closing so save scores
+    state.scores.saveScores()
+
 # entry
 if __name__ == "__main__":
     pygame.init()
