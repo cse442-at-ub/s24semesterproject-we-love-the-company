@@ -45,6 +45,9 @@ class Player:
     def move(self, x, y):
         if (self.grid.is_inbounds(self.x + x, self.y + y)):
             obj = self.grid.get_object(self.x + x, self.y + y)
+            if obj is not None and obj.get("name",None) == "exit":
+                # player is entering the goal tile; win condition met
+                return "WIN"
 
             # SUBJECT TO CHANGE !!!
             if (obj == None or not obj.get("obstruction",False)):

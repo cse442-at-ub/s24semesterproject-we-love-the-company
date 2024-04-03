@@ -32,6 +32,8 @@ class GameScene:
         self.in_inventory = False
         self.inventory_timer = 1.0
 
+        self.score = 0
+
         self.in_combat_with = []
         self.cur_combat_enemy = -1
         self.combat_timer = 0.0
@@ -126,6 +128,10 @@ class GameScene:
                 if col == "#":
                     # Add a stone tile at the corresponding location
                     internal_layout.append({"type": "stone", "x": x, "y": y, "image": self.stone_image, "obstruction": True})
+                elif col in level_data["enemies"]:
+                    die_value = level_data["enemies"][col]["dice"]
+                    interval = level_data["enemies"][col]["interval"]
+                    self.enemyManager.create_enemy(x, y, self.enemy_image, die_value, interval)
 
         # Insert each object into the grid
         for obj in objects:
@@ -134,11 +140,6 @@ class GameScene:
         # Insert each object into the grid
         for obj in internal_layout:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
-
-        # Enemy positions
-        for enemy in level_data["enemies"]:
-            x,y = enemy["position"]
-            self.enemyManager.create_enemy(x, y, self.enemy_image, enemy["dice"], enemy["interval"])
 
         # Randomized enemy spawns (deprecated)
         """
@@ -206,7 +207,6 @@ class GameScene:
                 width, height = self.combatFont.size(str(self.enemy_rand))
                 enemy_text = self.combatFont.render(str(self.enemy_rand), True, (255, 255, 255))
                 self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
-
 
     def render_backpack(self, gamestate: Gamestate):
         if (self.inventory_timer < 1.0): # culling for if inventory open
@@ -399,7 +399,12 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
         elif (key == pygame.K_d or key == pygame.K_RIGHT):
             moved = gamestate.scene.player.moveRight()
 
-        if moved:
+        if moved == "WIN":
+            # player entered the goal tile, level is complete
+            gamestate.popScene()
+            pass # TODO: push a victory screen scene here that makes use of self.score
+            return
+        elif moved:
             gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
 
