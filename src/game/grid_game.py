@@ -22,6 +22,8 @@ DICE_ROLL_TIME = 0.5
 DICE_ROLL_SPEED = 0.05
 DICE_STAY_TIME = 1.0
 
+WIN_STRIKE_SCORE = 50
+DEFEAT_ENEMY_SCORE = 100
 
 class GameScene:
     def __init__(self, screen, level_filename: str):
@@ -311,9 +313,11 @@ class GameScene:
                         if next_enemy_die == 'defeated':
                             # Remove the enemy from the board if they are defeated
                             gamestate.scene.grid.remove_at_location(enemy_coords[0], enemy_coords[1])
+                            self.score += DEFEAT_ENEMY_SCORE
                         else:
                             # Otherwise, reduce their die
                             enemy_object["hitDie"] = next_enemy_die
+                            self.score += WIN_STRIKE_SCORE
                     
                     elif winner == 'enemy':
                         next_player_die = gamestate.scene.combat_manager.downgrade_die(gamestate.scene.player.hitDie)
