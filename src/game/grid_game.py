@@ -121,6 +121,8 @@ class GameScene:
         # "#" represents a stone, " " represents an open path
         maze_design = level_data["layout"]
 
+        player_added = False
+
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
             for x, col in enumerate(row):
@@ -128,7 +130,11 @@ class GameScene:
                     # Add a stone tile at the corresponding location
                     internal_layout.append({"type": "stone", "x": x, "y": y, "image": self.stone_image, "obstruction": True})
                 elif col == "P":
-                    self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                    if player_added:
+                        raise Exception(f"More than 1 player ('P') is in the loaded level '{level_filename}'. The level cannot be loaded.")
+                    else:
+                        self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                        player_added = True
                 elif col == "G":
                     self.grid.insert(item={
                         "name":"exit",
@@ -138,6 +144,8 @@ class GameScene:
                     die_value = level_data["enemies"][col]["dice"]
                     interval = level_data["enemies"][col]["interval"]
                     self.enemyManager.create_enemy(x, y, self.enemy_image, die_value, interval)
+                elif col != ' ':
+                    raise Exception(f"Unknown signifier '{col}' in the loaded level '{level_filename}'. The level cannot be loaded.")
 
         # Insert each object into the grid
         for obj in objects:
