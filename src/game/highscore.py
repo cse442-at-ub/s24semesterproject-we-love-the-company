@@ -15,6 +15,9 @@ class Highscores:
             self.name = name
             self.score = score
 
+        def __eq__(self, other):
+            return self.name == other.name and self.score == other.score
+
         def fromStr(string: str):
             # an entry should look like "BOB,1234"
 
@@ -26,8 +29,13 @@ class Highscores:
             name = string[:3]
             score = float(string[4:])
 
+            if (name == '   '):
+                # a broken name that shouldn't exist
+                raise ValueError("Name cannot be empty")
+
             return Highscores.Entry(name, score)
 
+    # returns the amount of highscores loaded
     def loadFromList(self, scores: list[str]):
         # an entry should look like "BOB,1234"
 
@@ -39,15 +47,30 @@ class Highscores:
                 continue
 
         self.scores.sort(key = lambda entry: entry.score, reverse=True)
+        return len(self.scores)
 
     def insertScore(self, name : str, score):
+        if (name == '   ' or name == '  ' or name == ' ' or name == ''):
+            return False
+        
         self.scores.append(Highscores.Entry(name, score))
 
         # I know this is slow.
         # Python doesn't have a builtin Binary Search (why???)
         # Python is actually really bad a sorting things well
         self.scores.sort(key = lambda entry: entry.score, reverse=True)
+        return True
 
+    def __len__(self):
+        return len(self.scores)
+
+    def get(self):
+        return self.scores
+
+    def clearScores(self):
+        self.scores = []
+
+    # returns the amount of scores loaded
     def loadScores(self):
         self.scores : list[Highscores.Entry] = []
 
@@ -61,6 +84,8 @@ class Highscores:
         except FileNotFoundError:
             with open(file_path, "w") as file:
                 pass
+
+        return len(self.scores)
 
     def saveScores(self):
         file_path = os.path.join(PATH, "highscores.txt")
