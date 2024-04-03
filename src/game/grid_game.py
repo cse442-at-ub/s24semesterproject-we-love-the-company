@@ -3,6 +3,7 @@ import os
 from gamestate import Gamestate, Handler
 import AssetCache
 from random import randint, choice
+import json
 
 from enemy import EnemyManager
 from player import Player
@@ -23,7 +24,7 @@ DICE_STAY_TIME = 1.0
 
 
 class GameScene:
-    def __init__(self, screen):
+    def __init__(self, screen, level_filename: str):
         self.screen = screen
         self.id = "game_scene"
         self.combat_manager = Combat()
@@ -75,7 +76,7 @@ class GameScene:
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
         # Populate the grid with initial objects
-        self.populate_grid()
+        self.populate_grid(level_filename)
 
     def initHandlers(self, gamestate):
         gamestate.handlers[self.id] = Handler(
@@ -84,10 +85,17 @@ class GameScene:
             onMousePress=self.onMousePress,
             onKeyPress=onKeyPress)
 
-    def populate_grid(self):
+    def populate_grid(self, level_filename: str):
         # Define the objects to populate the grid, now including trees and apples
 
-        self.player = Player(self.grid, 5, 5, self.player_image)
+        # Load level data
+        level_file = open(os.path.join(self.path,"Levels",level_filename))
+        level_data = json.load(level_file)
+        level_file.close()
+
+        player_x,player_y = level_data["player_start"]
+        
+        self.player = Player(self.grid, player_x, player_y, self.player_image)
 
         # Create the objects list for trees and apples
         objects = []
@@ -107,31 +115,7 @@ class GameScene:
 
         # Define the maze layout as a list of strings for easy visualization and modification
         # "#" represents a stone, " " represents an open path
-
-        maze_design = [
-            "                                       ",
-            "  #    #                               ",
-            "  # #  #  ##########    ############   ",
-            "  # #  #  #             #        # #   ",
-            "  # #  #  # #######     #  ####### #   ",
-            "  # #  #  #       #      # # #         ",
-            "    #     #       #    # # # #         ",
-            "  ##########      #### # # # #  #####  ",
-            "  #        #                        #  ",
-            "  # ###### # ### ###      ##### #####  ",
-            "  # #    # # #     #      #         #  ",
-            "  # #    #   # ### #      #         #  ",
-            "  # #    # # #     #      #         #  ",
-            "  # # ## # # ### ###      #         #  ",
-            "  # #    # #              #         #  ",
-            "  # #    # #              ###########  ",
-            "  # #    # #                           ",
-            "  # ##  ## #                           ",
-            "  #        #                           ",
-            "  ####  ############# # # # ########## ",
-            "                      # # #            ",
-            "                                       "
-        ]
+        maze_design = level_data["layout"]
 
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
@@ -148,10 +132,13 @@ class GameScene:
         for obj in internal_layout:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
 
-
         # Enemy positions
-        self.enemyManager.create_enemy(22, 3, self.enemy_image, "d6", 2)
+        for enemy in level_data["enemies"]:
+            x,y = enemy["position"]
+            self.enemyManager.create_enemy(x, y, self.enemy_image, enemy["dice"], enemy["interval"])
 
+        # Randomized enemy spawns (deprecated)
+        """
         for i in range(4):
             while not self.enemyManager.create_enemy(
                     randint(0,self.grid.width-1),
@@ -160,6 +147,7 @@ class GameScene:
                     choice(self.combat_manager.upgrade_path),
                     randint(1,5)):
                 pass
+        """
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * CELL_SIZE, y * CELL_SIZE))
