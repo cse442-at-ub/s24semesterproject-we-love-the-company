@@ -89,11 +89,7 @@ class GameScene:
 
         self.player = Player(self.grid, 5, 5, self.player_image)
 
-        # Mike's note: including the coordinates in the object data is redundant
-        # The grid itself already keeps track of that
-        # I know this was done for ease of inserting objects for testing
-        # But in future (when making levels) there should be a different way of doing this
- # Create the objects list for trees and apples
+        # Create the objects list for trees and apples
         objects = []
 
         # Create trees along the top and bottom boundaries
