@@ -64,7 +64,6 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
 from credits import CreditsScene
-from New_level import level2Scene
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
