@@ -58,20 +58,23 @@ class GameScene:
         self.path = os.path.dirname(__file__)
 
         # Load and resize images to fit the cell size
-        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
+        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
-        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
+        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
         self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
         
-        self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "tree.png"))
+        self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "landslide_level_2.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
 
-        self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stone.png"))
+        self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stalagmite_level_2.png"))
         self.stone_image = pygame.transform.scale(self.stone_image, (CELL_SIZE, CELL_SIZE))
 
         self.dice_backdrop = AssetCache.get_image(os.path.join(self.path, "Assets", "dice_icons", "square.png"))
         self.dice_backdrop = pygame.transform.scale(self.dice_backdrop, (CELL_SIZE, CELL_SIZE))
+
+        self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
+        self.player_run_image = pygame.transform.scale(self.player_run_image, (CELL_SIZE, CELL_SIZE))
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
@@ -95,7 +98,7 @@ class GameScene:
 
         player_x,player_y = level_data["player_start"]
         
-        self.player = Player(self.grid, player_x, player_y, self.player_image)
+        self.player = Player(self.grid, player_x, player_y, self.player_image, self.player_run_image)
 
         # Create the objects list for trees and apples
         objects = []
