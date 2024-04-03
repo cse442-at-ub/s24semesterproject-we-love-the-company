@@ -78,6 +78,9 @@ class GameScene:
         self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
         self.player_run_image = pygame.transform.scale(self.player_run_image, (CELL_SIZE, CELL_SIZE))
 
+        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "RegionMarker.png"))
+        self.goal_image = pygame.transform.scale(self.goal_image, (CELL_SIZE, CELL_SIZE))
+
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
         # Populate the grid with initial objects
@@ -97,10 +100,6 @@ class GameScene:
         level_file = open(os.path.join(self.path,"Levels",level_filename))
         level_data = json.load(level_file)
         level_file.close()
-
-        player_x,player_y = level_data["player_start"]
-        
-        self.player = Player(self.grid, player_x, player_y, self.player_image, self.player_run_image)
 
         # Create the objects list for trees and apples
         objects = []
@@ -128,6 +127,13 @@ class GameScene:
                 if col == "#":
                     # Add a stone tile at the corresponding location
                     internal_layout.append({"type": "stone", "x": x, "y": y, "image": self.stone_image, "obstruction": True})
+                elif col == "P":
+                    self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                elif col == "G":
+                    self.grid.insert(item={
+                        "name":"exit",
+                        "image":self.goal_image
+                    }, x=x, y=y)
                 elif col in level_data["enemies"]:
                     die_value = level_data["enemies"][col]["dice"]
                     interval = level_data["enemies"][col]["interval"]
