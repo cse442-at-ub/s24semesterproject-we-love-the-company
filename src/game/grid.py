@@ -130,3 +130,9 @@ class Grid:
         else:
             dist = abs(first_x - second_x) + abs(first_y - second_y)
             return dist == 1
+        
+    def update_object_image(self, x, y, new_image):
+        if self.is_inbounds(x,y):
+            obj = self.get_object(x,y)
+            if obj is not None:
+                obj["image"] = new_image

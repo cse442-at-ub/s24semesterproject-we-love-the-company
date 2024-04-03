@@ -8,16 +8,22 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self, grid: Grid, x: int, y: int, image):
+    def __init__(self, grid: Grid, x: int, y: int, image, moving_image):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
         self.grid = grid
 
+        self.image = image
+        self.moving_image = moving_image
+        self.moving_time = 0.0
+        self.cooldown_time = 0.5
+        self.is_moving = False
+
         player_object = {
             "name":"player",
             "obstruction":True,
-            "image":image
+            "image":self.image
         }
 
         self.grid.insert(player_object,x,y)
@@ -46,8 +52,31 @@ class Player:
                 player_obj = self.grid.get_object(self.x,self.y)
                 self.grid.remove_at_location(self.x,self.y)
                 self.grid.insert(player_obj,current_x+x,current_y+y)
+                
+                #NEW 
+                self.is_moving = True
+                self.moving_time = self.cooldown_time
                 return True
         return False
+
+    def update(self, dt):
+        
+        if self.is_moving:
+            self.moving_time -= dt
+            if self.moving_time <= 0:
+                self.is_moving = False
+
+        self.update_image()
+    
+
+
+    def update_image(self):
+        if self.is_moving:
+            self.grid.update_object_image(self.position[0], self.position[1], self.moving_image)
+            #self.is_moving = False
+        else:
+            self.grid.update_object_image(self.position[0], self.position[1], self.image)
+
 
     def moveLeft(self):
         return self.move(-1, 0)
