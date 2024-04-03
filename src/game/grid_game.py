@@ -154,18 +154,6 @@ class GameScene:
         # Insert each object into the grid
         for obj in internal_layout:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
-
-        # Randomized enemy spawns (deprecated)
-        """
-        for i in range(4):
-            while not self.enemyManager.create_enemy(
-                    randint(0,self.grid.width-1),
-                    randint(0,self.grid.height-1),
-                    self.enemy_image,
-                    choice(self.combat_manager.upgrade_path),
-                    randint(1,5)):
-                pass
-        """
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * CELL_SIZE, y * CELL_SIZE))
