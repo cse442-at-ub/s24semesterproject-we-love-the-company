@@ -4,6 +4,7 @@ from gamestate import Gamestate, Handler
 import AssetCache
 from random import randint, choice
 import json
+from victory import VictoryScene
 
 from enemy import EnemyManager
 from player import Player
@@ -407,8 +408,9 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
 
         if moved == "WIN":
             # player entered the goal tile, level is complete
+            score = gamestate.scene.score
             gamestate.popScene()
-            pass # TODO: push a victory screen scene here that makes use of self.score
+            gamestate.pushScene(VictoryScene(gamestate.screen,score))
             return
         elif moved:
             gamestate.scene.player_footstep.play()
