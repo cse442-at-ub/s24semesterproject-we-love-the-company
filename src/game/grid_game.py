@@ -2,27 +2,39 @@ import pygame
 import os
 from gamestate import Handler
 import AssetCache
-
+from Buttons import Button
 from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
+from pack import BackPackScene
+from backpack import Backpack
+
 # Start game scene
+apple_count = 0
 
 class GameScene:
     def __init__(self, screen):
         self.screen = screen
+        self.path = os.path.dirname(__file__) + "/"
+        self.textFont = pygame.font.SysFont("Arial", 40)
         self.id = "game_scene"
+        self.backpack1 = Backpack(5)
         self.cell_size = 64  # Define the size of each cell in the grid
-        
         # Calculate the grid size based on the screen size and cell size
         screen_width, screen_height = screen.get_size()
         grid_width = screen_width // self.cell_size
         grid_height = screen_height // self.cell_size
-        
         # Initialize the grid with calculated dimensions
         self.grid = Grid(width=grid_width, height=grid_height)
         self.enemyManager = EnemyManager(self.grid)
         
+
+        screen_center_x = screen.get_width() // 2
+        back_button_y = screen.get_height() - 680
+
+        self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/back.png"), pos=(screen_center_x, back_button_y),
+                            text_input="Back To Menu", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
+        self.buttons = [self.BackButton]
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
         
@@ -83,10 +95,13 @@ class GameScene:
         level2_image = AssetCache.get_image(os.path.join(self.path, "Assets", "level2.png"))
         level2_image = pygame.transform.scale(level2_image, self.screen.get_size())
         self.screen.blit(level2_image, (0, 0))
+        gamestate.screen.blit(level2_image, (0, 0))
         images_to_render = self.grid.find_object_with_property_type("image")
         for pair in images_to_render:
             ((x,y),image) = pair
             self.render_image_at_coordinates(image,x,y)
+        for button in gamestate.scene.buttons:
+            button.update(gamestate.screen)
         pygame.display.flip()
 
     def update(self, gamestate, dt):
@@ -95,45 +110,43 @@ class GameScene:
 
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
+        global apple_count
         pos = pygame.mouse.get_pos()
         button = pygame.mouse.get_pressed()
-
+        if (gamestate.scene.BackButton.checkForInput(pos)):
+            gamestate.scene.BackButton.button_sound()
+            gamestate.popScene()
         if any(button): 
            pos_x = pos[0]
            pos_y = pos[1]
            pos_player_x = self.player.position[0]
            pos_player_y = self.player.position[1]
-           
            if pos_x<320 and pos_x>260 and pos_y<320 and pos_y>260 and pos_player_x >=3 and pos_player_x<=5 and pos_player_y >=3 and pos_player_y<=5 :
                self.grid.remove_at_location(4,4)
+               self.backpack1.add("apple")
+               apple_count = apple_count +1
 
            if pos_x<252 and pos_x>199 and pos_y<631 and pos_y>586 and pos_player_x >=2 and pos_player_x<=4 and pos_player_y >=8 and pos_player_y<=10 :
                self.grid.remove_at_location(3,9)
+               self.backpack1.add("apple")
+               apple_count = apple_count +1
 
            if pos_x<959 and pos_x>895 and pos_y<320 and pos_y>260 and pos_player_y >=3 and pos_player_y<=5 and pos_player_x >=13 and pos_player_x<=15 :
                self.grid.remove_at_location(14,4)
-        
-        
+               self.backpack1.add("apple")
+               apple_count = apple_count + 1 
+
 
 def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
 
     if (key == pygame.K_TAB):  
-        backpack_image = AssetCache.get_image(os.path.join(gamestate.scene.path, "Assets", "backpack.png"))
-        backpack_image = pygame.transform.scale(backpack_image, gamestate.scene.screen.get_size())
-        gamestate.scene.screen.blit(backpack_image, (0, 0))
-        pygame.display.flip()
-
-    if (key == pygame.K_TAB):  
-        backpack_image = AssetCache.get_image(os.path.join(gamestate.scene.path, "Assets", "backpack.png"))
-        backpack_image = pygame.transform.scale(backpack_image, gamestate.scene.screen.get_size())
-        gamestate.scene.screen.blit(backpack_image, (0, 0))
-        pygame.display.flip()
+        gamestate.pushScene(BackPackScene(gamestate.screen, apple_count))
+        print(apple_count)
 
     if (key == pygame.K_a or key == pygame.K_LEFT):
         moved = gamestate.scene.player.moveLeft()
-        
 
     elif (key == pygame.K_s or key == pygame.K_DOWN):
         moved = gamestate.scene.player.moveDown()
