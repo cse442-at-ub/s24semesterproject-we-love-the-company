@@ -28,10 +28,8 @@ class MenuScene:
         #putting the settings button in the middle of the play and exit buttons
         settings_button_y = screen.get_height() // 2 + 50
         instruct_button_y = screen.get_height() - 50
-        credit_button_y = screen.get_height() - 130
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
-
                             text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
         self.ExitButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
@@ -44,10 +42,7 @@ class MenuScene:
         self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
                                 text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
 
-        self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
-                                text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
-
-        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton]
+        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton]
         
 
     def initHandlers(self, state: Gamestate):
@@ -59,7 +54,6 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
-from credits import CreditsScene
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
@@ -75,9 +69,6 @@ def mousePress(state: Gamestate, pos, button, touch):
     elif (state.scene.InstructionsButton.checkForInput(pos)):
         state.scene.InstructionsButton.button_sound()
         state.pushScene(InstructionsScene(state.screen))
-    elif (state.scene.CreditsButton.checkForInput(pos)):
-        state.scene.CreditsButton.button_sound()
-        state.pushScene(CreditsScene(state.screen))
 
 def render(state: Gamestate):
 
