@@ -47,10 +47,13 @@ class Combat:
         else:
             return 'draw'
 
-    def combat_outcome(self, player_die, enemy_die):
+    def combat_outcome(self, player_id, enemy_die):
         """Simulates combat between player and enemy, returning the outcome."""
-        player_roll = self.roll_die(player_die)
+        from player import Player
+        player = Player.find(player_id)
+        player_roll = self.roll_die(player.hitDie) + player.dice_modifier
         enemy_roll = self.roll_die(enemy_die)
+
 
         return self.outcome(player_roll, enemy_roll)
     

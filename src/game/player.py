@@ -14,6 +14,8 @@ class Player:
         self.hitDie = strike.upgrade_path[0]
         self.grid = grid
 
+        self.dice_modifier = 0
+
         player_object = {
             "name":"player",
             "obstruction":True,
@@ -21,6 +23,8 @@ class Player:
         }
 
         self.grid.insert(player_object,x,y)
+        self.inventory.add("apple")
+        self.inventory.add("banana")
     
     @property
     def position(self):
@@ -131,3 +135,13 @@ class Player:
     # increases the die
     def increaseDie(self):
         self.hitDie = strike.upgrade_die(self.hitDie)
+
+
+#to use the item in the backpack
+    def use_item(self, item_ID):
+        if item_ID in self.inventory.items:
+            self.dice_modifier += 5
+            self.inventory.remove(item_ID)
+            print(f"USED THIS ITEM: {item_ID}")
+            return True
+        return False
