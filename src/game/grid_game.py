@@ -10,6 +10,7 @@ from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 from combat import Combat
+from game_over import GameOverScene
 # Start game scene
 
 from value import *
@@ -325,7 +326,8 @@ class GameScene:
                         print(f"Player die reduced to {next_player_die}")
                         if next_player_die == 'defeated':
                             # Return to main menu when the player is defeated
-                            gamestate.popScene()
+                            game_over_scene = GameOverScene(gamestate.screen)
+                            gamestate.pushScene(game_over_scene)
                             return
                         else:
                             # Otherwise, reduce their die
