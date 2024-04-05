@@ -3,6 +3,8 @@ import os
 from gamestate import Gamestate, Handler
 import AssetCache
 from random import randint, choice
+import json
+from victory import VictoryScene
 
 from enemy import EnemyManager
 from player import Player
@@ -21,15 +23,19 @@ DICE_ROLL_TIME = 0.5
 DICE_ROLL_SPEED = 0.05
 DICE_STAY_TIME = 1.0
 
+WIN_STRIKE_SCORE = 50
+DEFEAT_ENEMY_SCORE = 100
 
 class GameScene:
-    def __init__(self, screen):
+    def __init__(self, screen, level_filename: str):
         self.screen = screen
         self.id = "game_scene"
         self.combat_manager = Combat()
 
         self.in_inventory = False
         self.inventory_timer = 1.0
+
+        self.score = 0
 
         self.in_combat_with = []
         self.cur_combat_enemy = -1
@@ -57,25 +63,31 @@ class GameScene:
         self.path = os.path.dirname(__file__)
 
         # Load and resize images to fit the cell size
-        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "player.png"))
+        self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
-        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy.png"))
+        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
         self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
         
-        self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "tree.png"))
+        self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "landslide_level_2.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
 
-        self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stone.png"))
+        self.stone_image = AssetCache.get_image(os.path.join(self.path, "Assets", "stalagmite_level_2.png"))
         self.stone_image = pygame.transform.scale(self.stone_image, (CELL_SIZE, CELL_SIZE))
 
         self.dice_backdrop = AssetCache.get_image(os.path.join(self.path, "Assets", "dice_icons", "square.png"))
         self.dice_backdrop = pygame.transform.scale(self.dice_backdrop, (CELL_SIZE, CELL_SIZE))
 
+        self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
+        self.player_run_image = pygame.transform.scale(self.player_run_image, (CELL_SIZE, CELL_SIZE))
+
+        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "RegionMarker.png"))
+        self.goal_image = pygame.transform.scale(self.goal_image, (CELL_SIZE, CELL_SIZE))
+
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
         # Populate the grid with initial objects
-        self.populate_grid()
+        self.populate_grid(level_filename)
 
     def initHandlers(self, gamestate):
         gamestate.handlers[self.id] = Handler(
@@ -84,16 +96,15 @@ class GameScene:
             onMousePress=self.onMousePress,
             onKeyPress=onKeyPress)
 
-    def populate_grid(self):
+    def populate_grid(self, level_filename: str):
         # Define the objects to populate the grid, now including trees and apples
 
-        self.player = Player(self.grid, 5, 5, self.player_image)
+        # Load level data
+        level_file = open(os.path.join(self.path,"Levels",level_filename))
+        level_data = json.load(level_file)
+        level_file.close()
 
-        # Mike's note: including the coordinates in the object data is redundant
-        # The grid itself already keeps track of that
-        # I know this was done for ease of inserting objects for testing
-        # But in future (when making levels) there should be a different way of doing this
- # Create the objects list for trees and apples
+        # Create the objects list for trees and apples
         objects = []
 
         # Create trees along the top and bottom boundaries
@@ -111,31 +122,9 @@ class GameScene:
 
         # Define the maze layout as a list of strings for easy visualization and modification
         # "#" represents a stone, " " represents an open path
+        maze_design = level_data["layout"]
 
-        maze_design = [
-            "                                       ",
-            "  #    #                               ",
-            "  # #  #  ##########    ############   ",
-            "  # #  #  #             #        # #   ",
-            "  # #  #  # #######     #  ####### #   ",
-            "  # #  #  #       #      # # #         ",
-            "    #     #       #    # # # #         ",
-            "  ##########      #### # # # #  #####  ",
-            "  #        #                        #  ",
-            "  # ###### # ### ###      ##### #####  ",
-            "  # #    # # #     #      #         #  ",
-            "  # #    #   # ### #      #         #  ",
-            "  # #    # # #     #      #         #  ",
-            "  # # ## # # ### ###      #         #  ",
-            "  # #    # #              #         #  ",
-            "  # #    # #              ###########  ",
-            "  # #    # #                           ",
-            "  # ##  ## #                           ",
-            "  #        #                           ",
-            "  ####  ############# # # # ########## ",
-            "                      # # #            ",
-            "                                       "
-        ]
+        player_added = False
 
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
@@ -143,6 +132,23 @@ class GameScene:
                 if col == "#":
                     # Add a stone tile at the corresponding location
                     internal_layout.append({"type": "stone", "x": x, "y": y, "image": self.stone_image, "obstruction": True})
+                elif col == "P":
+                    if player_added:
+                        raise Exception(f"More than 1 player ('P') is in the loaded level '{level_filename}'. The level cannot be loaded.")
+                    else:
+                        self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                        player_added = True
+                elif col == "G":
+                    self.grid.insert(item={
+                        "name":"exit",
+                        "image":self.goal_image
+                    }, x=x, y=y)
+                elif col in level_data["enemies"]:
+                    die_value = level_data["enemies"][col]["dice"]
+                    interval = level_data["enemies"][col]["interval"]
+                    self.enemyManager.create_enemy(x, y, self.enemy_image, die_value, interval)
+                elif col != ' ':
+                    raise Exception(f"Unknown signifier '{col}' in the loaded level '{level_filename}'. The level cannot be loaded.")
 
         # Insert each object into the grid
         for obj in objects:
@@ -151,19 +157,6 @@ class GameScene:
         # Insert each object into the grid
         for obj in internal_layout:
             self.grid.insert(item=obj, x=obj["x"], y=obj["y"])
-
-
-        # Enemy positions
-        self.enemyManager.create_enemy(22, 3, self.enemy_image, "d6", 2)
-
-        for i in range(4):
-            while not self.enemyManager.create_enemy(
-                    randint(0,self.grid.width-1),
-                    randint(0,self.grid.height-1),
-                    self.enemy_image,
-                    choice(self.combat_manager.upgrade_path),
-                    randint(1,5)):
-                pass
     
     def render_image_at_coordinates(self,image,x,y):
         return self.screen.blit(image, (x * CELL_SIZE, y * CELL_SIZE))
@@ -219,7 +212,6 @@ class GameScene:
                 width, height = self.combatFont.size(str(self.enemy_rand))
                 enemy_text = self.combatFont.render(str(self.enemy_rand), True, (255, 255, 255))
                 self.screen.blit(enemy_text, (enemy_coords[0] * CELL_SIZE + CELL_SIZE / 2 - width / 2, (enemy_coords[1] - 1) * CELL_SIZE + CELL_SIZE / 2 - height / 2))
-
 
     def render_backpack(self, gamestate: Gamestate):
         if (self.inventory_timer < 1.0): # culling for if inventory open
@@ -322,9 +314,11 @@ class GameScene:
                         if next_enemy_die == 'defeated':
                             # Remove the enemy from the board if they are defeated
                             gamestate.scene.grid.remove_at_location(enemy_coords[0], enemy_coords[1])
+                            self.score += DEFEAT_ENEMY_SCORE
                         else:
                             # Otherwise, reduce their die
                             enemy_object["hitDie"] = next_enemy_die
+                            self.score += WIN_STRIKE_SCORE
                     
                     elif winner == 'enemy':
                         next_player_die = gamestate.scene.combat_manager.downgrade_die(gamestate.scene.player.hitDie)
@@ -412,7 +406,13 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
         elif (key == pygame.K_d or key == pygame.K_RIGHT):
             moved = gamestate.scene.player.moveRight()
 
-        if moved:
+        if moved == "WIN":
+            # player entered the goal tile, level is complete
+            score = gamestate.scene.score
+            gamestate.popScene()
+            gamestate.pushScene(VictoryScene(gamestate.screen,score))
+            return
+        elif moved:
             gamestate.scene.player_footstep.play()
             gamestate.scene.enemyManager.enemy_step()
 

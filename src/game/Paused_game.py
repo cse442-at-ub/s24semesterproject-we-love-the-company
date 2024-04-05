@@ -5,7 +5,6 @@ import AssetCache
 from gamestate import *
 
 from Buttons import Button
-from grid_game import GameScene
 
 ID = "Pause_menu"
 
