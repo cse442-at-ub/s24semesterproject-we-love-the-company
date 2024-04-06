@@ -30,8 +30,6 @@ def gameloop(gamestate: Gamestate):
             return
         elif (event.type == pygame.KEYDOWN):
             gamestate.pressKey(event.key, event.mod, event.unicode, event.scancode)
-            if(event.type == pygame.K_1):
-                item_ID = "common"
 
         elif (event.type == pygame.MOUSEMOTION):
             gamestate.moveMouse(event.pos, event.rel, event.buttons, event.touch)

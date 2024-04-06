@@ -28,8 +28,6 @@ class Player:
         }
 
         self.grid.insert(player_object,x,y)
-        self.inventory.add("apple")
-        self.inventory.add("banana")
     
     @property
     def position(self):
