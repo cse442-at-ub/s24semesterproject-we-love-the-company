@@ -31,9 +31,13 @@ class SettingsScene:
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
+    
+    def update_elements(self, width: int, height: int):
+        pass
 
 
 from AudioMenu import AudioScene
+from VideoMenu import VideoScene
 
 def mouseMove(state: Gamestate, pos, rel, buttons, touch):
     for button in state.scene.buttons:
@@ -50,6 +54,7 @@ def mousePress(state: Gamestate, pos, button, touch):
     elif (state.scene.VideoButton.checkForInput(pos)):
         state.scene.VideoButton.button_sound()
         print("Video settings pressed")
+        state.pushScene(VideoScene(state.screen))
 
 def render(state: Gamestate):
     background_image = AssetCache.get_image(state.scene.path + 'background.jpg')

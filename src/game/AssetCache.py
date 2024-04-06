@@ -1,4 +1,6 @@
 from pygame import image, mixer
+import pygame
+pygame.mixer.init()
 
 image_cache = dict()
 
