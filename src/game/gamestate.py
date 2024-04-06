@@ -1,5 +1,7 @@
 import pygame
 
+from item import *
+from highscore import Highscores
 
 # function for nothing
 def doNothing(*args):
@@ -27,6 +29,9 @@ class Gamestate:
         
         self.clock = pygame.time.Clock()
         self.running = True
+
+        self.items = Items()
+        self.scores = Highscores()
     
     @property
     def scene(self):
@@ -39,7 +44,13 @@ class Gamestate:
     def popScene(self):
         self._scenes.pop()
 
+    def switch_to_game(self):
+        from grid_game import GameScene  # Assuming GameScene is defined in game_scene.py
+        self.pushScene(GameScene(self.screen,"level1.json"))
 
+    def switch_to_menu(self):
+        from menu import MenuScene  # Assuming MenuScene is defined in menu_scene.py
+        self.pushScene(MenuScene(self.screen))
     ### Dispatch to handlers ###
 
     def update(self, deltaT):

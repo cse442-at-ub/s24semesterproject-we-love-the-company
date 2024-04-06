@@ -8,19 +8,28 @@ from grid import Grid
 strike = Combat()
 
 class Player:
-    def __init__(self, grid: Grid, x: int, y: int, image):
+    def __init__(self, grid: Grid, x: int, y: int, image, moving_image):
         self.heldItem = None
         self.inventory = Backpack(5)
         self.hitDie = strike.upgrade_path[0]
         self.grid = grid
 
+        self.image = image
+        self.moving_image = moving_image
+        self.moving_time = 0.0
+        self.cooldown_time = 0.5
+        self.is_moving = False
+        self.dice_modifier = 0
+
         player_object = {
             "name":"player",
             "obstruction":True,
-            "image":image
+            "image":self.image
         }
 
         self.grid.insert(player_object,x,y)
+        self.inventory.add("apple")
+        self.inventory.add("banana")
     
     @property
     def position(self):
@@ -39,6 +48,9 @@ class Player:
     def move(self, x, y):
         if (self.grid.is_inbounds(self.x + x, self.y + y)):
             obj = self.grid.get_object(self.x + x, self.y + y)
+            if obj is not None and obj.get("name",None) == "exit":
+                # player is entering the goal tile; win condition met
+                return "WIN"
 
             # SUBJECT TO CHANGE !!!
             if (obj == None or not obj.get("obstruction",False)):
@@ -46,8 +58,31 @@ class Player:
                 player_obj = self.grid.get_object(self.x,self.y)
                 self.grid.remove_at_location(self.x,self.y)
                 self.grid.insert(player_obj,current_x+x,current_y+y)
+                
+                #NEW 
+                self.is_moving = True
+                self.moving_time = self.cooldown_time
                 return True
         return False
+
+    def update(self, dt):
+        
+        if self.is_moving:
+            self.moving_time -= dt
+            if self.moving_time <= 0:
+                self.is_moving = False
+
+        self.update_image()
+    
+
+
+    def update_image(self):
+        if self.is_moving:
+            self.grid.update_object_image(self.position[0], self.position[1], self.moving_image)
+            #self.is_moving = False
+        else:
+            self.grid.update_object_image(self.position[0], self.position[1], self.image)
+
 
     def moveLeft(self):
         return self.move(-1, 0)
@@ -101,7 +136,7 @@ class Player:
 
     # drops from the backpack
     def dropFromBackpack(self, id):
-        if (not self.inventory.isEmpty() and id in self.inventory.dict):
+        if (not self.inventory.isEmpty() and id in self.inventory.items):
             obj = {"item": id}
             if (self.grid.insert(obj, self.x, self.y+1)):
                 self.inventory.remove(id)
@@ -112,7 +147,7 @@ class Player:
     # takes item from inventory and puts into hands
     def retrieve(self, id):
         if (self.heldItem == None and not self.inventory.isEmpty()):
-            if (id in self.inventory.dict):
+            if (id in self.inventory.items):
                 self.heldItem = id
                 self.inventory.remove(id)
                 return True
@@ -131,3 +166,13 @@ class Player:
     # increases the die
     def increaseDie(self):
         self.hitDie = strike.upgrade_die(self.hitDie)
+
+
+#to use the item in the backpack
+    def use_item(self, item_ID):
+        if item_ID in self.inventory.items:
+            self.dice_modifier += 5
+            self.inventory.remove(item_ID)
+            print(f"USED THIS ITEM: {item_ID}")
+            return True
+        return False
