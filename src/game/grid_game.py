@@ -2,6 +2,12 @@ import pygame
 import os
 from gamestate import Gamestate, Handler
 import AssetCache
+from Buttons import Button
+from enemy import EnemyManager
+from player import Player
+from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
+from pack import BackPackScene
+from backpack import Backpack
 from random import randint, choice
 import json
 from victory import VictoryScene
@@ -12,6 +18,7 @@ from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 from combat import Combat
 from game_over import GameOverScene
 # Start game scene
+apple_count = 0
 
 from value import *
 
@@ -30,7 +37,15 @@ DEFEAT_ENEMY_SCORE = 100
 class GameScene:
     def __init__(self, screen, level_filename: str):
         self.screen = screen
+        self.path = os.path.dirname(__file__) + "/"
+        self.textFont = pygame.font.SysFont("Arial", 40)
         self.id = "game_scene"
+        self.backpack1 = Backpack(5)
+        self.cell_size = 64  # Define the size of each cell in the grid
+        # Calculate the grid size based on the screen size and cell size
+        screen_width, screen_height = screen.get_size()
+        grid_width = screen_width // self.cell_size
+        grid_height = screen_height // self.cell_size
         self.combat_manager = Combat()
 
         self.in_inventory = False
@@ -60,6 +75,13 @@ class GameScene:
         self.grid = Grid(width=grid_width, height=grid_height)
         self.enemyManager = EnemyManager(self.grid)
         
+
+        screen_center_x = screen.get_width() // 2
+        back_button_y = screen.get_height() - 680
+
+        self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/back.png"), pos=(screen_center_x, back_button_y),
+                            text_input="Back To Menu", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("Assets/button_click.mp3"))
+        self.buttons = [self.BackButton]
         # Define the path to your assets
         self.path = os.path.dirname(__file__)
 
@@ -278,11 +300,19 @@ class GameScene:
 
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
+        cell_size = 64  # Define the size of each cell in the grid
+        level2_image = AssetCache.get_image(os.path.join(self.path, "Assets", "level2.png"))
+        level2_image = pygame.transform.scale(level2_image, self.screen.get_size())
+        self.screen.blit(level2_image, (0, 0))
+        gamestate.screen.blit(level2_image, (0, 0))
         
         images_to_render = self.grid.find_object_with_property_type("image")
         for pair in images_to_render:
             ((x,y),image) = pair
             self.render_image_at_coordinates(image,x,y)
+
+        for button in gamestate.scene.buttons:
+            button.update(gamestate.screen)
 
         self.render_combat(gamestate)
 
@@ -371,7 +401,32 @@ class GameScene:
 
     def onMousePress(self, gamestate, pos, button, touch):
         # Implement interactions based on mouse press
-        pass
+        global apple_count
+        pos = pygame.mouse.get_pos()
+        button = pygame.mouse.get_pressed()
+        if (gamestate.scene.BackButton.checkForInput(pos)):
+            gamestate.scene.BackButton.button_sound()
+            gamestate.popScene()
+        if any(button): 
+           pos_x = pos[0]
+           pos_y = pos[1]
+           pos_player_x = self.player.position[0]
+           pos_player_y = self.player.position[1]
+           if pos_x<320 and pos_x>260 and pos_y<320 and pos_y>260 and pos_player_x >=3 and pos_player_x<=5 and pos_player_y >=3 and pos_player_y<=5 :
+               self.grid.remove_at_location(4,4)
+               self.backpack1.add("apple")
+               apple_count = apple_count +1
+
+           if pos_x<252 and pos_x>199 and pos_y<631 and pos_y>586 and pos_player_x >=2 and pos_player_x<=4 and pos_player_y >=8 and pos_player_y<=10 :
+               self.grid.remove_at_location(3,9)
+               self.backpack1.add("apple")
+               apple_count = apple_count +1
+
+           if pos_x<959 and pos_x>895 and pos_y<320 and pos_y>260 and pos_player_y >=3 and pos_player_y<=5 and pos_player_x >=13 and pos_player_x<=15 :
+               self.grid.remove_at_location(14,4)
+               self.backpack1.add("apple")
+               apple_count = apple_count + 1 
+
 
 from Paused_game import PauseScene
 
@@ -379,6 +434,13 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
 
+    if (key == pygame.K_TAB):  
+        gamestate.pushScene(BackPackScene(gamestate.screen, apple_count))
+        print(apple_count)
+
+    if (key == pygame.K_a or key == pygame.K_LEFT):
+        moved = gamestate.scene.player.moveLeft()
+        
     if (len(gamestate.scene.in_combat_with) != 0):
         # skip combat animations
         add_amount = DICE_STAY_TIME if gamestate.scene.combat_timer >= DICE_ROLL_TIME else DICE_ROLL_TIME - gamestate.scene.combat_timer
@@ -435,6 +497,9 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
     if (key == pygame.K_TAB):
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
         gamestate.scene.inventory_sound.play()
+
+    if moved:
+        gamestate.scene.enemyManager.enemy_step()
 
     if (key == pygame.K_ESCAPE):
          gamestate.pushScene(PauseScene(gamestate.screen))
