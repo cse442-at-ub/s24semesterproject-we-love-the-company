@@ -46,6 +46,7 @@ class GameScene:
         self.player_rand = 0
         self.enemy_rand = 0
         self.last_rand = -DICE_ROLL_SPEED
+        self.selected_item = None
 
         self.textFont = pygame.font.SysFont("Arial", 35)
         self.subTextFont = pygame.font.SysFont("Arial", 20)
@@ -139,6 +140,9 @@ class GameScene:
                         raise Exception(f"More than 1 player ('P') is in the loaded level '{level_filename}'. The level cannot be loaded.")
                     else:
                         self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                        self.player.inventory.add("common")
+                        self.player.inventory.add("common")
+                        self.player.inventory.add("arrow")
                         player_added = True
                 elif col == "G":
                     self.grid.insert(item={
@@ -240,8 +244,8 @@ class GameScene:
 
                 # CHANGE THIS LATER!!!!!
                 # for testing purposes
-                self.player.inventory.items["common"] = 2
-                self.player.inventory.items["arrow"] = 1
+                #self.player.inventory.items["common"] = 2
+                #self.player.inventory.items["arrow"] = 1
 
                 # draw backpack value
                 ypos = 0.01 * swidth
@@ -271,12 +275,14 @@ class GameScene:
                         # calculate where to put the text
                         textX = itemPos * swidth + img_size + spacing
 
+                        color = (255,255,0) if item.identifier == self.selected_item else (255,255,255)
+
                         # draw title and count
-                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, (255, 255, 255)), (textX, ypos + spacing))
+                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, color), (textX, ypos + spacing))
                         theight = self.textFont.get_height()
 
                         # draw description
-                        self.screen.blit(self.subTextFont.render(item.description, True, (255, 255, 255)), (textX, ypos + spacing * 2 + theight))
+                        self.screen.blit(self.subTextFont.render(item.description, True, color), (textX, ypos + spacing * 2 + theight))
 
                         # advance to next item
                         y += 1
@@ -375,20 +381,31 @@ class GameScene:
             self.inventory_timer = min(self.inventory_timer + dt, 1.0)
 
         self.update_combat(gamestate, dt)
-
+    
     def onMousePress(self, gamestate, pos, button, touch):
-        x,y = pos
-        x = x // CELL_SIZE
-        y = y // CELL_SIZE
-        if self.grid.is_inbounds(x,y):
-            obj = self.grid.get_object(x,y)
-            if obj is not None and obj.get("type",None) == "item": # check that there is an item
-                player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
-                if gamestate.scene.grid.is_adjacent(player_x,player_y,x,y): # check that player is adjacent
-                    gamestate.scene.grid.remove_at_location(x,y)
-                    gamestate.scene.player.inventory.add(obj["name"])
-                    print(f"The player picked up a(n) {obj['name']}!")
-                    gamestate.scene.pickup_sound.play()
+        if (not self.in_inventory):
+            # handle item pickups
+            x,y = pos
+            x = x // CELL_SIZE
+            y = y // CELL_SIZE
+            player_x, player_y = list(self.grid.find_object_with_properties({"name": "player"}))[0]
+            if self.grid.is_inbounds(x,y) and self.grid.is_adjacent(player_x,player_y,x,y):
+                obj = self.grid.get_object(x,y)
+                if not self.player.inventory.isFull() and obj is not None and obj.get("type",None) == "item": # check that there is an item
+                    self.grid.remove_at_location(x,y)
+                    self.player.inventory.add(obj["name"])
+                    self.pickup_sound.play()
+                elif not self.player.inventory.isEmpty() and obj is None and self.selected_item is not None and self.selected_item in self.player.inventory.items:
+                    # if there's no item, place the selected item (if any)
+                    item_info = gamestate.items.get(self.selected_item)
+                    self.grid.insert({
+                        "type":"item",
+                        "image":pygame.transform.scale(AssetCache.get_image(item_info.image), (CELL_SIZE, CELL_SIZE)),
+                        "name":self.selected_item,
+                        "obstruction":True
+                    },x,y)
+                    self.player.inventory.remove(self.selected_item)
+                    self.pickup_sound.play()
 
 from Paused_game import PauseScene
 
@@ -448,8 +465,27 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
                 gamestate.scene.cur_combat_enemy = -1
                 gamestate.scene.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
                 gamestate.scene.last_rand = -DICE_ROLL_SPEED
+    
+    else:
+        stuff = list(gamestate.scene.player.inventory.items.keys())
+        current_index = stuff.index(gamestate.scene.selected_item) if gamestate.scene.selected_item in stuff else -1
+        if current_index >= 0:
+            if (key == pygame.K_s or key == pygame.K_DOWN):
+                current_index += 1
+                if current_index >= len(stuff):
+                    current_index = 0
+            elif (key == pygame.K_w or key == pygame.K_UP):
+                current_index -= 1
+                if current_index < 0:
+                    current_index = len(stuff) - 1
+                
+            gamestate.scene.selected_item = stuff[current_index]
 
     if (key == pygame.K_TAB):
+        if gamestate.scene.selected_item == None or gamestate.scene.selected_item not in list(gamestate.scene.player.inventory.items.keys()):
+            stuff = list(gamestate.scene.player.inventory.items.keys())
+            if len(stuff) > 0:
+                gamestate.scene.selected_item = stuff[0]
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
         gamestate.scene.inventory_sound.play()
 
