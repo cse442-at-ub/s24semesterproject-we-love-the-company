@@ -382,10 +382,13 @@ class GameScene:
         y = y // CELL_SIZE
         if self.grid.is_inbounds(x,y):
             obj = self.grid.get_object(x,y)
-            if obj is not None:
-                print(f"Player clicked on object: {obj}")
-                gamestate.scene.pickup_sound.play()
-        pass
+            if obj is not None and obj.get("type",None) == "item": # check that there is an item
+                player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
+                if gamestate.scene.grid.is_adjacent(player_x,player_y,x,y): # check that player is adjacent
+                    gamestate.scene.grid.remove_at_location(x,y)
+                    gamestate.scene.player.inventory.add(obj["name"])
+                    print(f"The player picked up a(n) {obj['name']}!")
+                    gamestate.scene.pickup_sound.play()
 
 from Paused_game import PauseScene
 
