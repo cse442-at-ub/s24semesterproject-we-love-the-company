@@ -67,8 +67,8 @@ class GameScene:
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
-        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
-        self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
+        #self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
+        #self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
         
         self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "landslide_level_2.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
@@ -87,6 +87,7 @@ class GameScene:
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
+        self.pickup_sound = AssetCache.get_audio("src/game/Assets/pickup.wav")
         # Populate the grid with initial objects
         self.populate_grid(level_filename)
 
@@ -147,7 +148,13 @@ class GameScene:
                 elif col in level_data["enemies"]:
                     die_value = level_data["enemies"][col]["dice"]
                     interval = level_data["enemies"][col]["interval"]
-                    self.enemyManager.create_enemy(x, y, self.enemy_image, die_value, interval)
+                    enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", level_data["enemies"][col]["image"]))
+                    enemy_image = pygame.transform.scale(enemy_image, (CELL_SIZE, CELL_SIZE))
+                    self.enemyManager.create_enemy(x, y, enemy_image, die_value, interval)
+                elif col in level_data["items"]:
+                    item_image = AssetCache.get_image(os.path.join(self.path, "Assets", level_data["items"][col]["image"]))
+                    item_image = pygame.transform.scale(item_image, (CELL_SIZE, CELL_SIZE))
+                    self.grid.insert({"type": "item","name": level_data["items"][col]["name"], "obstruction": True, "image": item_image},x,y)
                 elif col != ' ':
                     raise Exception(f"Unknown signifier '{col}' in the loaded level '{level_filename}'. The level cannot be loaded.")
 
@@ -370,7 +377,14 @@ class GameScene:
         self.update_combat(gamestate, dt)
 
     def onMousePress(self, gamestate, pos, button, touch):
-        # Implement interactions based on mouse press
+        x,y = pos
+        x = x // CELL_SIZE
+        y = y // CELL_SIZE
+        if self.grid.is_inbounds(x,y):
+            obj = self.grid.get_object(x,y)
+            if obj is not None:
+                print(f"Player clicked on object: {obj}")
+                gamestate.scene.pickup_sound.play()
         pass
 
 from Paused_game import PauseScene
