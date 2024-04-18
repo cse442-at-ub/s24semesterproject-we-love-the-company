@@ -68,9 +68,6 @@ class GameScene:
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
-        #self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
-        #self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
-        
         self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "landslide_level_2.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
 
@@ -382,6 +379,24 @@ class GameScene:
 
         self.update_combat(gamestate, dt)
     
+    def updateWorld(self):
+        self.player_footstep.play()
+        self.enemyManager.enemy_step()
+
+        self.in_combat_with = []
+
+        enemy_list = self.grid.find_object_with_properties({"name": "enemy"})
+        player_x, player_y = list(self.grid.find_object_with_properties({"name": "player"}))[0]
+        for enemy_x,enemy_y in enemy_list:
+            if self.grid.is_adjacent(player_x, player_y, enemy_x, enemy_y, True):
+                self.in_combat_with.append((enemy_x, enemy_y))
+                
+        if (len(self.in_combat_with) > 0):
+            # hacky little way to avoid writing better code
+            self.cur_combat_enemy = -1
+            self.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
+            self.last_rand = -DICE_ROLL_SPEED
+
     def onMousePress(self, gamestate, pos, button, touch):
         if (not self.in_inventory):
             # handle item pickups
@@ -395,17 +410,27 @@ class GameScene:
                     self.grid.remove_at_location(x,y)
                     self.player.inventory.add(obj["name"])
                     self.pickup_sound.play()
-                elif not self.player.inventory.isEmpty() and obj is None and self.selected_item is not None and self.selected_item in self.player.inventory.items:
+                    self.updateWorld()
+                elif not self.player.inventory.isEmpty() and obj is None:
                     # if there's no item, place the selected item (if any)
-                    item_info = gamestate.items.get(self.selected_item)
-                    self.grid.insert({
-                        "type":"item",
-                        "image":pygame.transform.scale(AssetCache.get_image(item_info.image), (CELL_SIZE, CELL_SIZE)),
-                        "name":self.selected_item,
-                        "obstruction":True
-                    },x,y)
-                    self.player.inventory.remove(self.selected_item)
-                    self.pickup_sound.play()
+                    if self.selected_item is None or self.selected_item not in list(self.player.inventory.items.keys()):
+                        stuff = list(self.player.inventory.items.keys())
+                        if len(stuff) > 0:
+                            self.selected_item = stuff[0]
+                        else:
+                            self.selected_item = None
+                    
+                    if self.selected_item is not None:
+                        item_info = gamestate.items.get(self.selected_item)
+                        self.grid.insert({
+                            "type":"item",
+                            "image":pygame.transform.scale(AssetCache.get_image(item_info.image), (CELL_SIZE, CELL_SIZE)),
+                            "name":self.selected_item,
+                            "obstruction":True
+                        },x,y)
+                        self.player.inventory.remove(self.selected_item)
+                        self.pickup_sound.play()
+                        self.updateWorld()
 
 from Paused_game import PauseScene
 
@@ -449,22 +474,7 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
             gamestate.pushScene(VictoryScene(gamestate.screen,score))
             return
         elif moved:
-            gamestate.scene.player_footstep.play()
-            gamestate.scene.enemyManager.enemy_step()
-
-            gamestate.scene.in_combat_with = []
-
-            enemy_list = gamestate.scene.grid.find_object_with_properties({"name": "enemy"})
-            player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
-            for enemy_x,enemy_y in enemy_list:
-                if gamestate.scene.grid.is_adjacent(player_x, player_y, enemy_x, enemy_y, True):
-                    gamestate.scene.in_combat_with.append((enemy_x, enemy_y))
-                    
-            if (len(gamestate.scene.in_combat_with) > 0):
-                # hacky little way to avoid writing better code
-                gamestate.scene.cur_combat_enemy = -1
-                gamestate.scene.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
-                gamestate.scene.last_rand = -DICE_ROLL_SPEED
+            gamestate.scene.updateWorld()
     
     else:
         stuff = list(gamestate.scene.player.inventory.items.keys())
@@ -482,7 +492,7 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
             gamestate.scene.selected_item = stuff[current_index]
 
     if (key == pygame.K_TAB):
-        if gamestate.scene.selected_item == None or gamestate.scene.selected_item not in list(gamestate.scene.player.inventory.items.keys()):
+        if gamestate.scene.selected_item is None or gamestate.scene.selected_item not in list(gamestate.scene.player.inventory.items.keys()):
             stuff = list(gamestate.scene.player.inventory.items.keys())
             if len(stuff) > 0:
                 gamestate.scene.selected_item = stuff[0]
