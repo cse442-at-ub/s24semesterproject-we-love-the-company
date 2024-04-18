@@ -67,6 +67,9 @@ class Boots(Common):
         self.image = os.path.join(path, "Assets", "player.png")
 
 class Arrow(Common):
+    def arrow_effect(effects: ItemEffects):
+        effects.add_to_roll(100.0)
+
     def __init__(self):
         super().__init__()
         self.value = 5.0
@@ -74,6 +77,7 @@ class Arrow(Common):
         self.name = "Arrow of Swift"
         self.description = "Increases range attack speed."
         self.image = os.path.join(path, "Assets", "player.png")
+        self.effect = Arrow.arrow_effect
 
 class Items:
     def __init__(self):

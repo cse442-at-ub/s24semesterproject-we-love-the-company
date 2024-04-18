@@ -2,15 +2,17 @@ from combat import Combat
 from backpack import Backpack
 
 class ItemEffects:
-    def __init__(self, backpack: Backpack):
+    def __init__(self, items, backpack: Backpack):
         self.dice_level = 0
         self.extra_rolls = 0
         self.multiplier = 1.0
         self.constant = 0.0
 
         # apply all effects
-        for item in backpack.items:
-            item.effect(self)
+        for id, count in backpack.items.items():
+            item = items.get(id)
+            for _ in range(count):
+                item.effect(self)
 
     def upgrade_die(self, count: int = 1):
         self.dice_level += count
