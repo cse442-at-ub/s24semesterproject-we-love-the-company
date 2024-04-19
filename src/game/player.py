@@ -19,7 +19,6 @@ class Player:
         self.moving_time = 0.0
         self.cooldown_time = 0.5
         self.is_moving = False
-        self.dice_modifier = 0
 
         player_object = {
             "name":"player",
@@ -164,13 +163,3 @@ class Player:
     # increases the die
     def increaseDie(self):
         self.hitDie = strike.upgrade_die(self.hitDie)
-
-
-#to use the item in the backpack
-    def use_item(self, item_ID):
-        if item_ID in self.inventory.items:
-            self.dice_modifier += 5
-            self.inventory.remove(item_ID)
-            print(f"USED THIS ITEM: {item_ID}")
-            return True
-        return False

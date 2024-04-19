@@ -46,7 +46,7 @@ class Gamestate:
 
     def switch_to_game(self):
         from grid_game import GameScene  # Assuming GameScene is defined in game_scene.py
-        self.pushScene(GameScene(self.screen,"level1.json"))
+        self.pushScene(GameScene(self.screen,"level1.json", self))
 
     def switch_to_menu(self):
         from menu import MenuScene  # Assuming MenuScene is defined in menu_scene.py
@@ -67,3 +67,4 @@ class Gamestate:
 
     def pressMouse(self, pos, button, touch):
         self.handlers[self.scene.id].onMousePress(self, pos, button, touch)
+          

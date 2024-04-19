@@ -34,8 +34,9 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.BackButton.checkForInput(pos)):
+        from menu import MenuScene
         state.scene.BackButton.button_sound()
-        state.popScene()
+        state.pushScene(MenuScene(state.screen))
 
 def render(state: Gamestate):
     background_image = AssetCache.get_image(state.scene.path + 'background.jpg')
