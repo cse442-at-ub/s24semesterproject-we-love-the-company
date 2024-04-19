@@ -5,12 +5,12 @@ import AssetCache
 from random import randint, choice
 import json
 from victory import VictoryScene
-
 from enemy import EnemyManager
 from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 from combat import Combat
 from game_over import GameOverScene
+from highscore import Highscores
 # Start game scene
 
 from value import *
@@ -32,7 +32,6 @@ class GameScene:
         self.screen = screen
         self.id = "game_scene"
         self.combat_manager = Combat()
-
         self.in_inventory = False
         self.inventory_timer = 1.0
 
@@ -325,6 +324,9 @@ class GameScene:
                         next_player_die = gamestate.scene.combat_manager.downgrade_die(gamestate.scene.player.hitDie)
                         print(f"Player die reduced to {next_player_die}")
                         if next_player_die == 'defeated':
+                            highscores = Highscores()  # This should be initialized at the start of the game instead of here if used frequently.
+                            highscores.insertScore(gamestate.player_name, self.score)
+                            highscores.saveScores()
                             # Return to main menu when the player is defeated
                             game_over_scene = GameOverScene(gamestate.screen)
                             gamestate.pushScene(game_over_scene)

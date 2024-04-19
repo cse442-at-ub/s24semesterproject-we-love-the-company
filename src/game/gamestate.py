@@ -20,6 +20,7 @@ class Handler:
 class Gamestate:
     # all the scene's handlers
     handlers: dict[str, Handler] = {}
+    player_name = "BOB"  # Default player name
 
     def __init__(self, screenSize, initScene):
         self.screenSize = screenSize
