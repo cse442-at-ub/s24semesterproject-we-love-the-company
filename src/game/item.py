@@ -32,7 +32,7 @@ class Sword(Common):
         self.identifier = "sword"
         self.name = "Sword of Might"
         self.description = "Increases attack power."
-        self.image = os.path.join(path, "Assets", "enemy.png")
+        self.image = os.path.join(path, "Assets", "proto_sword.png")
         self.effect = Sword.sword_effect
 
 class Shield(Common):

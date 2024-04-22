@@ -25,7 +25,14 @@
     "enemies": {
         "E": {
             "dice": "d6",
-            "interval": 2
+            "interval": 2,
+            "image": "enemy_level_2.png"
+        }
+    },
+    "items": {
+        "S": {
+            "name": "sword",
+            "image": "proto_sword.png"
         }
     }
 }
