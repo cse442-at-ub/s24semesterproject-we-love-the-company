@@ -30,7 +30,8 @@ WIN_STRIKE_SCORE = 50
 DEFEAT_ENEMY_SCORE = 100
 
 class GameScene:
-    def __init__(self, screen, level_filename: str):
+    def __init__(self, screen, level_filename: str, gamestate):
+        self.gamestate = gamestate
         self.screen = screen
         self.id = "game_scene"
         self.combat_manager = Combat()
@@ -82,12 +83,16 @@ class GameScene:
         self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
         self.player_run_image = pygame.transform.scale(self.player_run_image, (CELL_SIZE, CELL_SIZE))
 
-        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "RegionMarker.png"))
+        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "crown.webp"))
         self.goal_image = pygame.transform.scale(self.goal_image, (CELL_SIZE, CELL_SIZE))
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
-        self.pickup_sound = AssetCache.get_audio("src/game/Assets/pickup.wav")
+       
+        #the level files are called level1, level2 and such so
+        self.level_filename = level_filename
+        self.current_level = int(level_filename[-6])
+        
         # Populate the grid with initial objects
         self.populate_grid(level_filename)
 
@@ -97,9 +102,28 @@ class GameScene:
             onUpdate=self.update,
             onMousePress=self.onMousePress,
             onKeyPress=onKeyPress)
+    
+    def next_level(self):
+        next_level_number = self.current_level + 1
+        next_level_filename = f"level{next_level_number}.json"
+        if (os.path.exists(os.path.join(self.path, "Levels", next_level_filename))):
+            self.current_level = next_level_number
+            self.populate_grid(next_level_filename)
+        else:
+            #self.gamestate.popScene()  # Remove game scene
+            self.gamestate.pushScene(VictoryScene(self.screen, self.score))  # Transition to victory scene
+            #self.gamestate.pushScene(VictoryScene(self.screen, self.score))
+            return
+    def clear_grid(self):
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                self.grid.matrix[y][x] = EMPTY_SPACE
 
     def populate_grid(self, level_filename: str):
         # Define the objects to populate the grid, now including trees and apples
+
+
+        self.clear_grid()
 
         # Load level data
         level_file = open(os.path.join(self.path,"Levels",level_filename))
@@ -441,7 +465,7 @@ class GameScene:
 
 from Paused_game import PauseScene
 
-def onKeyPress(gamestate, key, mod, unicode, scancode):
+def onKeyPress(gamestate:Gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
 
@@ -476,14 +500,12 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
 
         if moved == "WIN":
             # player entered the goal tile, level is complete
-            score = gamestate.scene.score
-
-            gamestate.scores.insertScore(gamestate.player_name, score)
-            gamestate.scores.saveScores()
-
-            gamestate.popScene()
-            gamestate.pushScene(VictoryScene(gamestate.screen,score))
-            return
+            if moved == "WIN":
+                    gamestate.scene.next_level()
+                    #score = gamestate.scene.score
+                    #gamestate.popScene()  # Remove game scene
+                    #gamestate.pushScene(VictoryScene(gamestate.screen, score))  # Transition to victory scene
+                    #return
         elif moved:
             gamestate.scene.updateWorld()
     
