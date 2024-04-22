@@ -7,11 +7,12 @@ from highscore import Highscores
 
 
 class GameOverScene:
-    def __init__(self, screen):
+    def __init__(self, screen, name, score):
         self.screen = screen
         self.id = "game_over"
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        self.highscore_file = os.path.join(dir_path, 'Assets', 'highscores.txt')  # Use absolute path
+
+        self.player_name = name
+        self.score = score
 
         self.background_image = AssetCache.get_image(os.path.join('src/game/background1.jpg'))
         self.background_image = pygame.transform.scale(self.background_image, (screen.get_width(), screen.get_height()))
@@ -63,10 +64,9 @@ class GameOverScene:
         self.screen.blit(leaderboard_title, (leaderboard_title_x + 60, leaderboard_title_y + 140))
 
         # Retrieve and display last recorded score
-        with open(self.highscore_file, 'r') as file:
-            lines = file.readlines()
-            last_score_line = lines[-1].strip()
-            last_name, last_score = last_score_line.split(',')
+        
+        last_name = self.player_name
+        last_score = self.score
 
         # Set background for "Your Score"
         your_score_background_y = self.screen_center_x - 610
@@ -90,10 +90,9 @@ class GameOverScene:
 
         # Render high scores
         score_spacing = 40
-        top_scores = lines[:-1] if last_score_line in lines[:-1] else lines
-        for line in top_scores[:5]:
-            name, score = line.strip().split(',')
-            score_text = f"{name}: {score}"
+        top_scores = gamestate.scores.get()
+        for entry in top_scores[:5]:
+            score_text = f"{entry.name}: {entry.score}"
             score_surface = self.font.render(score_text, True, (255, 255, 255))
             self.screen.blit(score_surface, (scores_x, scores_y))
             scores_y += score_spacing

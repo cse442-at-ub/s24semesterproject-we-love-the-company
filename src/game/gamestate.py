@@ -20,7 +20,6 @@ class Handler:
 class Gamestate:
     # all the scene's handlers
     handlers: dict[str, Handler] = {}
-    player_name = "BOB"  # Default player name
 
     def __init__(self, screenSize, initScene):
         self.screenSize = screenSize
@@ -32,6 +31,7 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
+        self.player_name = "BOB"
         self.scores = Highscores()
     
     @property
@@ -47,10 +47,12 @@ class Gamestate:
 
     def switch_to_game(self):
         from grid_game import GameScene  # Assuming GameScene is defined in game_scene.py
+        self.popScene()
         self.pushScene(GameScene(self.screen,"level1.json"))
 
     def switch_to_menu(self):
         from menu import MenuScene  # Assuming MenuScene is defined in menu_scene.py
+        self.popScene()
         self.pushScene(MenuScene(self.screen))
     ### Dispatch to handlers ###
 
