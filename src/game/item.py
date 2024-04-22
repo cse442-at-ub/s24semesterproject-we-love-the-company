@@ -1,5 +1,7 @@
 import os
 
+from itemEffects import ItemEffects
+
 path = os.path.dirname(__file__)
 
 class Common:
@@ -9,6 +11,7 @@ class Common:
         self.name = "common object"
         self.description = "a common object"
         self.image = os.path.join(path, "Assets", "apple.png")
+        self.effect = lambda _: _
 
 class Uncommon:
     def __init__(self):
@@ -17,8 +20,12 @@ class Uncommon:
         self.name = "uncommon object"
         self.description = "an uncommon object"
         self.image = os.path.join(path, "Assets", "tree.png")
+        self.effect = lambda _: _
 
 class Sword(Common):
+    def sword_effect(effects: ItemEffects):
+        effects.upgrade_die()
+
     def __init__(self):
         super().__init__()
         self.value = 50.0
@@ -26,8 +33,12 @@ class Sword(Common):
         self.name = "Sword of Might"
         self.description = "Increases attack power."
         self.image = os.path.join(path, "Assets", "proto_sword.png")
+        self.effect = Sword.sword_effect
 
 class Shield(Common):
+    def shield_effect(effects: ItemEffects):
+        effects.give_advantage()
+
     def __init__(self):
         super().__init__()
         self.value = 40.0
@@ -35,6 +46,7 @@ class Shield(Common):
         self.name = "Shield of Fortitude"
         self.description = "Increases defense."
         self.image = os.path.join(path, "Assets", "player.png")
+        self.effect = Shield.shield_effect
 
 class Potion(Common):
     def __init__(self):
@@ -55,6 +67,9 @@ class Boots(Common):
         self.image = os.path.join(path, "Assets", "player.png")
 
 class Arrow(Common):
+    def arrow_effect(effects: ItemEffects):
+        effects.add_to_roll(100.0)
+
     def __init__(self):
         super().__init__()
         self.value = 5.0
@@ -62,6 +77,7 @@ class Arrow(Common):
         self.name = "Arrow of Swift"
         self.description = "Increases range attack speed."
         self.image = os.path.join(path, "Assets", "player.png")
+        self.effect = Arrow.arrow_effect
 
 class Items:
     def __init__(self):

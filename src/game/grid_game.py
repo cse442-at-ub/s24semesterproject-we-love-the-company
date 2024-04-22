@@ -11,6 +11,7 @@ from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 from combat import Combat
 from game_over import GameOverScene
+from itemEffects import ItemEffects
 # Start game scene
 
 from value import *
@@ -365,7 +366,8 @@ class GameScene:
                 print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
 
                 # Dice roll
-                self.player_roll = gamestate.scene.combat_manager.roll_die(player_die)
+                effects = ItemEffects(gamestate.items, self.player.inventory)
+                self.player_roll = int(effects.roll_die(gamestate.scene.combat_manager, player_die))
                 self.enemy_roll = gamestate.scene.combat_manager.roll_die(enemy_die)
 
     def update(self, gamestate, dt):
