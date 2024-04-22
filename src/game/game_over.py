@@ -50,53 +50,53 @@ class GameOverScene:
         
     def render(self, gamestate):
         self.screen.blit(self.background_image, (0, 0))
-        # Render "Leaderboard" title
-        leaderboard_title = self.font.render("LEADERBOARD", True, (0,0,0))
-        title_x = 50  # Aligned with the high scores
-        title_y = 20
-        self.screen.blit(leaderboard_title, (title_x, title_y+90))
+        
+        # Background for "LEADERBOARD" text
+        leaderboard_background = AssetCache.get_image(os.path.join('src/game/Assets/button1.png'))
+        leaderboard_background = pygame.transform.scale(leaderboard_background, (400, 150))  # Adjust size as needed
+        leaderboard_title_x = 0  # Adjust horizontal position as needed
+        leaderboard_title_y = 0
+        self.screen.blit(leaderboard_background, (leaderboard_title_x, leaderboard_title_y + 90))
 
-        # Retrieve the last recorded score
+        # Render "Leaderboard" title on top of the background
+        leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
+        self.screen.blit(leaderboard_title, (leaderboard_title_x + 60, leaderboard_title_y + 140))  # Adjust text position to be centered on background
+
+        # Retrieve and display last recorded score
         with open(self.highscore_file, 'r') as file:
             lines = file.readlines()
             last_score_line = lines[-1].strip()
             last_name, last_score = last_score_line.split(',')
 
-        # It should be directly above the first button (Play Again)
-        your_score_background_y = self.screen_center_x -610  # Adjust the vertical position to fit above the button
+        # Set background for "Your Score"
+        your_score_background_y = self.screen_center_x - 610
         your_score_background = AssetCache.get_image(os.path.join('src/game/Assets/button1.png'))
-        your_score_background = pygame.transform.scale(your_score_background, (self.screen.get_width()//3, self.screen.get_height()//4))  # Scaled to half screen width
-
-        your_score_background_x = (self.screen.get_width() / 2) - (your_score_background.get_width() / 2)  # Center horizontally
+        your_score_background = pygame.transform.scale(your_score_background, (self.screen.get_width() // 3, self.screen.get_height() // 4))
+        your_score_background_x = (self.screen.get_width() / 2) - (your_score_background.get_width() / 2)
         self.screen.blit(your_score_background, (your_score_background_x, your_score_background_y))
 
         # Render "Your Score" section
         your_score_text = self.font.render(f"Your Score: {last_score}", True, (255, 255, 255))
         score_x = self.screen.get_width() / 2 - your_score_text.get_width() / 2
-        score_y = title_y + 60 + 15  # Position it in the middle of the background
+        score_y = your_score_background_y + (your_score_background.get_height() / 2) - (your_score_text.get_height() / 2)
         self.screen.blit(your_score_text, (score_x, score_y))
 
         # Render high scores
-        score_x = 50  # Starting x position for high scores
-        score_y = score_y + 100  # Start below the "Your Score" text
-        score_spacing = 40  # Space between entries
-
-        # Adjust to skip the last score if it's included in the top scores
+        score_x = 50
+        score_y += 100
+        score_spacing = 40
         top_scores = lines[:-1] if last_score_line in lines[:-1] else lines
-
-        for line in top_scores[:5]:  # Get top 5 scores
+        for line in top_scores[:5]:
             name, score = line.strip().split(',')
             score_text = f"{name}: {score}"
-            score_surface = self.font.render(score_text, True, (0,0,0))
-            text_rect = score_surface.get_rect(topleft=(score_x, score_y))
- 
-
+            score_surface = self.font.render(score_text, True, (0, 0, 0))
             self.screen.blit(score_surface, (score_x, score_y))
             score_y += score_spacing
 
         for button in self.buttons:
             button.update(self.screen)
         pygame.display.flip()
+
 
     def initHandlers(self, gamestate):
         gamestate.handlers[self.id] = Handler(
