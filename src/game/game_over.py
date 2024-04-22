@@ -52,15 +52,15 @@ class GameOverScene:
         self.screen.blit(self.background_image, (0, 0))
         
         # Background for "LEADERBOARD" text
-        leaderboard_background = AssetCache.get_image(os.path.join('src/game/Assets/button1.png'))
-        leaderboard_background = pygame.transform.scale(leaderboard_background, (400, 150))  # Adjust size as needed
-        leaderboard_title_x = 0  # Adjust horizontal position as needed
+        leaderboard_background = AssetCache.get_image(os.path.join('src/game/Assets/button2.png'))
+        leaderboard_background = pygame.transform.scale(leaderboard_background, (400, 150))
+        leaderboard_title_x =-10
         leaderboard_title_y = 0
         self.screen.blit(leaderboard_background, (leaderboard_title_x, leaderboard_title_y + 90))
 
         # Render "Leaderboard" title on top of the background
         leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
-        self.screen.blit(leaderboard_title, (leaderboard_title_x + 60, leaderboard_title_y + 140))  # Adjust text position to be centered on background
+        self.screen.blit(leaderboard_title, (leaderboard_title_x + 60, leaderboard_title_y + 140))
 
         # Retrieve and display last recorded score
         with open(self.highscore_file, 'r') as file:
@@ -81,17 +81,22 @@ class GameOverScene:
         score_y = your_score_background_y + (your_score_background.get_height() / 2) - (your_score_text.get_height() / 2)
         self.screen.blit(your_score_text, (score_x, score_y))
 
+        # Background for leaderboard scores
+        scores_background = AssetCache.get_image(os.path.join('src/game/Assets/button2.png'))
+        scores_background = pygame.transform.scale(scores_background, (350, 900))  # Adjust size as needed
+        scores_x = 50  # Starting x position for high scores
+        scores_y = score_y + 100  # Start below the "Your Score" text
+        self.screen.blit(scores_background, (scores_x - 60, scores_y - 350))  # Adjust position as needed
+
         # Render high scores
-        score_x = 50
-        score_y += 100
         score_spacing = 40
         top_scores = lines[:-1] if last_score_line in lines[:-1] else lines
         for line in top_scores[:5]:
             name, score = line.strip().split(',')
             score_text = f"{name}: {score}"
-            score_surface = self.font.render(score_text, True, (0, 0, 0))
-            self.screen.blit(score_surface, (score_x, score_y))
-            score_y += score_spacing
+            score_surface = self.font.render(score_text, True, (255, 255, 255))
+            self.screen.blit(score_surface, (scores_x, scores_y))
+            scores_y += score_spacing
 
         for button in self.buttons:
             button.update(self.screen)
