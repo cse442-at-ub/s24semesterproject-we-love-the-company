@@ -24,12 +24,14 @@ class MenuScene:
         pygame.mixer.music.play(-1)
         
         screen_center_x = screen.get_width() // 2
-        play_button_y = screen.get_height() // 2 - 50
-        exit_button_y = screen.get_height() // 2 + 150
+        play_button_y = screen.get_height() // 2 - 150
+        exit_button_y = screen.get_height() // 2 + 300
         #putting the settings button in the middle of the play and exit buttons
-        settings_button_y = screen.get_height() // 2 + 50
-        instruct_button_y = screen.get_height() - 50
-        credit_button_y = screen.get_height() - 130
+        settings_button_y = screen.get_height() // 2 + 30
+        instruct_button_y = screen.get_height() // 2 + 100
+        credit_button_y = screen.get_height() // 2 + 200
+        Level_selector_y = screen.get_height() // 2 - 50
+
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
                             text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
@@ -47,8 +49,10 @@ class MenuScene:
         self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
                                 text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
 
+        self.Level_selector = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, Level_selector_y),
+                                text_input="Levels", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
 
-        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton]
+        self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton, self.Level_selector]
         
 
     def initHandlers(self, state: Gamestate):
@@ -64,6 +68,7 @@ def mouseMove(state: Gamestate, pos, rel, buttons, touch):
 from OptionsMenu import SettingsScene
 from HowToPlay import InstructionsScene
 from credits import CreditsScene
+from Level_selector import LevelSelectorScene
 
 def mousePress(state: Gamestate, pos, button, touch):
     if (state.scene.PlayButton.checkForInput(pos)):
@@ -83,6 +88,9 @@ def mousePress(state: Gamestate, pos, button, touch):
     elif (state.scene.CreditsButton.checkForInput(pos)):
         state.scene.CreditsButton.button_sound()
         state.pushScene(CreditsScene(state.screen))
+    elif (state.scene.Level_selector.checkForInput(pos)):
+        state.scene.Level_selector.button_sound()
+        state.pushScene(LevelSelectorScene(state.screen))
 
 def render(state: Gamestate):
 
