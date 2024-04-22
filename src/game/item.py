@@ -68,7 +68,7 @@ class Boots(Common):
 
 class Arrow(Common):
     def arrow_effect(effects: ItemEffects):
-        effects.add_to_roll(100.0)
+        effects.add_to_roll(1.0)
 
     def __init__(self):
         super().__init__()
