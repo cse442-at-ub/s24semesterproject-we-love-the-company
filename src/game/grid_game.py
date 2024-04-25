@@ -152,6 +152,13 @@ class GameScene:
 
         player_added = False
 
+        if "background" in level_data:
+            self.background = AssetCache.get_image(os.path.join(self.path, "Levels", level_data["background"]))
+        else:
+            self.background = AssetCache.get_image(os.path.join(self.path, "Assets", "Cavern_background_5.webp"))
+        
+        self.background = pygame.transform.scale(self.background, self.screen.get_size())
+
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
             for x, col in enumerate(row):
@@ -314,6 +321,8 @@ class GameScene:
 
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
+
+        self.screen.blit(self.background, (0, 0))
         
         images_to_render = self.grid.find_object_with_property_type("image")
         for pair in images_to_render:

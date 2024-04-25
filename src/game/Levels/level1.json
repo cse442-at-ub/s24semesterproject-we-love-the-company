@@ -35,5 +35,6 @@
             "name": "sword",
             "image": "proto_sword.png"
         }
-    }
+    },
+    "background": "level1_background.webp"
 }
