@@ -31,7 +31,7 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
-        self.player_name = "PLAYER"
+        self.player_name = "BOB"
         self.scores = Highscores()
     
     @property
