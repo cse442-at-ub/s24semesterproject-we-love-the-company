@@ -24,13 +24,13 @@ class MenuScene:
         pygame.mixer.music.play(-1)
         
         screen_center_x = screen.get_width() // 2
-        play_button_y = screen.get_height() // 2 - 150
+        play_button_y = screen.get_height() // 2 - 200
         exit_button_y = screen.get_height() // 2 + 300
         #putting the settings button in the middle of the play and exit buttons
-        settings_button_y = screen.get_height() // 2 + 30
+        settings_button_y = screen.get_height() // 2
         instruct_button_y = screen.get_height() // 2 + 100
         credit_button_y = screen.get_height() // 2 + 200
-        Level_selector_y = screen.get_height() // 2 - 50
+        Level_selector_y = screen.get_height() // 2 - 100
 
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
