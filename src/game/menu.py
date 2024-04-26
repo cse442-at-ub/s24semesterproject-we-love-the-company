@@ -19,8 +19,8 @@ class MenuScene:
         self.textFont = pygame.font.SysFont("Arial", 40)
 
         #this the current background music    
-        pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
-        pygame.mixer.music.set_volume(.2)
+        pygame.mixer.music.load("src/game/Assets/Music/BabaIsYou.mp3")
+        pygame.mixer.music.set_volume(1)
         pygame.mixer.music.play(-1)
         
         screen_center_x = screen.get_width() // 2

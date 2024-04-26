@@ -20,6 +20,9 @@ class VictoryScene:
         screen_center_x = screen.get_width() // 2
         back_button_y = screen.get_height() - 50
 
+        pygame.mixer.music.load("src/game/Assets/Music/FlagIsWin.mp3")
+        pygame.mixer.music.play(-1)
+
         self.BackButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, back_button_y),
                     text_input="Back", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 

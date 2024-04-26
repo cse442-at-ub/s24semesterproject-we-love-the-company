@@ -17,6 +17,9 @@ class GameOverScene:
         self.background_image = AssetCache.get_image(os.path.join('src/game/background1.jpg'))
         self.background_image = pygame.transform.scale(self.background_image, (screen.get_width(), screen.get_height()))
         self.font = pygame.font.SysFont("Arial", 40)
+
+        pygame.mixer.music.load("src/game/Assets/Music/BabaFearGhost.mp3")
+        pygame.mixer.music.play(-1)
         
         self.screen_center_x = screen.get_width() // 2
         first_button_y = screen.get_height() // 2 - 100

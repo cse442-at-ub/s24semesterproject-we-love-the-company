@@ -92,6 +92,8 @@ class GameScene:
         #the level files are called level1, level2 and such so
         self.level_filename = level_filename
         self.current_level = int(level_filename[-6])
+
+        self.pickup_sound = AssetCache.get_audio("src/game/Assets/pickup.wav")
         
         # Populate the grid with initial objects
         self.populate_grid(level_filename)
@@ -129,6 +131,11 @@ class GameScene:
         level_file = open(os.path.join(self.path,"Levels",level_filename))
         level_data = json.load(level_file)
         level_file.close()
+
+        self.music_path = "src/game/Assets/Music/" + level_data["music"]
+
+        pygame.mixer.music.load(self.music_path)
+        pygame.mixer.music.play(-1)
 
         # Create the objects list for trees and apples
         objects = []
@@ -409,7 +416,9 @@ class GameScene:
                 self.enemy_roll = gamestate.scene.combat_manager.roll_die(enemy_die)
 
     def update(self, gamestate, dt):
-        # Add logic to update objects in the grid as needed
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.load(self.music_path)
+            pygame.mixer.music.play()
 
         # control vfx for backpack fade in/out
         if (self.in_inventory):

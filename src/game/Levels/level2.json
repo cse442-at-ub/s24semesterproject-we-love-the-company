@@ -34,5 +34,6 @@
             "name": "sword",
             "image": "proto_sword.png"
         }
-    }
+    },
+    "music": "CogIsPush.mp3"
 }
