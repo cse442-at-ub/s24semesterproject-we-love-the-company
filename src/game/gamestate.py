@@ -31,7 +31,7 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
-        self.player_name = "BOB"
+        self.player_name = "PLAYER"
         self.scores = Highscores()
     
     @property
@@ -57,6 +57,11 @@ class Gamestate:
 
     def update(self, deltaT):
         self.handlers[self.scene.id].onUpdate(self, deltaT)
+
+    def update_player_name(self, new_name):
+        self.player_name = new_name
+        print(f"Player name updated to: {new_name}")
+
 
     def render(self):
         self.handlers[self.scene.id].onRender(self)
