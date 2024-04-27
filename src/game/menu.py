@@ -22,6 +22,10 @@ class MenuScene:
         pygame.mixer.music.load("src/game/Assets/Music/BabaIsYou.mp3")
         pygame.mixer.music.set_volume(1)
         pygame.mixer.music.play(-1)
+
+        # Scale factor for the button width
+        button_width_scale = 1.8 
+        button_height_scale = 1  
         
         screen_center_x = screen.get_width() // 2
         play_button_y = screen.get_height() // 2 - 200
@@ -33,27 +37,38 @@ class MenuScene:
         Level_selector_y = screen.get_height() // 2 - 120
 
 
-        self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
-                            text_input="Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+        # Load and scale the button image
+        original_button_image = AssetCache.get_image(self.path + "Assets/button.png")
+        button_image_width = int(original_button_image.get_width() * button_width_scale)
+        button_image_height = int(original_button_image.get_height() * button_height_scale)
+        scaled_button_image = pygame.transform.scale(original_button_image, (button_image_width, button_image_height))
 
-        self.ExitButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, exit_button_y),
-                            text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
-        
-        #put a settings button with the button.img. It uses the same fonts and color and hover color
-        self.SettingsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, settings_button_y),
-                                text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+        # Button positions
+        self.PlayButton = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2 - 200),
+                                 text_input="Play", font=self.textFont, base_color="white", hovering_color="blue",
+                                 click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-        self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
-                                text_input="Instruction", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
-        
-        self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
-                                text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
+        self.ExitButton = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2 + 300),
+                                 text_input="Exit", font=self.textFont, base_color="white", hovering_color="blue",
+                                 click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
-        self.Level_selector = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, Level_selector_y),
-                                text_input="Levels", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
+        self.SettingsButton = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2),
+                                     text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue",
+                                     click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+
+        self.InstructionsButton = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2 + 100),
+                                         text_input="Instruction", font=self.textFont, base_color="white", hovering_color="blue",
+                                         click_sound=AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+
+        self.CreditsButton = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2 + 200),
+                                    text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue",
+                                    click_sound=AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
+
+        self.Level_selector = Button(image=scaled_button_image, pos=(screen_center_x, screen.get_height() // 2 - 120),
+                                     text_input="Levels", font=self.textFont, base_color="white", hovering_color="blue",
+                                     click_sound=AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
 
         self.buttons = [self.PlayButton, self.ExitButton, self.SettingsButton, self.InstructionsButton, self.CreditsButton, self.Level_selector]
-        
 
     def initHandlers(self, state: Gamestate):
         state.handlers[ID] = Handler(render, doNothing, doNothing, mouseMove, mousePress)
