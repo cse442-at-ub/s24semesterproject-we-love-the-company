@@ -1,8 +1,9 @@
 How To Play: Company
 
-This is sample text that will be properly replaced by instructions for how to play once gameplay systems have been developed.
+Each level is a maze that you must escape from. Avoid (or fight!) the ghosts while looking for a way towards the crown. Pick up items along the way that increase your score and your combat abilities.
 
 Controls:
 - WASD/Arrow Keys: Movement
-- Mouse click: Interaction
+- Mouse click: Pick up item OR place selected item
 - Tab: Open Inventory
+- Up/Down (while inventory is open): Select Item

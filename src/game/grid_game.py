@@ -11,6 +11,8 @@ from player import Player
 from grid import Grid, EMPTY_SPACE  # Adjust this path as needed
 from combat import Combat
 from game_over import GameOverScene
+from itemEffects import ItemEffects
+from highscore import Highscores
 # Start game scene
 
 from value import *
@@ -28,7 +30,8 @@ WIN_STRIKE_SCORE = 50
 DEFEAT_ENEMY_SCORE = 100
 
 class GameScene:
-    def __init__(self, screen, level_filename: str):
+    def __init__(self, screen, level_filename: str, gamestate):
+        self.gamestate = gamestate
         self.screen = screen
         self.id = "game_scene"
         self.combat_manager = Combat()
@@ -46,6 +49,7 @@ class GameScene:
         self.player_rand = 0
         self.enemy_rand = 0
         self.last_rand = -DICE_ROLL_SPEED
+        self.selected_item = None
 
         self.textFont = pygame.font.SysFont("Arial", 35)
         self.subTextFont = pygame.font.SysFont("Arial", 20)
@@ -67,9 +71,6 @@ class GameScene:
         self.player_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_base_transparent.png"))
         self.player_image = pygame.transform.scale(self.player_image, (CELL_SIZE, CELL_SIZE))
         
-        self.enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", "enemy_level_2.png"))
-        self.enemy_image = pygame.transform.scale(self.enemy_image, (CELL_SIZE, CELL_SIZE))
-        
         self.tree_image = AssetCache.get_image(os.path.join(self.path, "Assets", "landslide_level_2.png"))
         self.tree_image = pygame.transform.scale(self.tree_image, (CELL_SIZE, CELL_SIZE))
 
@@ -82,11 +83,18 @@ class GameScene:
         self.player_run_image = AssetCache.get_image(os.path.join(self.path, "Assets", "Player_run.png"))
         self.player_run_image = pygame.transform.scale(self.player_run_image, (CELL_SIZE, CELL_SIZE))
 
-        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "RegionMarker.png"))
+        self.goal_image = AssetCache.get_image(os.path.join(self.path, "Assets", "crown.webp"))
         self.goal_image = pygame.transform.scale(self.goal_image, (CELL_SIZE, CELL_SIZE))
 
         self.player_footstep = AssetCache.get_audio("src/game/Assets/footstep_player.wav")
         self.inventory_sound = AssetCache.get_audio("src/game/Assets/inventory.wav")
+       
+        #the level files are called level1, level2 and such so
+        self.level_filename = level_filename
+        self.current_level = int(level_filename[-6])
+
+        self.pickup_sound = AssetCache.get_audio("src/game/Assets/pickup.wav")
+        
         # Populate the grid with initial objects
         self.populate_grid(level_filename)
 
@@ -96,14 +104,38 @@ class GameScene:
             onUpdate=self.update,
             onMousePress=self.onMousePress,
             onKeyPress=onKeyPress)
+    
+    def next_level(self):
+        next_level_number = self.current_level + 1
+        next_level_filename = f"level{next_level_number}.json"
+        if (os.path.exists(os.path.join(self.path, "Levels", next_level_filename))):
+            self.current_level = next_level_number
+            self.populate_grid(next_level_filename)
+        else:
+            #self.gamestate.popScene()  # Remove game scene
+            self.gamestate.pushScene(VictoryScene(self.screen, self.score))  # Transition to victory scene
+            #self.gamestate.pushScene(VictoryScene(self.screen, self.score))
+            return
+    def clear_grid(self):
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                self.grid.matrix[y][x] = EMPTY_SPACE
 
     def populate_grid(self, level_filename: str):
         # Define the objects to populate the grid, now including trees and apples
+
+
+        self.clear_grid()
 
         # Load level data
         level_file = open(os.path.join(self.path,"Levels",level_filename))
         level_data = json.load(level_file)
         level_file.close()
+
+        self.music_path = "src/game/Assets/Music/" + level_data["music"]
+
+        pygame.mixer.music.load(self.music_path)
+        pygame.mixer.music.play(-1)
 
         # Create the objects list for trees and apples
         objects = []
@@ -127,6 +159,13 @@ class GameScene:
 
         player_added = False
 
+        if "background" in level_data:
+            self.background = AssetCache.get_image(os.path.join(self.path, "Levels", level_data["background"]))
+        else:
+            self.background = AssetCache.get_image(os.path.join(self.path, "Assets", "Cavern_background_5.webp"))
+        
+        self.background = pygame.transform.scale(self.background, self.screen.get_size())
+
         # Convert the maze design into objects
         for y, row in enumerate(maze_design):
             for x, col in enumerate(row):
@@ -138,6 +177,9 @@ class GameScene:
                         raise Exception(f"More than 1 player ('P') is in the loaded level '{level_filename}'. The level cannot be loaded.")
                     else:
                         self.player = Player(self.grid, x, y, self.player_image, self.player_run_image)
+                        self.player.inventory.add("common")
+                        self.player.inventory.add("common")
+                        self.player.inventory.add("arrow")
                         player_added = True
                 elif col == "G":
                     self.grid.insert(item={
@@ -147,7 +189,13 @@ class GameScene:
                 elif col in level_data["enemies"]:
                     die_value = level_data["enemies"][col]["dice"]
                     interval = level_data["enemies"][col]["interval"]
-                    self.enemyManager.create_enemy(x, y, self.enemy_image, die_value, interval)
+                    enemy_image = AssetCache.get_image(os.path.join(self.path, "Assets", level_data["enemies"][col]["image"]))
+                    enemy_image = pygame.transform.scale(enemy_image, (CELL_SIZE, CELL_SIZE))
+                    self.enemyManager.create_enemy(x, y, enemy_image, die_value, interval)
+                elif col in level_data["items"]:
+                    item_image = AssetCache.get_image(os.path.join(self.path, "Assets", level_data["items"][col]["image"]))
+                    item_image = pygame.transform.scale(item_image, (CELL_SIZE, CELL_SIZE))
+                    self.grid.insert({"type": "item","name": level_data["items"][col]["name"], "obstruction": True, "image": item_image},x,y)
                 elif col != ' ':
                     raise Exception(f"Unknown signifier '{col}' in the loaded level '{level_filename}'. The level cannot be loaded.")
 
@@ -233,8 +281,8 @@ class GameScene:
 
                 # CHANGE THIS LATER!!!!!
                 # for testing purposes
-                self.player.inventory.items["common"] = 2
-                self.player.inventory.items["arrow"] = 1
+                #self.player.inventory.items["common"] = 2
+                #self.player.inventory.items["arrow"] = 1
 
                 # draw backpack value
                 ypos = 0.01 * swidth
@@ -264,12 +312,14 @@ class GameScene:
                         # calculate where to put the text
                         textX = itemPos * swidth + img_size + spacing
 
+                        color = (255,255,0) if item.identifier == self.selected_item else (255,255,255)
+
                         # draw title and count
-                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, (255, 255, 255)), (textX, ypos + spacing))
+                        self.screen.blit(self.textFont.render(item.name + " (x" + str(count) + ')', True, color), (textX, ypos + spacing))
                         theight = self.textFont.get_height()
 
                         # draw description
-                        self.screen.blit(self.subTextFont.render(item.description, True, (255, 255, 255)), (textX, ypos + spacing * 2 + theight))
+                        self.screen.blit(self.subTextFont.render(item.description, True, color), (textX, ypos + spacing * 2 + theight))
 
                         # advance to next item
                         y += 1
@@ -278,6 +328,8 @@ class GameScene:
 
     def render(self, gamestate: Gamestate):
         self.screen.fill((0, 0, 0))
+
+        self.screen.blit(self.background, (0, 0))
         
         images_to_render = self.grid.find_object_with_property_type("image")
         for pair in images_to_render:
@@ -325,8 +377,12 @@ class GameScene:
                         next_player_die = gamestate.scene.combat_manager.downgrade_die(gamestate.scene.player.hitDie)
                         print(f"Player die reduced to {next_player_die}")
                         if next_player_die == 'defeated':
+                            gamestate.scores.insertScore(gamestate.player_name, self.score)
+                            gamestate.scores.saveScores()
                             # Return to main menu when the player is defeated
-                            game_over_scene = GameOverScene(gamestate.screen)
+                            game_over_scene = GameOverScene(gamestate.screen, gamestate.player_name, self.score)
+
+                            gamestate.popScene()
                             gamestate.pushScene(game_over_scene)
                             return
                         else:
@@ -355,11 +411,14 @@ class GameScene:
                 print(f"Combat: {player_die} (player) vs {enemy_die} (enemy)")
 
                 # Dice roll
-                self.player_roll = gamestate.scene.combat_manager.roll_die(player_die)
+                effects = ItemEffects(gamestate.items, self.player.inventory)
+                self.player_roll = int(effects.roll_die(gamestate.scene.combat_manager, player_die))
                 self.enemy_roll = gamestate.scene.combat_manager.roll_die(enemy_die)
 
     def update(self, gamestate, dt):
-        # Add logic to update objects in the grid as needed
+        if not pygame.mixer.music.get_busy():
+            pygame.mixer.music.load(self.music_path)
+            pygame.mixer.music.play()
 
         # control vfx for backpack fade in/out
         if (self.in_inventory):
@@ -368,14 +427,63 @@ class GameScene:
             self.inventory_timer = min(self.inventory_timer + dt, 1.0)
 
         self.update_combat(gamestate, dt)
+    
+    def updateWorld(self):
+        self.player_footstep.play()
+        self.enemyManager.enemy_step()
+
+        self.in_combat_with = []
+
+        enemy_list = self.grid.find_object_with_properties({"name": "enemy"})
+        player_x, player_y = list(self.grid.find_object_with_properties({"name": "player"}))[0]
+        for enemy_x,enemy_y in enemy_list:
+            if self.grid.is_adjacent(player_x, player_y, enemy_x, enemy_y, True):
+                self.in_combat_with.append((enemy_x, enemy_y))
+                
+        if (len(self.in_combat_with) > 0):
+            # hacky little way to avoid writing better code
+            self.cur_combat_enemy = -1
+            self.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
+            self.last_rand = -DICE_ROLL_SPEED
 
     def onMousePress(self, gamestate, pos, button, touch):
-        # Implement interactions based on mouse press
-        pass
+        if (not self.in_inventory):
+            # handle item pickups
+            x,y = pos
+            x = x // CELL_SIZE
+            y = y // CELL_SIZE
+            player_x, player_y = list(self.grid.find_object_with_properties({"name": "player"}))[0]
+            if self.grid.is_inbounds(x,y) and self.grid.is_adjacent(player_x,player_y,x,y):
+                obj = self.grid.get_object(x,y)
+                if not self.player.inventory.isFull() and obj is not None and obj.get("type",None) == "item": # check that there is an item
+                    self.grid.remove_at_location(x,y)
+                    self.player.inventory.add(obj["name"])
+                    self.pickup_sound.play()
+                    self.updateWorld()
+                elif not self.player.inventory.isEmpty() and obj is None:
+                    # if there's no item, place the selected item (if any)
+                    if self.selected_item is None or self.selected_item not in list(self.player.inventory.items.keys()):
+                        stuff = list(self.player.inventory.items.keys())
+                        if len(stuff) > 0:
+                            self.selected_item = stuff[0]
+                        else:
+                            self.selected_item = None
+                    
+                    if self.selected_item is not None:
+                        item_info = gamestate.items.get(self.selected_item)
+                        self.grid.insert({
+                            "type":"item",
+                            "image":pygame.transform.scale(AssetCache.get_image(item_info.image), (CELL_SIZE, CELL_SIZE)),
+                            "name":self.selected_item,
+                            "obstruction":True
+                        },x,y)
+                        self.player.inventory.remove(self.selected_item)
+                        self.pickup_sound.play()
+                        self.updateWorld()
 
 from Paused_game import PauseScene
 
-def onKeyPress(gamestate, key, mod, unicode, scancode):
+def onKeyPress(gamestate:Gamestate, key, mod, unicode, scancode):
     prevLoc = gamestate.scene.player.position
     moved = False
 
@@ -410,29 +518,35 @@ def onKeyPress(gamestate, key, mod, unicode, scancode):
 
         if moved == "WIN":
             # player entered the goal tile, level is complete
-            score = gamestate.scene.score
-            gamestate.popScene()
-            gamestate.pushScene(VictoryScene(gamestate.screen,score))
-            return
+            if moved == "WIN":
+                    gamestate.scene.next_level()
+                    #score = gamestate.scene.score
+                    #gamestate.popScene()  # Remove game scene
+                    #gamestate.pushScene(VictoryScene(gamestate.screen, score))  # Transition to victory scene
+                    #return
         elif moved:
-            gamestate.scene.player_footstep.play()
-            gamestate.scene.enemyManager.enemy_step()
-
-            gamestate.scene.in_combat_with = []
-
-            enemy_list = gamestate.scene.grid.find_object_with_properties({"name": "enemy"})
-            player_x, player_y = list(gamestate.scene.grid.find_object_with_properties({"name": "player"}))[0]
-            for enemy_x,enemy_y in enemy_list:
-                if gamestate.scene.grid.is_adjacent(player_x, player_y, enemy_x, enemy_y, True):
-                    gamestate.scene.in_combat_with.append((enemy_x, enemy_y))
-                    
-            if (len(gamestate.scene.in_combat_with) > 0):
-                # hacky little way to avoid writing better code
-                gamestate.scene.cur_combat_enemy = -1
-                gamestate.scene.combat_timer = (DICE_STAY_TIME + DICE_ROLL_TIME) * 2
-                gamestate.scene.last_rand = -DICE_ROLL_SPEED
+            gamestate.scene.updateWorld()
+    
+    else:
+        stuff = list(gamestate.scene.player.inventory.items.keys())
+        current_index = stuff.index(gamestate.scene.selected_item) if gamestate.scene.selected_item in stuff else -1
+        if current_index >= 0:
+            if (key == pygame.K_s or key == pygame.K_DOWN):
+                current_index += 1
+                if current_index >= len(stuff):
+                    current_index = 0
+            elif (key == pygame.K_w or key == pygame.K_UP):
+                current_index -= 1
+                if current_index < 0:
+                    current_index = len(stuff) - 1
+                
+            gamestate.scene.selected_item = stuff[current_index]
 
     if (key == pygame.K_TAB):
+        if gamestate.scene.selected_item is None or gamestate.scene.selected_item not in list(gamestate.scene.player.inventory.items.keys()):
+            stuff = list(gamestate.scene.player.inventory.items.keys())
+            if len(stuff) > 0:
+                gamestate.scene.selected_item = stuff[0]
         gamestate.scene.in_inventory = not gamestate.scene.in_inventory
         gamestate.scene.inventory_sound.play()
 

@@ -10,7 +10,7 @@ ID = "Pause_menu"
 
 class PauseScene:
     def __init__(self, screen):
-        pygame.mixer.music.load("src/game/Assets/Background_music_menu.wav")
+        pygame.mixer.music.load("src/game/Assets/Music/Ontheisland.mp3")
         pygame.mixer.music.play(-1)
         self.id = ID
         self.path = os.path.dirname(__file__) + "/"

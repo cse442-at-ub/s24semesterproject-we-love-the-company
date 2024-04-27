@@ -31,6 +31,7 @@ class Gamestate:
         self.running = True
 
         self.items = Items()
+        self.player_name = "BOB"
         self.scores = Highscores()
     
     @property
@@ -46,15 +47,21 @@ class Gamestate:
 
     def switch_to_game(self):
         from grid_game import GameScene  # Assuming GameScene is defined in game_scene.py
-        self.pushScene(GameScene(self.screen,"level1.json"))
+        self.pushScene(GameScene(self.screen,"level1.json", self))
 
     def switch_to_menu(self):
         from menu import MenuScene  # Assuming MenuScene is defined in menu_scene.py
+        self.popScene()
         self.pushScene(MenuScene(self.screen))
     ### Dispatch to handlers ###
 
     def update(self, deltaT):
         self.handlers[self.scene.id].onUpdate(self, deltaT)
+
+    def update_player_name(self, new_name):
+        self.player_name = new_name
+        print(f"Player name updated to: {new_name}")
+
 
     def render(self):
         self.handlers[self.scene.id].onRender(self)
@@ -67,3 +74,4 @@ class Gamestate:
 
     def pressMouse(self, pos, button, touch):
         self.handlers[self.scene.id].onMousePress(self, pos, button, touch)
+          
