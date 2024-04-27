@@ -27,10 +27,10 @@ class MenuScene:
         play_button_y = screen.get_height() // 2 - 200
         exit_button_y = screen.get_height() // 2 + 300
         #putting the settings button in the middle of the play and exit buttons
-        settings_button_y = screen.get_height() // 2
+        settings_button_y = screen.get_height() // 2 
         instruct_button_y = screen.get_height() // 2 + 100
         credit_button_y = screen.get_height() // 2 + 200
-        Level_selector_y = screen.get_height() // 2 - 100
+        Level_selector_y = screen.get_height() // 2 - 120
 
 
         self.PlayButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, play_button_y),
@@ -44,7 +44,7 @@ class MenuScene:
                                 text_input="Settings", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
 
         self.InstructionsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, instruct_button_y),
-                                text_input="How To Play", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
+                                text_input="Instruction", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio("src/game/Assets/button_click.mp3"))
         
         self.CreditsButton = Button(image=AssetCache.get_image(self.path + "Assets/button.png"), pos=(screen_center_x, credit_button_y),
                                 text_input="Credits", font=self.textFont, base_color="white", hovering_color="blue", click_sound= AssetCache.get_audio(self.path + "Assets/button_click.mp3"))
